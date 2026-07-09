@@ -11,7 +11,8 @@ System Requirements:
 
 [Download Latest Stable Package](https://github.com/Pheeeeenom/J-Runner-with-Extras/releases/latest)
 
-Credit where credit is due
-DirtyPico: ThisIsCheez on <a href="https://github.com/ThisIsCheez">GitHub</a>   
-BootAnimRemap17559: LordVirusXeX on <a href="https://www.se7ensins.com/members/lordvirusxex.1551087/">Se7enSins</a>   
+Credit where credit is due:
+
+DirtyPico: ThisIsCheez on <a href="https://github.com/ThisIsCheez">GitHub</a>  
+BootAnimRemap17559: LordVirusXeX on <a href="https://www.se7ensins.com/members/lordvirusxex.1551087/">Se7enSins</a>
 
