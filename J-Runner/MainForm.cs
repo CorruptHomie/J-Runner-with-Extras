@@ -1,4 +1,5 @@
 ﻿using JRunner.Forms;
+using JRunner.Classes;
 using JRunner.Nand;
 using LibUsbDotNet.DeviceNotify;
 using Microsoft.Win32;
@@ -17,6 +18,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using WinUsb;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
@@ -39,8 +41,9 @@ namespace JRunner
             XFLASHER_SPI = 3,
             XFLASHER_EMMC = 4,
             PICOFLASHER = 5,
+            DIRTYPICO = 6,
         }
-		
+
         public static TextWriter _writer = null;
         public static MainForm mainForm;
         private IDeviceNotifier devNotifier;
@@ -48,6 +51,7 @@ namespace JRunner
         IP myIP = new IP();
         public static Nand.PrivateN nand = new Nand.PrivateN();
         public xFlasher xflasher = new xFlasher();
+        public DirtyPico dirtypico  = new DirtyPico();
         public PicoFlasher picoflasher = new PicoFlasher();
         public Mtx_Usb mtx_usb = new Mtx_Usb();
         public xdkbuild XDKbuild = new xdkbuild();
@@ -68,6 +72,7 @@ namespace JRunner
         Regex objAlphaPattern = new Regex("[a-fA-F0-9]{32}$");
         private bool allowVisible = false;
         public Splash splash;
+        public static string tempTimingPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"TempTiming.jr");
 
         #endregion
 
@@ -167,14 +172,14 @@ namespace JRunner
             cleanupThread.Start();
 
             printstartuptext(true);
-            
+
             new Thread(check_dash).Start();
 
             deviceinit();
-            
+
             try
             {
-                if (File.Exists(xflasher.svfPath)) File.Delete(xflasher.svfPath);
+                if (File.Exists(tempTimingPath)) File.Delete(tempTimingPath);
             }
             catch { }
         }
@@ -196,6 +201,36 @@ namespace JRunner
 
         public bool IsUsbDeviceConnected(string pid, string vid)
         {
+            if (WineMethods.IsWine())
+            {
+                string[] devices = Directory.GetDirectories("/sys/bus/usb/devices");
+
+                if (variables.debugMode) Console.WriteLine($"WINE USB: searching for device {vid} {pid}");
+
+                foreach (string dev in devices)
+                {
+                    try
+                    {
+                        string devVid = File.ReadAllText(Path.Combine(dev, "idVendor")).Trim().ToLower();
+                        string devPid = File.ReadAllText(Path.Combine(dev, "idProduct")).Trim().ToLower();
+
+                        if (devVid == vid.ToLower() && devPid == pid.ToLower())
+                        {
+                            // PicoFlasher is the only supported device on non-windows
+                            // Only return true for PicoFlasher unless we're in debug mode
+                            if ( variables.debugMode ||
+                                 (devVid == "600d" && devPid == "7001") )
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
+                return false;
+            }
+
             using (var searcher = new ManagementObjectSearcher(@"Select * From Win32_USBControllerDevice"))
             {
                 using (var collection = searcher.Get())
@@ -244,6 +279,9 @@ namespace JRunner
 
         private void deviceinit()
         {
+            nTools.setImage(null);
+            device = DEVICE.NO_DEVICE;
+
             devNotifier = DeviceNotifier.OpenDeviceNotifier();
             devNotifier.OnDeviceNotify += onDevNotify;
 
@@ -256,6 +294,11 @@ namespace JRunner
                     nTools.setImage(Properties.Resources.picoflasher);
                     //PicoFlasherToolStripMenuItem.Visible = true;
                     device = DEVICE.PICOFLASHER;
+                }
+                else if (IsUsbDeviceConnected("C0CA", "1209")) // DirtyPico
+                {
+                    nTools.setImage(Properties.Resources.dirtypico);
+                    device = DEVICE.DIRTYPICO;
                 }
                 else if (IsUsbDeviceConnected("6010", "0403")) // xFlasher SPI
                 {
@@ -328,6 +371,12 @@ namespace JRunner
             if (variables.version.Contains("Alpha") || variables.version.Contains("Beta")) Console.WriteLine("Version: {0}", variables.build);
             else Console.WriteLine("Version: {0}", variables.version);
 
+            if (WineMethods.IsWine())
+            {
+                Console.WriteLine("Running under WINE");
+                linuxFeaturesToolStripMenuItem.Visible = true;
+            }
+
             if (Upd.checkStatus == 0)
             {
                 if (Upd.upToDate == true)
@@ -384,13 +433,51 @@ namespace JRunner
             }
 
             savesettings();
-            saveToLog();
+            saveToLog(true);
         }
 
-        private void saveToLog()
+        private void saveToLog(bool bFormClosing)
         {
             string file = Path.Combine(variables.rootfolder, "Console.log");
-            File.AppendAllText(file, "\n" + txtConsole.Text);
+
+            try
+            {
+                File.AppendAllText(file, "\n" + txtConsole.Text);
+            }
+            catch (Exception e)
+            {
+                if (bFormClosing)
+                {
+                    // If we failed to write to the normal log file,
+                    // and the main form is closing, try an alternate.
+                    // Tolerate exceptions, otherwise the main form
+                    // won't be able to close. Append today's date
+                    // to the file path and reattempt the write.
+                    Console.WriteLine("Couldn't write console log to " + file);
+                    Console.WriteLine(e.GetType().ToString() + " " + e.Message);
+
+                    try
+                    {
+                        file = Path.Combine(variables.rootfolder, "Console_" + DateTime.Now.ToString("yyyyMMdd") + ".log");
+                        File.AppendAllText(file, "\n" + txtConsole.Text);
+                    }
+                    catch
+                    {
+                        // If we failed at the reattempt, prompt the user if they wish to close without saving.
+                        DialogResult closingDialogResult = MessageBox.Show("Encountered " + e.GetType().ToString() + " writing to " + file + ". \n\nUnable to save console log. Close J-Runner?", "Error", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+
+                        // If the user selected "no", re-throw the original exception
+                        if (closingDialogResult == DialogResult.No)
+                        {
+                            throw e;
+                        }
+                    }
+                }
+                else
+                {
+                    throw e;
+                }
+            }
         }
 
         #endregion
@@ -457,7 +544,7 @@ namespace JRunner
         {
             if (device == DEVICE.PICOFLASHER)
             {
-                picoflasher.getFlashConfig();
+                picoflasher.printFlashConfig();
             }
             else if (device == DEVICE.XFLASHER_SPI)
             {
@@ -526,10 +613,6 @@ namespace JRunner
             if (device == DEVICE.NAND_X || device == DEVICE.JR_PROGRAMMER || DemoN.DemonDetected)
             {
                 return 1;
-            }
-            else if (device == DEVICE.XFLASHER_SPI || device == DEVICE.XFLASHER_EMMC)
-            {
-                return 2;
             }
             else
             {
@@ -663,7 +746,7 @@ namespace JRunner
         }
 
         #region Nand
-        
+
         public Nand.PrivateN getNand()
         {
             return nand;
@@ -694,7 +777,7 @@ namespace JRunner
                 {
                     if (device == DEVICE.PICOFLASHER)
                     {
-                        picoflasher.Read(1, (uint) startblock, (uint) (startblock + length)); // TODO: respect filename
+                        picoflasher.Read(1, (uint)startblock, (uint)(startblock + length)); // TODO: respect filename
                     }
                     else if (device == DEVICE.XFLASHER_SPI)
                     {
@@ -767,6 +850,10 @@ namespace JRunner
                         else if (device == DEVICE.XFLASHER_SPI)
                         {
                             xflasher.flashSvf(filename);
+                        }
+                        else if (device == DEVICE.DIRTYPICO)
+                        {
+                            dirtypico.flashSvf(filename);
                         }
                         else if (device == DEVICE.XFLASHER_EMMC)
                         {
@@ -870,12 +957,14 @@ namespace JRunner
             }
             nandTimingFunctionsExecute(function, filename, size, startblock, length, recalcEcc);
         }
-                
+
         private void programTimingFile(string filex)
         {
             string file = "";
             if (filex == "") return;
             if (device == DEVICE.XFLASHER_SPI)
+                file = variables.rootfolder + @"\common\svf\" + filex + ".svf";
+            else if (device == DEVICE.DIRTYPICO)
                 file = variables.rootfolder + @"\common\svf\" + filex + ".svf";
             else
                 file = variables.rootfolder + @"\common\xsvf\" + filex + ".xsvf";
@@ -892,12 +981,16 @@ namespace JRunner
                 {
                     if (device == DEVICE.PICOFLASHER)
                     {
-                        MessageBox.Show("PicoFlasher can't to program timing", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("PicoFlasher can't program timing", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
-                    else if(device == DEVICE.XFLASHER_SPI)
+                    else if (device == DEVICE.XFLASHER_SPI)
                     {
                         xflasher.flashSvf(file);
+                    }
+                    else if (device == DEVICE.DIRTYPICO)
+                    {
+                        dirtypico.flashSvf(file);
                     }
                     else if (device == DEVICE.XFLASHER_EMMC)
                     {
@@ -923,7 +1016,7 @@ namespace JRunner
                 }
             }
         }
-        
+
         private NandX.Errors getmbtype()
         {
             Console.WriteLine("Checking Console...");
@@ -1013,7 +1106,7 @@ namespace JRunner
                             xPanel.setMBname(variables.ctype.Text);
                         }
                     }
-                    else if (temp >= 4558 && temp <= 4580) 
+                    else if (temp >= 4558 && temp <= 4580)
                     {
                         if (flashconfig == "01198030")
                         {
@@ -1423,7 +1516,7 @@ namespace JRunner
                 }
             }
         }
-        void writexell()
+        void writeXellNandX()
         {
             if (string.IsNullOrWhiteSpace(variables.filename1)) loadfile(ref variables.filename1, ref this.txtFileSource, true);
             if (string.IsNullOrWhiteSpace(variables.filename1)) return;
@@ -1444,7 +1537,7 @@ namespace JRunner
                 if (variables.debugMode) Console.WriteLine("File Length = {0}", len);
 
                 NandX.Errors result = NandX.Errors.None;
-                result = nandx.write(variables.filename1, Nandsize.S16, 0, 0x50);
+                result = nandx.write(variables.filename1, Nandsize.S16, 0, 0x50, false, false);
 
                 if (result == NandX.Errors.None)
                 {
@@ -1667,43 +1760,6 @@ namespace JRunner
             else return "";
         }
 
-        private long CRCbl(string filename)
-        {
-            crc32 crc = new crc32();
-            long hashData = 0;
-            if (File.Exists(filename))
-            {
-                byte[] fileb = File.ReadAllBytes(filename);
-                fileb = editbl(fileb);
-                hashData = crc.CRC(fileb);
-            }
-            return hashData;
-        }
-        private byte[] editbl(byte[] bl)
-        {
-            int length = Oper.ByteArrayToInt(Oper.returnportion(bl, 0xC, 4));
-            if (bl[0] == 0x43 && bl[1] == 0x42)
-            {
-                for (int i = 0x10; i < 0x40; i++) bl[i] = 0x0;
-            }
-            else if (bl[0] == 0x43 && bl[1] == 0x44)
-            {
-                for (int i = 0x10; i < 0x20; i++) bl[i] = 0x0;
-            }
-            else if (bl[0] == 0x43 && bl[1] == 0x45)
-            {
-                for (int i = 0x10; i < 0x20; i++) bl[i] = 0x0;
-            }
-            else if (bl[0] == 0x43 && bl[1] == 0x46)
-            {
-                for (int i = 0x20; i < 0x230; i++) bl[i] = 0x0;
-            }
-            else if (bl[0] == 0x43 && bl[1] == 0x47)
-            {
-                for (int i = 0x10; i < 0x20; i++) bl[i] = 0x0;
-            }
-            return Oper.returnportion(bl, 0, length);
-        }
         bool editblini(string file, string label, string cba, string cbb = "")
         {
             string bla;
@@ -1721,7 +1777,7 @@ namespace JRunner
                     Console.WriteLine("{0} not found. Insert it manually on the common folder", "cb_" + cba + ".bin");
                     return false;
                 }
-                bla = "cb_" + cba + ".bin," + CRCbl(Path.Combine(variables.rootfolder, "common", "cb_" + cba + ".bin")).ToString("x8");
+                bla = "cb_" + cba + ".bin," + Classes.xebuild.calculateBlCrc(Path.Combine(variables.rootfolder, "common", "cb_" + cba + ".bin")).ToString("x8");
                 blb = "none,00000000";
             }
             else
@@ -1744,8 +1800,8 @@ namespace JRunner
                     Console.WriteLine("{0} not found. Insert it manually on the common folder", "cbb_" + cba + ".bin");
                     return false;
                 }
-                bla = "cba_" + cba + ".bin," + CRCbl(Path.Combine(variables.rootfolder, "common", "cba_" + cba + ".bin")).ToString("x8");
-                blb = "cbb_" + cbb + ".bin," + CRCbl(Path.Combine(variables.rootfolder, "common", "cbb_" + cbb + ".bin")).ToString("x8");
+                bla = "cba_" + cba + ".bin," + Classes.xebuild.calculateBlCrc(Path.Combine(variables.rootfolder, "common", "cba_" + cba + ".bin")).ToString("x8");
+                blb = "cbb_" + cbb + ".bin," + Classes.xebuild.calculateBlCrc(Path.Combine(variables.rootfolder, "common", "cbb_" + cbb + ".bin")).ToString("x8");
             }
             Console.WriteLine("Editing File..");
             string[] lines = File.ReadAllLines(file);
@@ -1848,11 +1904,11 @@ namespace JRunner
                 }
             }
 
-            progressBar.Value = progressBar.Minimum;
+            updateProgress(progressBar.Minimum);
 
             if (!partial)
             {
-                saveToLog();
+                saveToLog(false);
                 txtConsole.Text = "";
                 printstartuptext();
             }
@@ -1899,13 +1955,29 @@ namespace JRunner
 
                 bool sts = objAlphaPattern.IsMatch(variables.cpukey);
 
+                byte[] cpukeyArr = { };
+                bool nandContainsVfuses = Nand.Nand.getVirtualCPUKey(variables.filename1, ref cpukeyArr);
+
                 string cpufile = Path.Combine(Path.GetDirectoryName(variables.filename1), "cpukey.txt");
                 if (File.Exists(cpufile) && !(variables.cpukey.Length == 32 && sts))
                 {
                     variables.cpukey = parsecpukey(cpufile);
                 }
-                
+
                 if (variables.cpukey.Length != 32 || !objAlphaPattern.IsMatch(variables.cpukey)) variables.cpukey = "";
+
+                if (nandContainsVfuses)
+                {
+                    string cpukeyStr = Oper.ByteArrayToString(cpukeyArr);
+
+                    if (variables.debugMode) Console.WriteLine("Virtual CPU Key: " + cpukeyStr);
+
+                    // If we didn't set the CPU key yet, use the virtual CPU key from the NAND dump
+                    if (variables.cpukey == "")
+                    {
+                        variables.cpukey = cpukeyStr;
+                    }
+                }
 
                 bool foundKey = !string.IsNullOrEmpty(variables.cpukey);
                 bool gotKeyFromCrc = false;
@@ -1913,7 +1985,7 @@ namespace JRunner
                 if (!foundKey)
                 {
                     long filenameKvCrc = Nand.Nand.kvcrc(variables.filename1, true);
-                    
+
                     if (variables.debugMode) Console.WriteLine("KV CRC: {0:X}", filenameKvCrc);
                     if (variables.debugMode) Console.WriteLine("Searching Registry Entrys");
                     try
@@ -1929,7 +2001,7 @@ namespace JRunner
                 Console.WriteLine("Initializing {0}, please wait...", Path.GetFileName(variables.filename1));
                 if (listInfo.Contains(xsvfChoice)) xsvfChoice_CloseClick();
                 updateProgress(progressBar.Maximum / 2);
-                nand = new Nand.PrivateN(variables.filename1, variables.cpukey);
+                nand = new PrivateN(variables.filename1, variables.cpukey);
                 if (!nand.ok)
                 {
                     updateProgress(progressBar.Maximum);
@@ -1993,7 +2065,7 @@ namespace JRunner
                         else Console.WriteLine("Wrong CPU Key");
                     }
                 }
-                
+
                 nandInfo.setNand(nand);
                 updateProgress((progressBar.Maximum / 4) * 3); // 75%
 
@@ -2023,7 +2095,15 @@ namespace JRunner
                             xPanel.BeginInvoke(new Action(() => xPanel.setRbtnGlitchChecked(true)));
                             break;
                         case variables.hacktypes.glitch2:
-                            xPanel.BeginInvoke(new Action(() => xPanel.setRbtnGlitch2Checked(true)));
+                            // If the source NAND image contains a virtual fuse set, select glitch2m
+                            if (nandContainsVfuses)
+                            {
+                                xPanel.BeginInvoke(new Action(() => xPanel.setRbtnGlitch2mChecked(true)));
+                            }
+                            else
+                            {
+                                xPanel.BeginInvoke(new Action(() => xPanel.setRbtnGlitch2Checked(true)));
+                            }
                             break;
                         case variables.hacktypes.jtag:
                             xPanel.BeginInvoke(new Action(() => xPanel.setRbtnJtagChecked(true)));
@@ -2050,7 +2130,7 @@ namespace JRunner
                 variables.foundCoronaKeyFix = false;
 
                 FileStream fs = new FileStream(variables.filename1, FileMode.Open);
-                byte[] patchesByte = new byte[0x5B230];
+                byte[] patchesByte = new byte[0x5F230];
 
                 try
                 {
@@ -2065,9 +2145,9 @@ namespace JRunner
                         fs.Read(patchesByte, 0, 0x5B230); // 0x8FFD0 - 0xEB200
                         patchesByte = Nand.Nand.unecc(patchesByte);
                     }
-                    
-                    byte[] patches = new byte[0x1000];
-                    
+
+                    byte[] patches = new byte[0x4000];
+
                     if (nand.bigblock)
                     {
                         for (int i = 0; i < patches.Length; i++)
@@ -2086,20 +2166,20 @@ namespace JRunner
                     // Needs to be run twice for JTAG checking, no reliable way to check which it is
                     PatchParser patchParser = new PatchParser(patches);
                     bool patchResult = patchParser.parseAll();
-                
+
                     if (!patchResult)
                     {
-                        patches = new byte[0x1000];
-                
+                        patches = new byte[0x4000];
+
                         for (int i = 0; i < patches.Length; i++)
                         {
                             patches[i] = patchesByte[0x59F0 + i]; // JTAG all sizes, 0x913F0
                         }
-                
+
                         patchParser.enterData(patches);
                         patchParser.parseAll();
                     }
-                    
+
                 }
                 catch
                 {
@@ -2116,13 +2196,13 @@ namespace JRunner
                 Thread.Sleep(100); // Fixes a weird issue that might occur in some situations
 
                 // RGH3
-                if (nand.bl.CB_B == 15432) xPanel.setRgh3Checked(true);
+                if (nand.bl.CB_X > 0) xPanel.setRgh3Checked(true);
 
                 // Winbond
-                if ((nand.bl.CB_A == 13121 && nand.bl.CB_B == 13182) || (nand.bl.CB_A == 13182 && nand.bl.CB_B == 15432))
-                {
-                    xPanel.setWBChecked(true);
-                }
+                if (nand.bl.CB_A == 13121 && nand.bl.CB_B == 13182) xPanel.setWBChecked(true); // ONLY for images that are already Glitch2 + WB
+
+                // Elpis/Rhea Xenon
+                if ((nand.bl.CB_A >= 7373 && nand.bl.CB_A <= 7378) || (nand.bl.CB_B >= 7373 && nand.bl.CB_B <= 7378)) xPanel.setElpisChecked(true);
 
                 // Patches
                 xPanel.setXLUSBChecked(variables.foundXlUsb);
@@ -2204,6 +2284,7 @@ namespace JRunner
             if (variables.debugMode) Console.WriteLine("{0} file loaded successfully", xellfile);
             if (variables.debugMode) Console.WriteLine("{0:X} | {1:X}", xell.Length, kvraw.Length);
 
+            // Inject the raw KV from the source image
             Buffer.BlockCopy(kvraw, 0, xell, 0x4200, 0x4200);
 
             if (xPanel.getRJtagChecked())
@@ -2224,6 +2305,12 @@ namespace JRunner
             variables.filename1 = Path.Combine(variables.outfolder, "jtag.bin");
             if (variables.debugMode) Console.WriteLine(variables.filename1);
             Oper.savefile(xell, variables.filename1);
+
+            // Inject the latest version of XeLL that we bundle with J-runner
+            // XeLL-1f is required for the dual-xell ECC images, xell-2f is only
+            // needed for the single-xell xeBuild images.
+            Nand.Nand.injectXell(variables.filename1, Path.Combine(variables.rootfolder, @"xeBuild\data\xell-1f.bin"));
+
             if (variables.debugMode) Console.WriteLine("Saved Successfully");
             txtFileSource.Text = variables.filename1;
             Console.WriteLine("XeLL image created");
@@ -2234,7 +2321,7 @@ namespace JRunner
         {
             if (nand == null || !nand.ok) return;
             variables.tempfile = variables.filename1;
-            progressBar.Value = progressBar.Minimum;
+            updateProgress(progressBar.Minimum);
             int result = 0;
             try
             {
@@ -2251,7 +2338,7 @@ namespace JRunner
             }
             else if (result == 5)
             {
-                progressBar.Value = progressBar.Maximum;
+                updateProgress(progressBar.Maximum);
             }
             else
             {
@@ -2282,7 +2369,13 @@ namespace JRunner
             File.Copy(variables.filename1, Path.Combine(variables.outfolder, "glitch.ecc"), true);
             variables.filename1 = Path.Combine(variables.outfolder, "glitch.ecc");
             txtFileSource.Text = variables.filename1;
+
+            // Inject the raw KV from the source image
             Nand.Nand.injectRawKV(variables.filename1, kv);
+
+            // Inject the latest version of glitch XeLL that we bundle with J-runner
+            Nand.Nand.injectXell(variables.filename1, Path.Combine(variables.rootfolder, @"xeBuild\data\xell-gggggg.bin"));
+
             Console.WriteLine("XeLL image created");
             Console.WriteLine("");
         }
@@ -2297,7 +2390,7 @@ namespace JRunner
             if (xPanel.getRgh3Checked())
             {
                 string mhz = "";
-                if (xPanel.getRgh3Mhz() == 10) mhz = "_10";
+                if (xPanel.getRgh3Mhz() != "27") mhz = "_" + xPanel.getRgh3Mhz();
 
                 switch (variables.ctype.ID)
                 {
@@ -2333,9 +2426,11 @@ namespace JRunner
                 string wb = "";
                 string smcp = "";
                 string cr4 = "";
+                string elpis = "";
                 if (xPanel.getWBChecked() > 0) wb = "_WB";
                 if (xPanel.getSMCPChecked()) smcp = "_SMC+";
                 else if (xPanel.getCR4Checked()) cr4 = "_CR4";
+                if (xPanel.getElpisChecked()) elpis = "_ELPIS";
 
                 switch (variables.ctype.ID)
                 {
@@ -2355,7 +2450,7 @@ namespace JRunner
                         variables.filename1 = Path.Combine(variables.rootfolder, @"common\xell-images\glitch2", variables.Glitch2_jasper + cr4 + smcp + ".ecc");
                         break;
                     case 8:
-                        variables.filename1 = Path.Combine(variables.rootfolder, @"common\xell-images\glitch2", variables.Glitch2_xenon + ".ecc"); // No CR4 or SMC+
+                        variables.filename1 = Path.Combine(variables.rootfolder, @"common\xell-images\glitch2", variables.Glitch2_xenon + elpis + smcp + ".ecc"); // No CR4
                         break;
                     case 9:
                         variables.filename1 = Path.Combine(variables.rootfolder, @"common\xell-images\glitch2", variables.Glitch2_corona + wb + cr4 + smcp + ".ecc");
@@ -2426,9 +2521,14 @@ namespace JRunner
             nand.getsmcconfig();
             Oper.savefile(nand._smc_config, Path.Combine(tmpout, "smc_config.bin"));
 
-            if (variables.ctype.ID == 1 || variables.ctype.ID == 10 || variables.ctype.ID == 11)
+            // 1 = Trinity
+            // 10, 11 = Corona
+            // 15, 16 = Winchester 
+            if (variables.ctype.ID == 1 ||
+                variables.ctype.ID == 10 || variables.ctype.ID == 11 ||
+                variables.ctype.ID == 15 || variables.ctype.ID == 16)
             {
-                byte[] t;
+                byte[] cr_bin, cr_bin_ltuV1;
                 Console.WriteLine("Working...");
                 byte[] fcrt = nand.exctractFSfile("fcrt.bin");
                 if (fcrt != null)
@@ -2441,17 +2541,39 @@ namespace JRunner
                         Console.WriteLine("Saving fcrt_dec.bin");
                         File.WriteAllBytes(Path.Combine(tmpout, "fcrt_dec.bin"), fcrt_dec);
                     }
-                    t = responses(fcrt, Oper.StringToByteArray(nand._cpukey), nand.ki.dvdkey);
 
-                    if (t != null)
+                    // Generate the C-R.bin required for LTU2 firmware and PCBs
+                    cr_bin = responses(fcrt, Oper.StringToByteArray(nand._cpukey));
+
+                    if (cr_bin != null)
                     {
-
                         Console.WriteLine("Saving C-R.bin");
-                        File.WriteAllBytes(Path.Combine(tmpout, "C-R.bin"), t);
+                        File.WriteAllBytes(Path.Combine(tmpout, "C-R.bin"), cr_bin);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Failed to create C-R.bin");
+                    }
+
+                    // The C-R.bin required for the LTU V1 PCBs and firmware is different
+                    // than what is required for LTU2. Generate the "old" one separately here.
+                    cr_bin_ltuV1 = responses(fcrt, Oper.StringToByteArray(nand._cpukey), true);
+
+                    if (cr_bin_ltuV1 != null)
+                    {
+                        Console.WriteLine("Saving C-R_ltuV1.bin");
+                        File.WriteAllBytes(Path.Combine(tmpout, "C-R_ltuV1.bin"), cr_bin_ltuV1);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Failed to create C-R_ltuV1.bin");
+                    }
+
+                    if (cr_bin != null || cr_bin_ltuV1 != null)
+                    {
                         Console.WriteLine("Saving key.bin");
                         File.WriteAllBytes(Path.Combine(tmpout, "key.bin"), Oper.StringToByteArray(nand.ki.dvdkey));
                     }
-                    else Console.WriteLine("Failed to create C-R.bin");
                 }
                 else Console.WriteLine("Failed to find fcrt.bin");
             }
@@ -2459,7 +2581,7 @@ namespace JRunner
             Console.WriteLine("Done");
             Console.WriteLine("");
         }
-        public static byte[] responses(byte[] fcrt, byte[] cpukey, string dvdkey = "")
+        public static byte[] responses(byte[] fcrt, byte[] cpukey, bool returnOldLtuCrBin = false)
         {
             byte[] fcrt_dec;
             if (Nand.Nand.decrypt_fcrt(fcrt, cpukey, out fcrt_dec))
@@ -2476,6 +2598,17 @@ namespace JRunner
                     Buffer.BlockCopy(cr, 0, rfct, randomNumbers[counter] * cr.Length, cr.Length);
                     counter++;
                 }
+
+                // Old versions of J-Runner (v288 and below) produce a different C-R.bin that is
+                // required for LTU v1 firmware and PCBs. The code for generating the "old" C-R.bin
+                // is identical to the first half of this function. In addition, the xor structure
+                // and encryptFirmware functions are identical in the old J-Runner.
+                // As such, we can return early if the caller requested to generate the old style C-R.bin
+                if(returnOldLtuCrBin)
+                {
+                    return encryptFirmware(rfct, variables.xor, rfct.Length);
+                }
+
                 for (int i = 0; i < 0x1f6; i++)
                 {
                     if (Oper.allsame(Oper.returnportion(fcrt_dec, i * 0x20, 0x10), 0x00)) continue;
@@ -2609,7 +2742,7 @@ namespace JRunner
 
                     // Launch XeBuild
                     Thread.Sleep(1000);
-                    nand = new Nand.PrivateN();
+                    nand = new PrivateN();
                     nand._cpukey = txtCPUKey.Text;
                     string kvfile = Path.Combine(variables.rootfolder, @"xebuild\data\kv.bin");
                     if (File.Exists(kvfile))
@@ -2644,6 +2777,33 @@ namespace JRunner
 
             }
             ThreadStart starter = delegate { xPanel.createxebuild_v2(true, nand, false); };
+            new Thread(starter).Start();
+        }
+
+        public void createSafeImage() // This is incomplete
+        {
+            if (string.IsNullOrWhiteSpace(variables.filename1))
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            if (variables.ctype.ID == -1)
+            {
+                MessageBox.Show("No console type is selected", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            Console.WriteLine("======================");
+            Console.WriteLine("Starting Safe Nand Creation");
+            string kv;
+            if (variables.boardtype.Contains("Trinity") || variables.boardtype.Contains("Corona") || variables.boardtype.Contains("Winchester")) kv = "slim_nofcrt";
+            else if (variables.boardtype.Contains("Xenon")) kv = "phat_t1";
+            else kv = "phat_t2";
+            File.Copy(Path.Combine(variables.donorPath, kv + ".bin"), variables.xepath + "KV.bin", true);
+            Console.WriteLine("Copied KV.bin");
+
+            Thread.Sleep(1000);
+            ThreadStart starter = delegate { xPanel.createxebuild_v2(false, nand, false, true); };
             new Thread(starter).Start();
         }
 
@@ -2728,9 +2888,25 @@ namespace JRunner
 
         #region UI
 
+        public void updateCpuKeyText(string key)
+        {
+            txtCPUKey.Text = key;
+        }
+
         public void updateProgress(int progress)
         {
-            progressBar.BeginInvoke((Action)(() => progressBar.Value = progress));
+            if (progress <= progressBar.Minimum)
+            {
+                progressBar.BeginInvoke((Action)(() => progressBar.Value = progressBar.Minimum));
+            }
+            else if (progress >= progressBar.Maximum)
+            {
+                progressBar.BeginInvoke((Action)(() => progressBar.Value = progressBar.Maximum));
+            }
+            else
+            {
+                progressBar.BeginInvoke((Action)(() => progressBar.Value = progress));
+            }
         }
 
         public void updateBlock(string progress)
@@ -2741,6 +2917,10 @@ namespace JRunner
         public ProgressBarStyle getProgressBarStyle()
         {
             return progressBar.Style;
+        }
+        public void setProgressBarStyle(ProgressBarStyle style)
+        {
+            progressBar.BeginInvoke((Action)(() => progressBar.Style = style));
         }
 
         public void copyToClipboard(string txt)
@@ -2952,6 +3132,65 @@ namespace JRunner
         #endregion
 
         #region Nand
+        private async void gB16MBToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(variables.filename1))
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            const int sixteenMB = 0x01000000;
+            byte[] sixteenMBdata;
+
+            using (FileStream fs = new FileStream(variables.filename1, FileMode.Open, FileAccess.Read))
+            {
+                sixteenMBdata = new byte[sixteenMB];
+                int bytesRead = fs.Read(sixteenMBdata, 0, sixteenMB);
+
+                if (bytesRead < sixteenMB)
+                {
+                    for (int i = bytesRead; i < sixteenMB; i++)
+                        sixteenMBdata[i] = 0x00;
+                }
+            }
+
+
+
+            byte[] eccAligned = await Task.Run(() =>
+                Nand.Nand.addecc_v2(sixteenMBdata, true, 0, 1)
+            );
+
+            string outputFile = Path.Combine(
+                Path.GetDirectoryName(variables.filename1),
+                Path.GetFileNameWithoutExtension(variables.filename1) + "_aligned.bin"
+            );
+
+            File.WriteAllBytes(outputFile, eccAligned);
+
+
+
+            MessageBox.Show("Done! Please check the location of your original file.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+
+        }
+
+        private void mB64MBToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(variables.filename1))
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            variables.filename1 = Nand.Nand.extend16mbTo64mb(variables.filename1);
+            xPanel_updateSource(variables.filename1);
+        }
+        private void addressCalculatorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddressCalculator formAC = new AddressCalculator();
+            formAC.ShowDialog();
+        }
 
         private void extractFilesToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -2975,9 +3214,14 @@ namespace JRunner
             if (variables.ctype.ID == -1) variables.ctype = callConsoleSelect(ConsoleSelect.Selected.All);
             if (variables.ctype.ID == -1) return;
 
-            if (variables.ctype.ID == 7 || variables.ctype.ID == 13 || variables.ctype.ID == 14)
+            // xeBuild does not officially support creating images for 64mb xenon, zephyr, or falcon
+            // in retail/glitch/glitch2/devGL modes. HOWEVER, it does support devkit images, so if the
+            // selected hack type is DevGL, we can create and patch a devkit image with pre and post
+            // xeBuild patching steps
+            if ( (variables.ctype.ID == 7 || variables.ctype.ID == 13 || variables.ctype.ID == 14) &&
+                 variables.ttyp != variables.hacktypes.devgl )
             {
-                if (MessageBox.Show("XeBuild does not support building 64MB images for Xenon, Zephyr, or Falcon\n\nContinuing will cause a 16MB image to be built\n\nDo you want to continue?", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                if (MessageBox.Show("XeBuild does not support building 64MB images for Xenon, Zephyr, or Falcon.\n\nContinuing will cause a 16MB image to be built.\n\nDo you want to continue?", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                 {
                     return;
                 }
@@ -2996,10 +3240,50 @@ namespace JRunner
             }
         }
 
+        private void createSafeDualImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createSafeImage();
+        }
+
         private void decryptKeyvaultToolStripMenuItem_Click(object sender, EventArgs e)
         {
             KeyvaultDecrypter dk = new KeyvaultDecrypter();
             dk.ShowDialog();
+        }
+
+        private void injectKeyvaultToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!nand.ok)
+            {
+                Console.WriteLine("Couldn't inject KV: no NAND loaded.");
+                return;
+            }
+
+            if (!nand.cpukeyverification(variables.cpukey))
+            {
+                Console.WriteLine("Couldn't inject KV: Invalid CPU key.");
+                return;
+            }
+
+            DialogResult mbr = MessageBox.Show("Warning: injecting a KV successfully requires FreeBoot patches or a Type 1 CB.\n\nContinue?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (mbr != DialogResult.Yes)
+            {
+                return;
+            }
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Decrypted KV (*.bin)|*.bin|All files (*.*)|*.*";
+            ofd.Title = "Select Decrypted Keyvault";
+            ofd.InitialDirectory = variables.rootfolder;
+            ofd.RestoreDirectory = false;
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                Console.WriteLine("Injecting KV...");
+                Nand.Nand.injectEncryptedKV(variables.filename1, ofd.FileName, Oper.StringToByteArray(variables.cpukey));
+                nand_init(true, true);
+            }
         }
 
         private void loadGlitch2XeLLToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3030,10 +3314,84 @@ namespace JRunner
             }
         }
 
-        private void sMCConfigViewerToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void injectXeLLToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SMCConfigEditor smcedit = new SMCConfigEditor();
-            smcedit.ShowDialog();
+            if(String.IsNullOrEmpty(variables.filename1))
+            {
+                MessageBox.Show("Please load a source NAND image before injecting XeLL","Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+                return;
+            }
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "XeLL binary (xell*.bin)|xell*.bin|All files (*.*)|*.*";
+            ofd.Title = "Select XeLL Binary";
+            ofd.InitialDirectory = Path.Combine(variables.rootfolder, @"xeBuild\data");
+            ofd.RestoreDirectory = false;
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                Nand.Nand.injectXell(variables.filename1, ofd.FileName);
+                nand_init();
+            }
+        }
+
+        private void customizeThemeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (String.IsNullOrEmpty(variables.filename1))
+            {
+                MessageBox.Show("Please load a source NAND image before attempting to customize the XeLL Theme", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            XellCustomizer xc = new XellCustomizer();
+            xc.InitializeAndShowDialog(variables.filename1);
+        }
+
+        private void zeroPairSbToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (String.IsNullOrWhiteSpace(variables.filename1))
+            {
+                Console.WriteLine("Zeropair SB error: Please select a valid NAND image!");
+                return;
+            }
+
+            Nand.Nand.zeroPairDevkitSb(variables.filename1, false);
+        }
+
+        private void g3fixToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string cpukey = "";
+
+            if (!nand.cpukeyverification(variables.cpukey))
+            {
+                Console.WriteLine("g3fix error: Invalid CPU key.");
+                return;
+            }
+
+            if (String.IsNullOrWhiteSpace(variables.filename1))
+            {
+                Console.WriteLine("g3fix error: Please select a valid NAND image!");
+                return;
+            }
+
+            if (Nand.Nand.doesNandContainVfuses(variables.filename1))
+            {
+                EnterCPUKey ecpuDialog = new EnterCPUKey();
+                DialogResult dr = ecpuDialog.ShowDialog();
+
+                if (dr != DialogResult.OK)
+                {
+                    return;
+                }
+
+                cpukey = ecpuDialog.cpukey;
+            }
+            else
+            {
+                cpukey = variables.cpukey;
+            }
+
+            Nand.Nand.g3fix(variables.filename1, Oper.StringToByteArray(cpukey));
         }
 
         private void patchKVToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3056,6 +3414,18 @@ namespace JRunner
                 patchform.ShowDialog();
             }
             else MessageBox.Show("Could not open KV for editing\n\nMake sure the correct CPU Key is entered", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void smcConfigViewerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!nand.ok)
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            SMCConfigEditor smcedit = new SMCConfigEditor();
+            smcedit.ShowDialog();
         }
 
         private void changeLDVToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3101,15 +3471,116 @@ namespace JRunner
                 return;
             }
 
-            if (Nand.Nand.VerifyKey(Oper.StringToByteArray(variables.cpukey)))
+            if (!Nand.Nand.VerifyKey(Oper.StringToByteArray(variables.cpukey)))
             {
-                if (nand.cpukeyverification(variables.cpukey))
-                {
-                    rgh3Build.create(variables.boardtype, variables.cpukey);
-                }
-                else Console.WriteLine("Wrong CPU Key");
+                Console.WriteLine("Bad CPU Key");
+                return;
             }
-            else Console.WriteLine("Bad CPU Key");
+
+            if (!nand.cpukeyverification(variables.cpukey))
+            {
+                Console.WriteLine("Wrong CPU Key");
+                return;
+            }
+
+            if (xPanel.getRbtnGlitch2mChecked())
+            {
+                // MFG loaders and by extension Glitch2m images encrypt the CB_B differently
+                // than retail CB_B, so we need to use a zero CPU key for invoking rgh3build
+                rgh3Build.create(variables.boardtype, "00000000000000000000000000000000");
+            }
+            else
+            {
+                rgh3Build.create(variables.boardtype, variables.cpukey);
+            }
+
+            
+        }
+
+        private void injectGlitch3ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(variables.filename1))
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (!Nand.Nand.VerifyKey(Oper.StringToByteArray(variables.cpukey)))
+            {
+                Console.WriteLine("Bad CPU Key");
+                return;
+            }
+
+            if (!nand.cpukeyverification(variables.cpukey))
+            {
+                Console.WriteLine("Wrong CPU Key");
+                return;
+            }
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Glitch3 ECC (*.ecc)|*.ecc|All files (*.*)|*.*";
+            ofd.Title = "Select RGH1.3 or RGH3 ECC file";
+            ofd.InitialDirectory = variables.rootfolder;
+            ofd.RestoreDirectory = false;
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            if (xPanel.getRbtnGlitch2mChecked())
+            {
+                // MFG loaders and by extension Glitch2m images encrypt the CB_B differently
+                // than retail CB_B, so we need to use a zero CPU key for invoking rgh3build
+                rgh3Build.injectECC(ofd.FileName, "00000000000000000000000000000000");
+            }
+            else
+            {
+                rgh3Build.injectECC(ofd.FileName, variables.cpukey);
+            }
+        }
+
+        private void injectRGH3CBXToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(variables.filename1))
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (!Nand.Nand.VerifyKey(Oper.StringToByteArray(variables.cpukey)))
+            {
+                Console.WriteLine("Bad CPU Key");
+                return;
+            }
+
+            if (!nand.cpukeyverification(variables.cpukey))
+            {
+                Console.WriteLine("Wrong CPU Key");
+                return;
+            }
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Glitch3 ECC (*.ecc)|*.ecc|All files (*.*)|*.*";
+            ofd.Title = "Select RGH1.3 or RGH3 ECC file";
+            ofd.InitialDirectory = variables.rootfolder;
+            ofd.RestoreDirectory = false;
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            if (xPanel.getRbtnGlitch2mChecked())
+            {
+                // MFG loaders and by extension Glitch2m images encrypt the CB_B differently
+                // than retail CB_B, so we need to use a zero CPU key for invoking rgh3build
+                rgh3Build.injectECC(ofd.FileName, "00000000000000000000000000000000", false);
+            }
+            else
+            {
+                rgh3Build.injectECC(ofd.FileName, variables.cpukey, false);
+            }
         }
 
         CustomXeBuild CX;
@@ -3168,6 +3639,91 @@ namespace JRunner
             }
         }
 
+        private void enableDevGLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool enableDevGlStatus = false;
+
+            // If we've already got SB_priv.bin, no need to try extracting it again
+            if (xPanel.canDevGL())
+            {
+                //enableDevGLToolStripMenuItem.Visible = false;
+                Console.WriteLine("DevGL already enabled.");
+                return;
+            }
+
+            // SB_priv.bin is contained within content.dll in the 360's SDK.
+            string contentDllPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Microsoft Xbox 360 SDK\\bin\\win32\\content.dll");
+             
+            // If we couldn't find content.dll from the default installation path, prompt the user
+            if (!File.Exists(contentDllPath))
+            {
+                Console.WriteLine("Enable DevGL: SDK not found, manual selection required.");
+
+                OpenFileDialog sdkFileDialog = new OpenFileDialog();
+                sdkFileDialog.Title = "Select DevGL Key, SDK Installer, or content.dll";
+                sdkFileDialog.Filter = "SDK Files|content.dll;XDKSetupXenon*.exe;SB_priv.bin;SB_prv.bin";
+
+                if (sdkFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    if (!File.Exists(sdkFileDialog.FileName))
+                    {
+                        Console.WriteLine("Enable DevGL: SDK files not found.");
+                        return;
+                    }
+
+                    contentDllPath = sdkFileDialog.FileName;
+                }
+                else
+                {
+                    Console.WriteLine("Enable DevGL: cancelled.");
+                    return;
+                }
+            }
+
+            // Theoretically we've got the path to the DLL
+            if (variables.debugMode) Console.WriteLine($"Enable DevGL: DLL Path ({contentDllPath})");
+
+            if (contentDllPath.ToLower().EndsWith("exe"))
+            {
+                if (variables.debugMode) Console.WriteLine("Enable DevGL: exe selected, extraction required");
+
+                try
+                {
+                    contentDllPath = EnableDevGL.extractContentDllFileFromExe(contentDllPath, getCurrentWorkingFolder());
+                }
+                catch(Exception ex)
+                {
+                    if (variables.debugMode) Console.WriteLine("Enable DevGL Error: " + ex.Message);
+                    Console.WriteLine("Enable DevGL: Failed. Couldn't extract SDK installer.");
+                    return;
+                }
+            }
+
+
+            try
+            {
+                enableDevGlStatus = EnableDevGL.enableDevGL(contentDllPath);
+            }
+            catch(Exception ex)
+            {
+                if(variables.debugMode) Console.WriteLine("Enable DevGL Error: " + ex.Message);
+            }
+
+            if (false == enableDevGlStatus)
+            {
+                Console.WriteLine("Enable DevGL: Failed. Check the SDK installation and try again.");
+                return;
+            }
+
+            Console.WriteLine("Enable DevGL: Success!");
+
+            // Ok, DevGL was successfully enabled. We'll re-init the NAND to refresh
+            // any UI elements that can now use DevGL
+            nand_init();
+
+            return;
+        }
+
         private void kVViewerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             kVViewer();
@@ -3197,10 +3753,27 @@ namespace JRunner
             }
         }
 
+        CPUKeyGenGUI CKGG;
         private void generateCpuKeyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if ((ModifierKeys & Keys.Shift) == Keys.Shift) txtCPUKey.Text = variables.superDevKey;
-            else txtCPUKey.Text = CpuKeyGen.GenerateKey();
+            if ((ModifierKeys & Keys.Shift) == Keys.Shift)
+            {
+                txtCPUKey.Text = variables.superDevKey;
+            }
+            else
+            {
+                if (Application.OpenForms.OfType<CPUKeyGenGUI>().Any())
+                {
+                    CKGG.WindowState = FormWindowState.Normal;
+                    CKGG.Activate();
+                }
+                else
+                {
+                    CKGG = new CPUKeyGenGUI();
+                    CKGG.Show();
+                    CKGG.Location = new Point(Location.X + (Width - CKGG.Width) / 2, Location.Y + 158);
+                }
+            }
         }
 
         private void checkSecdataToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3432,11 +4005,11 @@ namespace JRunner
 
         private void btnScanDevices_Click(object sender, EventArgs e)
         {
-            progressBar.Value = progressBar.Minimum;
+            updateProgress(progressBar.Minimum);
             deviceinit();
             Thread.Sleep(100);
             if (listInfo.Contains(ldInfo)) ldInfo.refreshDrives(true);
-            else progressBar.Value = progressBar.Maximum;
+            else updateProgress(progressBar.Maximum);
         }
 
         private void btnRestart_Click(object sender, EventArgs e)
@@ -3592,7 +4165,8 @@ namespace JRunner
 
             if (device == DEVICE.PICOFLASHER)
             {
-                picoflasher.Write(1, 0, 0, true);
+                if (Path.GetExtension(variables.filename1) == ".ecc") picoflasher.Write(1, 0, 0, true);
+                else picoflasher.Write(0, 0, 0, true);
             }
             else if (device == DEVICE.XFLASHER_SPI)
             {
@@ -3612,7 +4186,7 @@ namespace JRunner
                 }
                 else if (Path.GetExtension(variables.filename1) == ".bin")
                 {
-                    ThreadStart starter = delegate { writexell(); };
+                    ThreadStart starter = delegate { writeXellNandX(); };
                     new Thread(starter).Start();
                 }
                 else getconsoletype(3);
@@ -4070,6 +4644,16 @@ namespace JRunner
             }
             else if (e.KeyCode == Keys.F10)
             {
+                if (!variables.devkitnotdevgl)
+                {
+                    variables.devkitnotdevgl = true;
+                    Console.WriteLine("Devkit instead of DevGL On");
+                }
+                else
+                {
+                    variables.devkitnotdevgl = false;
+                    Console.WriteLine("Devkit instead of DevGL Off");
+                }
             }
             else if (e.KeyCode == Keys.F11)
             {
@@ -4188,6 +4772,10 @@ namespace JRunner
                 {
                     nTools.setImage(Properties.Resources.picoflasher);
                 }
+                else if (device == DEVICE.DIRTYPICO)
+                {
+                    nTools.setImage(Properties.Resources.dirtypico);
+                }
                 else
                 {
                     nTools.setImage(null);
@@ -4207,15 +4795,21 @@ namespace JRunner
         {
             try
             {
-                if (variables.debugMode) Console.WriteLine("DevNotify - {0}", e.Device.Name);
+                if (variables.debugMode) Console.WriteLine("DevNotify - {0}", e.Device != null ? e.Device.Name : "null");
                 if (variables.debugMode) Console.WriteLine("EventType - {0}", e.EventType);
-                if (e.EventType == EventType.DeviceArrival)
+
+                if (e.EventType == EventType.DeviceArrival && e.Device != null)
                 {
                     if (e.Device.IdVendor == 0x600D && e.Device.IdProduct == 0x7001) // PicoFlasher
                     {
                         if (!DemoN.DemonDetected) nTools.setImage(Properties.Resources.picoflasher);
                         //PicoFlasherToolStripMenuItem.Visible = true;
                         device = DEVICE.PICOFLASHER;
+                    }
+                    else if (e.Device.IdVendor == 0x1209 && e.Device.IdProduct == 0xC0CA) // DirtyPico
+                    {
+                        nTools.setImage(Properties.Resources.dirtypico);
+                        device = DEVICE.DIRTYPICO;
                     }
                     else if (e.Device.IdVendor == 0x0403 && e.Device.IdProduct == 0x6010) // xFlasher SPI
                     {
@@ -4261,7 +4855,7 @@ namespace JRunner
                         device = DEVICE.XFLASHER_EMMC;
                     }
                 }
-                else if (e.EventType == EventType.DeviceRemoveComplete)
+                else if (e.EventType == EventType.DeviceRemoveComplete && e.Device != null)
                 {
                     if (e.Device.IdVendor == 0x600D && e.Device.IdProduct == 0x7001)
                     {
@@ -4269,7 +4863,12 @@ namespace JRunner
                         //PicoFlasherToolStripMenuItem.Visible = false;
                         device = DEVICE.NO_DEVICE;
                     }
-                    else if(e.Device.IdVendor == 0x11d4 && e.Device.IdProduct == 0x8334)
+                    else if (e.Device.IdVendor == 0x1209 && e.Device.IdProduct == 0xC0CA) // DirtyPico
+                    {
+                        if (!DemoN.DemonDetected) nTools.setImage(null);
+                        device = DEVICE.NO_DEVICE;
+                    }
+                    else if (e.Device.IdVendor == 0x11d4 && e.Device.IdProduct == 0x8334)
                     {
                         HID.BootloaderDetected = false;
                         if (!DemoN.DemonDetected) nTools.setImage(null);
@@ -4722,13 +5321,26 @@ namespace JRunner
                 try
                 {
                     variables.dashes_all = new List<string>();
-                    Regex regex = new Regex("^[0-9]+$");
+
+                    // Regular expression to match either a folder containing just numbers,
+                    // or a folder beginning with a number, then an underscore, and then
+                    // any amount of alphanumeric or underscore characters
+                    Regex regex = new Regex(@"^\d+(?:_[A-Za-z0-9_]+)?$");
 
                     foreach (string a in Directory.GetDirectories(Path.Combine(variables.currentdir, "xeBuild")))
                     {
                         if (regex.IsMatch(Path.GetFileNameWithoutExtension(a))) variables.dashes_all.Add(Path.GetFileNameWithoutExtension(a));
                     }
-                    variables.dashes_all.Sort((a, b) => Convert.ToInt32(a) - Convert.ToInt32(b));
+
+                    // Sort by the leading number of the dashboard folder
+                    variables.dashes_all.Sort((a, b) =>
+                    {
+                        int numA = int.TryParse(Regex.Match(a, @"^\d+").Value, out var nA) ? nA : 0;
+                        int numB = int.TryParse(Regex.Match(b, @"^\d+").Value, out var nB) ? nB : 0;
+
+                        return numA.CompareTo(numB);
+                    });
+
                     if (variables.debugMode) Console.WriteLine("Checking dashes");
                     foreach (string valueName in variables.dashes_all)
                     {
@@ -4752,18 +5364,16 @@ namespace JRunner
                 else if (xPanelCount == 2)
                 {
                     xPanel.getComboDash().SelectedIndex = 1;
-                    int n = 0;
-                    bool isNumeric = int.TryParse(xPanel.getComboDash().Text, out n);
-                    if (isNumeric) variables.dashversion = n;
+                    string n = xPanel.getComboDash().Text;
+                    if (char.IsDigit(n[0])) variables.dashversion = n;
                 }
                 else
                 {
                     if (variables.dashes_all.Contains(variables.preferredDash))
                     {
                         if (xPanelCount >= variables.dashes_all.IndexOf(variables.preferredDash)) xPanel.getComboDash().SelectedIndex = variables.dashes_all.IndexOf(variables.preferredDash) + 1;
-                        int n = 0;
-                        bool isNumeric = int.TryParse(xPanel.getComboDash().Text, out n);
-                        if (isNumeric) variables.dashversion = n;
+                        string n = xPanel.getComboDash().Text;
+                        if (char.IsDigit(n[0])) variables.dashversion = n;
                     }
                     else if (xPanelCount > 1) xPanel.BeginInvoke((Action)(() => xPanel.getComboDash().SelectedIndex = xPanelCount - 1));
                 }
@@ -4840,33 +5450,30 @@ namespace JRunner
         {
             if (mode > 0)
             {
-                ProgressLabel.BeginInvoke(new Action(() => {
+                ProgressLabel.BeginInvoke(new Action(() =>
+                {
                     if (mode == 3) ProgressLabel.Text = "Erasing";
                     else if (mode == 2) ProgressLabel.Text = "Writing";
                     else if (mode == 1) ProgressLabel.Text = "Reading";
                 }));
-                progressBar.BeginInvoke(new Action(() => progressBar.Style = ProgressBarStyle.Blocks));
+                setProgressBarStyle(ProgressBarStyle.Blocks);
             }
             else if (mode == -2)
             {
-                progressBar.BeginInvoke(new Action(() => progressBar.Style = ProgressBarStyle.Marquee));
+                setProgressBarStyle(ProgressBarStyle.Marquee);
             }
             else if (mode == -1)
             {
                 ProgressLabel.BeginInvoke(new Action(() => ProgressLabel.Text = "Progress"));
-                progressBar.BeginInvoke(new Action(() => {
-                    progressBar.Style = ProgressBarStyle.Blocks;
-                    progressBar.Value = progressBar.Minimum;
-                }));
+                setProgressBarStyle(ProgressBarStyle.Blocks);
+                updateProgress(progressBar.Minimum);
                 txtBlocks.BeginInvoke(new Action(() => txtBlocks.Text = ""));
             }
             else
             {
                 ProgressLabel.BeginInvoke(new Action(() => ProgressLabel.Text = "Progress"));
-                progressBar.BeginInvoke(new Action(() => {
-                    progressBar.Style = ProgressBarStyle.Blocks;
-                    progressBar.Value = progressBar.Maximum;
-                }));
+                setProgressBarStyle(ProgressBarStyle.Blocks);
+                updateProgress(progressBar.Maximum);
                 txtBlocks.BeginInvoke(new Action(() => { txtBlocks.Text = ""; }));
             }
         }
@@ -4876,8 +5483,7 @@ namespace JRunner
             if (xflasher.inUse)
             {
                 txtBlocks.BeginInvoke((Action)(() => txtBlocks.Text = str));
-                if (progress >= 0) progressBar.BeginInvoke((Action)(() => progressBar.Value = progress)); // Just in case
-                else progressBar.BeginInvoke((Action)(() => progressBar.Value = 0));
+                updateProgress(progress);
             }
         }
 
@@ -4904,33 +5510,30 @@ namespace JRunner
         {
             if (mode > 0)
             {
-                ProgressLabel.BeginInvoke(new Action(() => {
+                ProgressLabel.BeginInvoke(new Action(() =>
+                {
                     if (mode == 3) ProgressLabel.Text = "Erasing";
                     else if (mode == 2) ProgressLabel.Text = "Writing";
                     else if (mode == 1) ProgressLabel.Text = "Reading";
                 }));
-                progressBar.BeginInvoke(new Action(() => { progressBar.Style = ProgressBarStyle.Blocks; }));
+                setProgressBarStyle(ProgressBarStyle.Blocks);
             }
             else if (mode == -2)
             {
-                progressBar.BeginInvoke(new Action(() => { progressBar.Style = ProgressBarStyle.Marquee; }));
+                setProgressBarStyle(ProgressBarStyle.Marquee);
             }
             else if (mode == -1)
             {
                 ProgressLabel.BeginInvoke(new Action(() => { ProgressLabel.Text = "Progress"; }));
-                progressBar.BeginInvoke(new Action(() => {
-                    progressBar.Style = ProgressBarStyle.Blocks;
-                    progressBar.Value = progressBar.Minimum;
-                }));
+                setProgressBarStyle(ProgressBarStyle.Blocks);
+                updateProgress(progressBar.Minimum);
                 txtBlocks.BeginInvoke(new Action(() => { txtBlocks.Text = ""; }));
             }
             else
             {
                 ProgressLabel.BeginInvoke(new Action(() => { ProgressLabel.Text = "Progress"; }));
-                progressBar.BeginInvoke(new Action(() => {
-                    progressBar.Style = ProgressBarStyle.Blocks;
-                    progressBar.Value = progressBar.Maximum;
-                }));
+                setProgressBarStyle(ProgressBarStyle.Blocks);
+                updateProgress(progressBar.Maximum);
                 txtBlocks.BeginInvoke(new Action(() => { txtBlocks.Text = ""; }));
             }
         }
@@ -4940,10 +5543,7 @@ namespace JRunner
             if (picoflasher.InUse)
             {
                 txtBlocks.BeginInvoke((Action)(() => txtBlocks.Text = str));
-                if (progress >= 0)
-                    progressBar.BeginInvoke((Action)(() => progressBar.Value = progress));
-                else
-                    progressBar.BeginInvoke((Action)(() => progressBar.Value = 0));
+                updateProgress(progress);
             }
         }
         #endregion
@@ -4955,14 +5555,14 @@ namespace JRunner
             if (mode > 0)
             {
                 ProgressLabel.Text = "Writing";
-                progressBar.BeginInvoke((Action)(() => progressBar.Style = ProgressBarStyle.Marquee));
+                setProgressBarStyle(ProgressBarStyle.Marquee);
                 txtBlocks.Text = "";
             }
             else
             {
                 ProgressLabel.Text = "Progress";
-                progressBar.BeginInvoke((Action)(() => progressBar.Style = ProgressBarStyle.Blocks));
-                progressBar.BeginInvoke((Action)(() => progressBar.Value = progressBar.Maximum));
+                setProgressBarStyle(ProgressBarStyle.Blocks);
+                updateProgress(progressBar.Maximum);
                 txtBlocks.Text = "";
             }
         }
@@ -5009,5 +5609,19 @@ namespace JRunner
         }
 
         #endregion
+
+        private void toggleDebugModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (variables.debugMode)
+            {
+                Console.WriteLine("Debugging Off");
+                variables.debugMode = false;
+            }
+            else
+            {
+                Console.WriteLine("Debugger On");
+                variables.debugMode = true;
+            }
+        }
     }
 }

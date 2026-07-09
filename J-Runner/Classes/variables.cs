@@ -80,10 +80,13 @@ namespace JRunner
             W10_11
         }
 
-        public static string version = "3.3.0 r3";
-        public static string build = "3302." + DateTime.ParseExact(Properties.Resources.Build.Trim(), "MM-dd-yyyy HH:mm:ss", null).ToString("yyMMdd.HHmm");
-        public const string staticversion = "3.3.0.2";
-        public static int revision = 37;
+        public static string version = "3.4.0 r5";
+        public static string build = "3405." + DateTime.ParseExact(Properties.Resources.Build.Trim(), "MM-dd-yyyy HH:mm:ss", null).ToString("yyMMdd.HHmm");
+        public const string staticversion = "3.4.0.5";
+        public static int jrVersion = 3;
+        public static int jrRelease = 4;
+        public static int jrModpack = 0;
+        public static int jrFixpack = 5;
         public static Windows currentOS = Windows.Unknown;
         public static bool isWinXP = false;
         public static bool isscanningip = false;
@@ -99,6 +102,7 @@ namespace JRunner
         public static string cpukeypath = "cpukey.txt";
         public static string nanddump = "nanddump.bin";
         public static string updflash = "updflash.bin";
+        public static string exefolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string rootfolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string currentdir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string outfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "output");
@@ -113,7 +117,7 @@ namespace JRunner
         public static bool logtofile = true;
         public static bool debugMode = false;
         public static bool generate = false;
-        public static bool checkfiles = true, deletefiles = false, extractfiles = false;
+        public static bool checkfiles = true, deletefiles = false, extractfiles = false, devkitnotdevgl = false;
         public static string preferredDash = latest_dashboard.ToString();
         public static bool DashlaunchE = false;
         public static bool LPTtiming = false;
@@ -298,7 +302,7 @@ namespace JRunner
         public static string FindFolder = "";
         public static bool rgh2 = false, xefinished = false;
         public static bool rgh1able = true;
-        public static int dashversion = 0;
+        public static string dashversion = "";
         public static bool copiedSMC = false;
         public static bool copiedXLDrive = false;
         public static bool foundXlUsb = false, foundXlHdd = false, foundXlBoth = false, foundUsbdSec = false, foundCoronaKeyFix = false;

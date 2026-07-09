@@ -11,7 +11,7 @@ namespace JRunner.Panels
     public partial class XeBuildPanel : UserControl
     {
         List<CB> cbList;
-        List<string> patches = new List<string>(new string[8]);
+        List<string> patches = new List<string>(new string[9]);
         // -a nofcrt
         // -a noSShdd
         // -a nointmu
@@ -19,6 +19,7 @@ namespace JRunner.Panels
         // -a nohdmiwait
         // -a nolan
         // -r WB/WB4G/13182
+        // -r ELPIS
 
         public XeBuildPanel()
         {
@@ -135,9 +136,9 @@ namespace JRunner.Panels
         {
             return chkRgh3.Checked;
         }
-        public int getRgh3Mhz()
+        public string getRgh3Mhz()
         {
-            return int.Parse(Rgh3Mhz.Text);
+            return Rgh3Mhz.Text;
         }
         public bool getAudClampChecked()
         {
@@ -153,12 +154,21 @@ namespace JRunner.Panels
             else if (chkWB4G.Checked) return 2;
             else return 0;
         }
+        public bool getElpisChecked()
+        {
+            return chkElpis.Checked;
+        }
 
         // Checkbox Setters
         public void setWBChecked(bool check)
         {
             if (check && (!chkWB.Enabled || !chkWB.Visible)) return;
             chkWB.Checked = check;
+        }
+        public void setElpisChecked(bool check)
+        {
+            if (check && (!chkElpis.Enabled || !chkElpis.Visible)) return;
+            chkElpis.Checked = check;
         }
         public void setCleanSMCChecked(bool check)
         {
@@ -241,12 +251,18 @@ namespace JRunner.Panels
                 checkBigffs(txt);
                 checkDashAndConsoleSpecificPatches(txt);
 
-                if (txt.Contains("Xenon") || txt.Contains("Winchester"))
+                if (txt.Contains("Winchester"))
                 {
                     chkCR4.Checked = false;
                     chkCR4.Enabled = false;
                     chkSMCP.Checked = false;
                     chkSMCP.Enabled = false;
+                }
+                else if (txt.Contains("Xenon"))
+                {
+                    chkCR4.Checked = false;
+                    chkCR4.Enabled = false;
+                    chkSMCP.Enabled = true;
                 }
                 else
                 {
@@ -256,10 +272,16 @@ namespace JRunner.Panels
 
                 if (txt.Contains("Xenon"))
                 {
+                    chkElpis.Enabled = true;
                     chkAudClamp.Checked = false;
                     chkAudClamp.Enabled = false;
                 }
-                else chkAudClamp.Enabled = true;
+                else
+                {
+                    chkElpis.Enabled = false;
+                    chkElpis.Checked = false;
+                    chkAudClamp.Enabled = true;
+                }
 
                 checkRgh3(txt);
             }));
@@ -306,12 +328,18 @@ namespace JRunner.Panels
             chkAudClamp.Visible = rbtnJtag.Checked;
             chkRJtag.Visible = rbtnJtag.Checked;
             chk0Fuse.Visible = rbtnDevGL.Checked;
+            chkElpis.Visible = rbtnGlitch2.Checked || rbtnGlitch2m.Checked;
 
             checkWBXdkBuild();
             checkBigffs(variables.boardtype);
             checkDashSpecificPatches();
 
             if (!rbtnRetail.Checked && !rbtnGlitch.Checked && !rbtnGlitch2.Checked && !rbtnGlitch2m.Checked && !rbtnDevGL.Checked) chkCleanSMC.Checked = false;
+
+            if(!rbtnGlitch2.Checked && !rbtnGlitch2m.Checked)
+            {
+                chkElpis.Checked = false;
+            }
 
             if (!rbtnGlitch2.Checked && !rbtnGlitch2m.Checked)
             {
@@ -366,7 +394,7 @@ namespace JRunner.Panels
             if (comboDash.SelectedIndex > 0)
             {
                 variables.preferredDash = comboDash.Text;
-                variables.dashversion = Convert.ToInt32(comboDash.Text);
+                variables.dashversion = comboDash.Text;
                 lblDash.Text = comboDash.Text;
             }
 
@@ -475,15 +503,7 @@ namespace JRunner.Panels
         private void checkGlitch2m(string board)
         {
             if (board == null) board = "None";
-            if (variables.dashversion == 17489 && File.Exists(variables.rootfolder + @"\xeBuild\17489\!XDKbuild Only!.txt"))
-            {
-                rbtnGlitch2m.Enabled = true;
-            }
-            else
-            {
-                if (board.Contains("Winchester") || board.Contains("Corona") || board.Contains("Trinity") || board.Contains("None")) rbtnGlitch2m.Enabled = true;
-                else rbtnGlitch2m.Enabled = rbtnGlitch2m.Checked = false;
-            }
+            rbtnGlitch2m.Enabled = true;
         }
 
         private void checkDevGL()
@@ -552,6 +572,19 @@ namespace JRunner.Panels
             }
             else chkUsbdSec.Checked = chkUsbdSec.Enabled = false;
 
+            if (File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\bin\hddssauth.bin")))
+            {
+                if (rbtnRetail.Checked) chkHddSsAuth.Checked = chkHddSsAuth.Enabled = false;
+                else chkHddSsAuth.Enabled = true;
+            }
+            else chkHddSsAuth.Checked = chkHddSsAuth.Enabled = false;
+
+            // BootAnim Remap is bundled directly inside J-Runner (embedded resource), so unlike
+            // UsbdSec/HddSsAuth it doesn't depend on a per-dash bin file shipping with the kernel package.
+            // It's still Freeboot-only, same as the other Other Patches entries.
+            if (rbtnRetail.Checked) chkBootAnimRemap.Checked = chkBootAnimRemap.Enabled = false;
+            else chkBootAnimRemap.Enabled = true;
+
             checkDashAndConsoleSpecificPatches(variables.boardtype);
         }
 
@@ -574,7 +607,7 @@ namespace JRunner.Panels
         bool chkWB4GEn = true;
         public void checkWBXdkBuild()
         {
-            if (rbtnGlitch2m.Checked && variables.dashversion == 17489 && File.Exists(variables.rootfolder + @"\xeBuild\17489\!XDKbuild Only!.txt"))
+            if ( (rbtnGlitch2m.Checked || rbtnDevGL.Checked) && File.Exists(variables.rootfolder + @"\xeBuild\" + variables.dashversion + @"\!XDKbuild Only!.txt"))
             {
                 chkWB.Visible = false;
                 chkWB.Checked = false;
@@ -858,11 +891,25 @@ namespace JRunner.Panels
             }
         }
 
+        private void chkElpis_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkElpis.Checked)
+            {
+                Console.WriteLine("Elpis/Rhea selected");
+            }
+            else if (!chkElpis.Checked) // Don't uselessly spam the console
+            {
+                Console.WriteLine("Elpis/Rhea deselected");
+            }
+
+            updateElpis();
+        }
+
         private void chkWB4G_CheckedChanged(object sender, EventArgs e)
         {
             if (chkWB4G.Checked)
             {
-                MessageBox.Show("Warning: This function is for advanced users only\n\nIf you don't understand what this is for, use WB 2K on the XeBuild tab instead", "Steep Hill Ahead", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Warning: This function is for advanced users only.\n\nIf you don't understand what this is for, use WB 2K on the XeBuild tab instead.", "Steep Hill Ahead", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Console.WriteLine("Winbond 2K Buffer selected");
                 chkWB.Checked = false;
             }
@@ -887,6 +934,14 @@ namespace JRunner.Panels
             if (chkWB.Checked) patches[7] = "-r WB";
             else if (chkWB4G.Checked) patches[7] = "-r WB4G";
             else patches[7] = "";
+
+            updateCommand();
+        }
+
+        private void updateElpis()
+        {
+            if (chkElpis.Checked) patches[8] = "-r ELPIS";
+            else patches[8] = "";
 
             updateCommand();
         }
@@ -970,6 +1025,18 @@ namespace JRunner.Panels
         {
             if (chkCoronaKeyFix.Checked) Console.WriteLine("Corona Key Fix selected");
             else Console.WriteLine("Corona Key Fix deselected");
+        }
+
+        private void chkHddSsAuth_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkHddSsAuth.Checked) Console.WriteLine("HddSsAuth selected");
+            else Console.WriteLine("HddSsAuth deselected");
+        }
+
+        private void chkBootAnimRemap_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkBootAnimRemap.Checked) Console.WriteLine("BootAnim Remap (remap_bootanim_17559) selected");
+            else Console.WriteLine("BootAnim Remap (remap_bootanim_17559) deselected");
         }
 
         private void btnGetMB_Click(object sender, EventArgs e)
@@ -1150,6 +1217,7 @@ namespace JRunner.Panels
             Rgh3Mhz.Visible = false;
             chkWB.Visible = false;
             chkWB4G.Enabled = false;
+            chkElpis.Visible = false;
             chkXdkBuild.Visible = false;
             chkRJtag.Visible = false;
             chkAudClamp.Visible = false;
@@ -1278,19 +1346,24 @@ namespace JRunner.Panels
             xe.client(arguments);
         }
 
-        public void createxebuild_v2(bool custom, Nand.PrivateN nand, bool fullDataClean)
+        public void createxebuild_v2(bool custom, Nand.PrivateN nand, bool fullDataClean, bool silent = false)
         {
             Classes.xebuild xe = new Classes.xebuild();
             xe.loadvariables(nand._cpukey, (variables.hacktypes)variables.ttyp, variables.dashversion,
                              variables.ctype, patches, nand, chkXeSettings.Checked, checkDLPatches.Checked,
                              chkLaunch.Checked, chkAudClamp.Checked, chkRJtag.Checked, chkCleanSMC.Checked, chkCR4.Checked, chkSMCP.Checked, chkRgh3.Checked, chkBigffs.Checked,
-                             chk0Fuse.Checked, chkXdkBuild.Checked, chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, chkUsbdSec.Checked, chkCoronaKeyFix.Checked, fullDataClean);
+                             chk0Fuse.Checked, chkXdkBuild.Checked, chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, chkUsbdSec.Checked, chkCoronaKeyFix.Checked, chkHddSsAuth.Checked, chkBootAnimRemap.Checked, fullDataClean);
 
             string ini = (variables.launchpath + @"\" + variables.dashversion + @"\_" + variables.ttyp + ".ini");
 
-            if (variables.ctype.ID == 7 || variables.ctype.ID == 13 || variables.ctype.ID == 14)
+            // xeBuild does not officially support creating images for 64mb xenon, zephyr, or falcon
+            // in retail/glitch/glitch2/devGL modes. HOWEVER, it does support devkit images, so if the
+            // selected hack type is DevGL, we can create and patch a devkit image with pre and post
+            // xeBuild patching steps
+            if( (variables.ctype.ID == 7 || variables.ctype.ID == 13 || variables.ctype.ID == 14) &&
+                 variables.ttyp != variables.hacktypes.devgl )
             {
-                if (MessageBox.Show("XeBuild does not support building 64MB images for Xenon, Zephyr, or Falcon\n\nContinuing will cause a 16MB image to be built\n\nDo you want to continue?", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                if (MessageBox.Show("XeBuild does not support building 64MB images for Xenon, Zephyr, or Falcon.\n\nContinuing will cause a 16MB image to be built.\n\nDo you want to continue?", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                 {
                     return;
                 }
@@ -1317,21 +1390,26 @@ namespace JRunner.Panels
                     MessageBox.Show("You must select a .bin file", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                     return;
                 }
-                try
+
+                if (!silent)
                 {
-                    string[] files = { "kv.bin", "smc.bin", "smc_config.bin", "fcrt.bin" };
-                    foreach (string file in files)
+                    try
                     {
-                        if (File.Exists(Path.Combine(variables.rootfolder, @"xebuild\data\" + file)))
+                        string[] files = { "kv.bin", "smc.bin", "smc_config.bin", "fcrt.bin" };
+                        foreach (string file in files)
                         {
-                            if (MessageBox.Show(file + " found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                            if (File.Exists(Path.Combine(variables.rootfolder, @"xebuild\data\" + file)))
                             {
-                                File.Delete(Path.Combine(variables.rootfolder, @"xebuild\data\" + file));
+                                if (MessageBox.Show(file + " found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                                {
+                                    File.Delete(Path.Combine(variables.rootfolder, @"xebuild\data\" + file));
+                                }
                             }
                         }
                     }
+                    catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
                 }
-                catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+
                 if (!nand.cpukeyverification(nand._cpukey))
                 {
                     Console.WriteLine("Wrong CPU Key");
@@ -1365,7 +1443,7 @@ namespace JRunner.Panels
                     long size = 0;
                     if (Nand.Nand.cpukeyverification(Oper.openfile(Path.Combine(variables.rootfolder, @"xebuild\data\kv.bin"), ref size, 0), variables.cpukey))
                     {
-                        if (variables.debugMode) Console.WriteLine("CPU Key is Correct");
+                        if (variables.debugMode) Console.WriteLine("CPU Key is correct");
                         if (Nand.Nand.getfcrtflag(File.ReadAllBytes(Path.Combine(variables.rootfolder, @"xebuild\data\kv.bin")), variables.cpukey))
                         {
                             if (!File.Exists(Path.Combine(variables.rootfolder, @"xebuild\data\fcrt.bin")))
@@ -1399,17 +1477,18 @@ namespace JRunner.Panels
             switch (xe.createxebuild(custom))
             {
                 case Classes.xebuild.XebuildError.nocpukey:
-                    MessageBox.Show("CPU Key is Missing");
+                    MessageBox.Show("CPU Key is missing");
                     return;
                 case Classes.xebuild.XebuildError.nodash:
-                    MessageBox.Show("No Kernel Selected");
+                    MessageBox.Show("No kernel selected");
                     return;
                 case Classes.xebuild.XebuildError.noinis:
-                    MessageBox.Show("Ini's are Missing");
+                    MessageBox.Show("Ini's are missing");
                     return;
                 case Classes.xebuild.XebuildError.nobootloaders:
                     Console.WriteLine("The specified console bootloader list ({0}) is missing from the ini ({1})", variables.ctype.Ini + "bl", ini);
                     Console.WriteLine("You can either add it manually or ask for it get added if its possible");
+                    xe.xeExit += xe_xeExit;
                     return;
                 case Classes.xebuild.XebuildError.wrongcpukey:
                     MessageBox.Show("Wrong CPU Key");
@@ -1425,7 +1504,7 @@ namespace JRunner.Panels
                             chkLaunch.Checked, chkAudClamp.Checked, chkRJtag.Checked, chkCleanSMC.Checked,
                             chkCR4.Checked, chkSMCP.Checked, chkRgh3.Checked, chkBigffs.Checked, chk0Fuse.Checked,
                             chkXdkBuild.Checked, chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, chkUsbdSec.Checked,
-                            chkCoronaKeyFix.Checked, fullDataClean);
+                            chkCoronaKeyFix.Checked, chkHddSsAuth.Checked, chkBootAnimRemap.Checked, fullDataClean);
                         goto Start;
                     }
                 case Classes.xebuild.XebuildError.none:
@@ -1441,21 +1520,25 @@ namespace JRunner.Panels
 
         public void xe_xeExit(object sender, EventArgs e)
         {
-            xeExitActual();
+            xeExitActual(variables.xefinished);
         }
 
-        public void xeExitActual()
+        public void xeExitActual(bool success = true)
         {
+            if (variables.debugMode) Console.WriteLine("XeBuild Success: " + success.ToString());
             variables.changeldv = 0;
             MainForm.mainForm.updateProgress(100);
 
-            try
+            if (success)
             {
-                File.Copy(Path.Combine(variables.rootfolder, @"xebuild\options.ini"), Path.Combine(variables.rootfolder, @"xebuild\data\options.ini"), true);
-                chkXeSettings.Checked = false;
-                File.Move(Path.Combine(variables.xefolder, variables.updflash + ".log"), Path.Combine(variables.xefolder, variables.updflash.Substring(0, variables.updflash.IndexOf(".")) + "(" + DateTime.Now.ToString("ddMMyyyyHHmm") + ").bin.log"));
+                try
+                {
+                    File.Copy(Path.Combine(variables.rootfolder, @"xebuild\options.ini"), Path.Combine(variables.rootfolder, @"xebuild\data\options.ini"), true);
+                    chkXeSettings.Checked = false;
+                    File.Move(Path.Combine(variables.xefolder, variables.updflash + ".log"), Path.Combine(variables.xefolder, variables.updflash.Substring(0, variables.updflash.IndexOf(".")) + "(" + DateTime.Now.ToString("ddMMyyyyHHmmss") + ").bin.log"));
+                }
+                catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
 
             try
             {
@@ -1463,7 +1546,7 @@ namespace JRunner.Panels
             }
             catch { }
 
-            if (variables.xefinished)
+            if (variables.xefinished && success)
             {
                 Console.WriteLine("Saved to {0}", variables.xefolder);
                 Console.WriteLine("Image is Ready");
@@ -1682,7 +1765,7 @@ namespace JRunner.Panels
             {
                 comboCB.Items.Clear();
                 cbList = new List<CB>();
-                if (variables.dashversion != 0)
+                if (!variables.dashversion.Equals(""))
                 {
                     string ini = (variables.launchpath + @"\" + variables.dashversion + @"\_retail.ini");
                     List<string> labels = new List<string>();

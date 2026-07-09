@@ -32,6 +32,7 @@
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.MainTabs = new System.Windows.Forms.TabControl();
             this.tabXeBuild = new System.Windows.Forms.TabPage();
+            this.chkElpis = new System.Windows.Forms.CheckBox();
             this.Rgh3Label2 = new System.Windows.Forms.Label();
             this.Rgh3Label = new System.Windows.Forms.Label();
             this.Rgh3Mhz = new System.Windows.Forms.ComboBox();
@@ -61,8 +62,10 @@
             this.rbtnGlitch = new System.Windows.Forms.RadioButton();
             this.tabPatches = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.chkHddSsAuth = new System.Windows.Forms.CheckBox();
             this.chkCoronaKeyFix = new System.Windows.Forms.CheckBox();
             this.chkUsbdSec = new System.Windows.Forms.CheckBox();
+            this.chkBootAnimRemap = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.chkXLBoth = new System.Windows.Forms.CheckBox();
             this.chkXLHdd = new System.Windows.Forms.CheckBox();
@@ -143,6 +146,7 @@
             // tabXeBuild
             // 
             this.tabXeBuild.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.tabXeBuild.Controls.Add(this.chkElpis);
             this.tabXeBuild.Controls.Add(this.Rgh3Label2);
             this.tabXeBuild.Controls.Add(this.Rgh3Label);
             this.tabXeBuild.Controls.Add(this.Rgh3Mhz);
@@ -175,10 +179,23 @@
             this.tabXeBuild.TabIndex = 0;
             this.tabXeBuild.Text = "Home";
             // 
+            // chkElpis
+            // 
+            this.chkElpis.AutoSize = true;
+            this.chkElpis.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.chkElpis.Location = new System.Drawing.Point(229, 21);
+            this.chkElpis.Name = "chkElpis";
+            this.chkElpis.Size = new System.Drawing.Size(79, 17);
+            this.chkElpis.TabIndex = 100;
+            this.chkElpis.Text = "Elpis/Rhea";
+            this.toolTip1.SetToolTip(this.chkElpis, "Use 7378 CB_B for consoles with Elpis or Rhea GPUs");
+            this.chkElpis.UseVisualStyleBackColor = true;
+            this.chkElpis.CheckedChanged += new System.EventHandler(this.chkElpis_CheckedChanged);
+            // 
             // Rgh3Label2
             // 
             this.Rgh3Label2.AutoSize = true;
-            this.Rgh3Label2.Location = new System.Drawing.Point(286, 64);
+            this.Rgh3Label2.Location = new System.Drawing.Point(285, 70);
             this.Rgh3Label2.Name = "Rgh3Label2";
             this.Rgh3Label2.Size = new System.Drawing.Size(19, 13);
             this.Rgh3Label2.TabIndex = 21;
@@ -188,7 +205,7 @@
             // Rgh3Label
             // 
             this.Rgh3Label.AutoSize = true;
-            this.Rgh3Label.Location = new System.Drawing.Point(281, 47);
+            this.Rgh3Label.Location = new System.Drawing.Point(280, 53);
             this.Rgh3Label.Name = "Rgh3Label";
             this.Rgh3Label.Size = new System.Drawing.Size(32, 13);
             this.Rgh3Label.TabIndex = 99;
@@ -199,10 +216,11 @@
             this.Rgh3Mhz.FormattingEnabled = true;
             this.Rgh3Mhz.Items.AddRange(new object[] {
             "10",
-            "27"});
-            this.Rgh3Mhz.Location = new System.Drawing.Point(284, 61);
+            "27",
+            "OC"});
+            this.Rgh3Mhz.Location = new System.Drawing.Point(283, 67);
             this.Rgh3Mhz.Name = "Rgh3Mhz";
-            this.Rgh3Mhz.Size = new System.Drawing.Size(36, 21);
+            this.Rgh3Mhz.Size = new System.Drawing.Size(38, 21);
             this.Rgh3Mhz.TabIndex = 20;
             this.Rgh3Mhz.Text = "27";
             this.toolTip1.SetToolTip(this.Rgh3Mhz, "Sets the I2C slowdown type");
@@ -211,7 +229,7 @@
             // 
             this.chkRgh3.AutoSize = true;
             this.chkRgh3.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.chkRgh3.Location = new System.Drawing.Point(229, 63);
+            this.chkRgh3.Location = new System.Drawing.Point(229, 69);
             this.chkRgh3.Name = "chkRgh3";
             this.chkRgh3.Size = new System.Drawing.Size(56, 17);
             this.chkRgh3.TabIndex = 19;
@@ -237,7 +255,7 @@
             // chkCR4
             // 
             this.chkCR4.AutoSize = true;
-            this.chkCR4.Location = new System.Drawing.Point(229, 31);
+            this.chkCR4.Location = new System.Drawing.Point(229, 37);
             this.chkCR4.Name = "chkCR4";
             this.chkCR4.Size = new System.Drawing.Size(47, 17);
             this.chkCR4.TabIndex = 17;
@@ -304,7 +322,7 @@
             // 
             this.chkSMCP.AutoSize = true;
             this.chkSMCP.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.chkSMCP.Location = new System.Drawing.Point(229, 47);
+            this.chkSMCP.Location = new System.Drawing.Point(229, 53);
             this.chkSMCP.Name = "chkSMCP";
             this.chkSMCP.Size = new System.Drawing.Size(55, 17);
             this.chkSMCP.TabIndex = 18;
@@ -361,9 +379,9 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(13, 59);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(72, 13);
+            this.label2.Size = new System.Drawing.Size(59, 13);
             this.label2.TabIndex = 72;
-            this.label2.Text = "Console Type";
+            this.label2.Text = "Flash Type";
             // 
             // lblDashVersion
             // 
@@ -396,7 +414,7 @@
             this.comboDash.FormattingEnabled = true;
             this.comboDash.Location = new System.Drawing.Point(16, 28);
             this.comboDash.Name = "comboDash";
-            this.comboDash.Size = new System.Drawing.Size(71, 21);
+            this.comboDash.Size = new System.Drawing.Size(96, 21);
             this.comboDash.TabIndex = 5;
             this.toolTip1.SetToolTip(this.comboDash, "Select the kernel/dashboard version used for XeBuild");
             this.comboDash.ValueMember = "Dash";
@@ -509,14 +527,46 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.chkHddSsAuth);
             this.groupBox2.Controls.Add(this.chkCoronaKeyFix);
             this.groupBox2.Controls.Add(this.chkUsbdSec);
+            this.groupBox2.Controls.Add(this.chkBootAnimRemap);
             this.groupBox2.Location = new System.Drawing.Point(210, 3);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(104, 61);
+            this.groupBox2.Size = new System.Drawing.Size(104, 99);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Other Patches";
+            // 
+            // chkHddSsAuth
+            // 
+            this.chkHddSsAuth.AutoSize = true;
+            this.chkHddSsAuth.Enabled = false;
+            this.chkHddSsAuth.Location = new System.Drawing.Point(21, 56);
+            this.chkHddSsAuth.Name = "chkHddSsAuth";
+            this.chkHddSsAuth.Size = new System.Drawing.Size(80, 17);
+            this.chkHddSsAuth.TabIndex = 2;
+            this.chkHddSsAuth.Text = "HddSsAuth";
+            this.toolTip1.SetToolTip(this.chkHddSsAuth, "Patch Freeboot to do full authentication for drives with a security sector,\r\nallo" +
+        "wing FATXplorer retail formatted drives with unused space \r\nto be detected and u" +
+        "sed");
+            this.chkHddSsAuth.UseVisualStyleBackColor = true;
+            this.chkHddSsAuth.CheckedChanged += new System.EventHandler(this.chkHddSsAuth_CheckedChanged);
+            // 
+            // chkBootAnimRemap
+            // 
+            this.chkBootAnimRemap.AutoSize = true;
+            this.chkBootAnimRemap.Enabled = true;
+            this.chkBootAnimRemap.Location = new System.Drawing.Point(21, 75);
+            this.chkBootAnimRemap.Name = "chkBootAnimRemap";
+            this.chkBootAnimRemap.Size = new System.Drawing.Size(94, 17);
+            this.chkBootAnimRemap.TabIndex = 3;
+            this.chkBootAnimRemap.Text = "BootAnim Remap";
+            this.toolTip1.SetToolTip(this.chkBootAnimRemap, "Applies the remap_bootanim_17559 patch (-a remap_bootanim_17559),\r\nredirecting bo" +
+        "otanim.xex to load from \\Device\\Harddisk0\\Partition1\\.\r\nBuilt in - no manual comm" +
+        "and needed.");
+            this.chkBootAnimRemap.UseVisualStyleBackColor = true;
+            this.chkBootAnimRemap.CheckedChanged += new System.EventHandler(this.chkBootAnimRemap_CheckedChanged);
             // 
             // chkCoronaKeyFix
             // 
@@ -1100,13 +1150,13 @@
         private System.Windows.Forms.CheckBox chkRgh3;
         private System.Windows.Forms.Label Rgh3Label;
         private System.Windows.Forms.ComboBox Rgh3Mhz;
-        private System.Windows.Forms.Label Rgh3Label2;
         private System.Windows.Forms.CheckBox chkXLUsb;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox chkXLHdd;
         private System.Windows.Forms.Button btnShowAdvanced;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.CheckBox chkUsbdSec;
+        private System.Windows.Forms.CheckBox chkBootAnimRemap;
         private System.Windows.Forms.TabPage tabUpdate;
         private System.Windows.Forms.Label lblDash;
         private System.Windows.Forms.Label lblD;
@@ -1119,5 +1169,8 @@
         private System.Windows.Forms.Button btnXEUpdate;
         private System.Windows.Forms.CheckBox chkXLBoth;
         private System.Windows.Forms.CheckBox chkCoronaKeyFix;
+        private System.Windows.Forms.CheckBox chkElpis;
+        private System.Windows.Forms.CheckBox chkHddSsAuth;
+        private System.Windows.Forms.Label Rgh3Label2;
     }
 }

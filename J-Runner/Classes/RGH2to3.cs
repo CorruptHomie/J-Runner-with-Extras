@@ -197,28 +197,28 @@ namespace JRunner.Classes
             }
         }
 
-        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(string eccPath, string flashPath, string cpuKey, string outPath)
+        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(string eccPath, string flashPath, string cpuKey, string outPath, bool patchSMC = true)
         {
             byte[] output;
-            var ret = ConvertRgh2ToRgh3(File.ReadAllBytes(eccPath), File.ReadAllBytes(flashPath), Unhexlify(cpuKey), out output);
+            var ret = ConvertRgh2ToRgh3(File.ReadAllBytes(eccPath), File.ReadAllBytes(flashPath), Unhexlify(cpuKey), out output, patchSMC);
             File.WriteAllBytes(outPath, output);
             return ret;
         }
 
-        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(string eccPath, string flashPath, byte[] cpuKey, string outPath)
+        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(string eccPath, string flashPath, byte[] cpuKey, string outPath, bool patchSMC)
         {
             byte[] output;
-            var ret = ConvertRgh2ToRgh3(File.ReadAllBytes(eccPath), File.ReadAllBytes(flashPath), cpuKey, out output);
+            var ret = ConvertRgh2ToRgh3(File.ReadAllBytes(eccPath), File.ReadAllBytes(flashPath), cpuKey, out output, patchSMC);
             File.WriteAllBytes(outPath, output);
             return ret;
         }
 
-        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(byte[] eccData, byte[] flashData, string cpuKey, out byte[] output)
+        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(byte[] eccData, byte[] flashData, string cpuKey, out byte[] output, bool patchSMC)
         {
-            return ConvertRgh2ToRgh3(eccData, flashData, Unhexlify(cpuKey), out output);
+            return ConvertRgh2ToRgh3(eccData, flashData, Unhexlify(cpuKey), out output, patchSMC);
         }
 
-        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(byte[] eccData, byte[] flashData, byte[] cpuKey, out byte[] output)
+        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(byte[] eccData, byte[] flashData, byte[] cpuKey, out byte[] output, bool patchSMC)
         {
             output = null;
 
@@ -397,17 +397,50 @@ namespace JRunner.Classes
                     if(flashHasEcc)
                         patchFlashData = UnEcc(patchFlashData);
                 }
+                else if (loaderName == "CD")
+                {
+                    // If we haven't found XeLL, but we did find CD, this might be an RGL
+                    // style dev image with CB_A -> CB_B -> CD -> SE rather than XDKBuild style that
+                    // uses CB_A -> SB -> SC -> SD -> SE
+                    loaderName = ReadString(patchFlashData, (int)loaderOffs, 2);
+                    loaderVer = U16ReadBE(patchFlashData, (int)(loaderOffs + 2));
+                    loaderFlags = U32ReadBE(patchFlashData, (int)(loaderOffs + 4));
+                    loaderEntry = U32ReadBE(patchFlashData, (int)(loaderOffs + 8));
+                    loaderSize = U32ReadBE(patchFlashData, (int)(loaderOffs + 12));
+                    loaderOffs += loaderSize;
+
+                    if (loaderName == "SE")
+                    {
+                        // Extra Pages
+                        int numPages = (int)loaderOffs / 0x200;
+                        if (loaderOffs % 0x200 != 0)
+                            numPages += 1;
+                        numPages += 4;
+
+                        int flashEnd = numPages * (flashHasEcc ? 0x210 : 0x200);
+                        patchFlashData = flashData.Take(flashEnd).ToArray();
+                        if (flashHasEcc)
+                            patchFlashData = UnEcc(patchFlashData);
+                    }
+                    else
+                    {
+                        return RGH_CONVERT_ERROR.ERROR_XELL_NOT_FOUND;
+                    }
+                }
                 else
                 {
                     return RGH_CONVERT_ERROR.ERROR_XELL_NOT_FOUND;
                 }
             }
 
-            // Replace SMC
-            patchFlashData = patchFlashData.Take((int)rgh3SmcOffs)
-                .Concat(rgh3Smc)
-                .Concat(patchFlashData.Skip((int)(rgh3SmcOffs + rgh3SmcLen)))
-                .ToArray();
+            // Replace SMC if the patch flag is set to true, otherwise we're only injecting the CB_X
+            if (patchSMC)
+            {
+                patchFlashData = patchFlashData.Take((int)rgh3SmcOffs)
+                    .Concat(rgh3Smc)
+                    .Concat(patchFlashData.Skip((int)(rgh3SmcOffs + rgh3SmcLen)))
+                    .ToArray();
+            }
 
             // Decrypt CBB
             flashCba = DecryptCBA(flashCba);
