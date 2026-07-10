@@ -20,4 +20,4 @@ DirtyPico: ThisIsCheez on <a href="https://github.com/ThisIsCheez">GitHub</a>
 
 BootAnimRemap17559: LordVirusXeX on <a href="https://www.se7ensins.com/members/lordvirusxex.1551087/">Se7enSins</a>
 
-J-Runner and J-Runner with Extras: [emtee40](https://github.com/emtee40) and [Octal450](https://github.com/Octal450/J-Runner-with-Extras)/[J-Runner with extras](https://github.com/J-Runner-With-Extras)
+J-Runner and J-Runner with Extras: [emtee40](https://github.com/emtee40) and [Octal450](https://github.com/Octal450)/[J-Runner with extras](https://github.com/J-Runner-With-Extras)
