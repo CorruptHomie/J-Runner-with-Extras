@@ -12,7 +12,7 @@ System Requirements:
 * If you already have a Raspberry Pi Pico 2/RP2350, you can save some money and flash [this version of Pico2Flasher](https://github.com/Agustin8123/Pico2Flasher)
 * If you already have a Raspberry Pi Pico/RP2040 Clone that has 20 GPIO HEADERS PER SIDE (NO MORE, NO LESS), you can also save money and flash [this version of PicoFlasher](https://github.com/prodeveloper0/picoflasher)
 
-[Download Latest Stable Package](https://github.com/Pheeeeenom/J-Runner-with-Extras/releases/latest)
+[Download Latest Stable Package](https://github.com/CorruptHomie/J-Runner-with-Extras/releases/latest)
 
 Credit where credit is due:
 
