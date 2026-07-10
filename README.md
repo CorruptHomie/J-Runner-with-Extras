@@ -8,6 +8,9 @@ System Requirements:
 * Windows Vista SP2 or later
 * dotNET Framework 4.5.2
 * USB 2.0 port for hardware devices
+* For PicoFlasher, use [this](https://www.raspberrypi.com/products/raspberry-pi-pico/) with [this](https://github.com/X360Tools/PicoFlasher)
+* If you have a Pico 2, use [this version of Pico2Flasher](https://github.com/Agustin8123/Pico2Flasher)
+* If you have a Pico Clone, use [this version of PicoFlasher](https://github.com/prodeveloper0/picoflasher)
 
 [Download Latest Stable Package](https://github.com/Pheeeeenom/J-Runner-with-Extras/releases/latest)
 
