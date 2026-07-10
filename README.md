@@ -5,12 +5,12 @@ The Ultimate RGH/JTAG App
 System Requirements:
 
 * x86 based Windows PC (i386 or amd64)
-* Windows Vista SP2 or later
-* dotNET Framework 4.5.2
+* Windows Vista SP2 or later (please dont be on Vista SP2)
+* [dotNET Framework 4.5.2](https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net452-offline-installer)
 * USB 2.0 port for hardware devices
-* For PicoFlasher, use [this](https://www.raspberrypi.com/products/raspberry-pi-pico/) with [this](https://github.com/X360Tools/PicoFlasher)
-* If you have a Pico 2, use [this version of Pico2Flasher](https://github.com/Agustin8123/Pico2Flasher)
-* If you have a Pico Clone, use [this version of PicoFlasher](https://github.com/prodeveloper0/picoflasher)
+* For PicoFlasher, you should buy [a Raspberry Pi Pico/RP2040](https://www.raspberrypi.com/products/raspberry-pi-pico/) and flash [PicoFlasher](https://github.com/X360Tools/PicoFlasher)
+* If you already have a Raspberry Pi Pico 2/RP2350, you can save some money and flash [this version of Pico2Flasher](https://github.com/Agustin8123/Pico2Flasher)
+* If you already have a Raspberry Pi Pico/RP2040 Clone that is 20 GPIO HEADERS PER SIDE, you can also save money and flash [this version of PicoFlasher](https://github.com/prodeveloper0/picoflasher)
 
 [Download Latest Stable Package](https://github.com/Pheeeeenom/J-Runner-with-Extras/releases/latest)
 
