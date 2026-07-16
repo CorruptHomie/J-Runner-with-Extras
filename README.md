@@ -1,4 +1,4 @@
-# J-Runner with MOREExtras
+# J-Runner with MORE Extras
 
 The Ultimate RGH/JTAG App
 
