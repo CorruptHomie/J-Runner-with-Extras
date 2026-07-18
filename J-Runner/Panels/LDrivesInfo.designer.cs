@@ -59,7 +59,7 @@
             this.listView1.Location = new System.Drawing.Point(2, 2);
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(335, 182);
+            this.listView1.Size = new System.Drawing.Size(336, 181);
             this.listView1.TabIndex = 1;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -89,7 +89,7 @@
             // columnHeader4
             // 
             this.columnHeader4.Text = "Format";
-            this.columnHeader4.Width = 47;
+            this.columnHeader4.Width = 48;
             // 
             // columnHeader5
             // 
@@ -98,9 +98,9 @@
             // 
             // btnRefresh
             // 
-            this.btnRefresh.Location = new System.Drawing.Point(133, 191);
+            this.btnRefresh.Location = new System.Drawing.Point(133, 189);
             this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(196, 25);
+            this.btnRefresh.Size = new System.Drawing.Size(197, 25);
             this.btnRefresh.TabIndex = 10;
             this.btnRefresh.Text = "Refresh Drive List";
             this.btnRefresh.UseVisualStyleBackColor = true;
@@ -109,19 +109,19 @@
             // chkShowAll
             // 
             this.chkShowAll.AutoSize = true;
-            this.chkShowAll.Location = new System.Drawing.Point(117, 267);
+            this.chkShowAll.Location = new System.Drawing.Point(117, 263);
             this.chkShowAll.Name = "chkShowAll";
             this.chkShowAll.Size = new System.Drawing.Size(109, 17);
             this.chkShowAll.TabIndex = 11;
             this.chkShowAll.Text = "Show All Devices";
             this.chkShowAll.UseVisualStyleBackColor = true;
-            this.chkShowAll.CheckedChanged += new System.EventHandler(this.chkShowAll_CheckedChanged);
+            this.chkShowAll.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // btnErase
             // 
-            this.btnErase.Location = new System.Drawing.Point(254, 223);
+            this.btnErase.Location = new System.Drawing.Point(254, 220);
             this.btnErase.Name = "btnErase";
-            this.btnErase.Size = new System.Drawing.Size(75, 33);
+            this.btnErase.Size = new System.Drawing.Size(76, 33);
             this.btnErase.TabIndex = 16;
             this.btnErase.Text = "Erase";
             this.btnErase.UseVisualStyleBackColor = true;
@@ -129,7 +129,7 @@
             // 
             // btnWrite
             // 
-            this.btnWrite.Location = new System.Drawing.Point(132, 223);
+            this.btnWrite.Location = new System.Drawing.Point(133, 220);
             this.btnWrite.Name = "btnWrite";
             this.btnWrite.Size = new System.Drawing.Size(115, 33);
             this.btnWrite.TabIndex = 14;
@@ -140,17 +140,16 @@
             // chkFullDump
             // 
             this.chkFullDump.AutoSize = true;
-            this.chkFullDump.Location = new System.Drawing.Point(15, 267);
+            this.chkFullDump.Location = new System.Drawing.Point(15, 263);
             this.chkFullDump.Name = "chkFullDump";
             this.chkFullDump.Size = new System.Drawing.Size(73, 17);
             this.chkFullDump.TabIndex = 15;
             this.chkFullDump.Text = "Full Dump";
             this.chkFullDump.UseVisualStyleBackColor = true;
-            this.chkFullDump.CheckedChanged += new System.EventHandler(this.chkFullDump_CheckedChanged);
             // 
             // btnRead
             // 
-            this.btnRead.Location = new System.Drawing.Point(10, 223);
+            this.btnRead.Location = new System.Drawing.Point(12, 220);
             this.btnRead.Name = "btnRead";
             this.btnRead.Size = new System.Drawing.Size(115, 33);
             this.btnRead.TabIndex = 13;
@@ -160,7 +159,7 @@
             // 
             // btnClose
             // 
-            this.btnClose.Location = new System.Drawing.Point(254, 263);
+            this.btnClose.Location = new System.Drawing.Point(255, 259);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
             this.btnClose.TabIndex = 17;
@@ -171,7 +170,7 @@
             // iterations
             // 
             this.iterations.AutoSize = true;
-            this.iterations.Location = new System.Drawing.Point(12, 197);
+            this.iterations.Location = new System.Drawing.Point(12, 195);
             this.iterations.Name = "iterations";
             this.iterations.Size = new System.Drawing.Size(79, 13);
             this.iterations.TabIndex = 18;
@@ -181,6 +180,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.ControlLight;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.iterations);
             this.Controls.Add(this.btnClose);
@@ -192,7 +192,7 @@
             this.Controls.Add(this.chkShowAll);
             this.Controls.Add(this.listView1);
             this.Name = "LDrivesInfo";
-            this.Size = new System.Drawing.Size(341, 298);
+            this.Size = new System.Drawing.Size(342, 293);
             this.Load += new System.EventHandler(this.LDrivesInfo_Load);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.LDrives_KeyUp);
             this.ResumeLayout(false);

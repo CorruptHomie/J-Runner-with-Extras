@@ -248,7 +248,7 @@ namespace Ionic.Zip
                                   e.UncompressedSize,
                                   e.CompressionRatio,
                                   e.CompressedSize);
-                        if (!string.IsNullOrEmpty(e.Comment))
+                        if (!String.IsNullOrEmpty(e.Comment))
                             StatusMessageTextWriter.WriteLine("  Comment: {0}", e.Comment);
                     }
                     e.Password = _Password;  // this may be null

@@ -5,11 +5,11 @@ using System.Windows.Forms;
 
 namespace JRunner.Forms
 {
-    public partial class DemoN_Uart : Form
+    public partial class demon_uart : Form
     {
 
         public static TextWriter _writer = null;
-        public DemoN_Uart()
+        public demon_uart()
         {
             InitializeComponent();
         }
@@ -22,8 +22,10 @@ namespace JRunner.Forms
         }
         private void MonitorOnNewSerialDataRecieved(object sender, SerialDataEventArgs e)
         {
+
             var tmp = Encoding.UTF8.GetString(e.Data);
             Console.Write(tmp);
+
         }
         private void demon_uart_Load(object sender, EventArgs e)
         {

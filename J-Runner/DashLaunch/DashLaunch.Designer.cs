@@ -308,9 +308,7 @@
             this.checkBox11.Size = new System.Drawing.Size(56, 17);
             this.checkBox11.TabIndex = 12;
             this.checkBox11.Text = "nohud";
-            this.toolTip1.SetToolTip(this.checkBox11, "when set to true, miniblades will not appear... ever (requested as child saftey m" +
-        "easure)\r\nnote that using this option overrides everything in dash launch that re" +
-        "lies on miniblade exits to function");
+            this.toolTip1.SetToolTip(this.checkBox11, resources.GetString("checkBox11.ToolTip"));
             this.checkBox11.UseVisualStyleBackColor = true;
             // 
             // checkBox12
@@ -697,7 +695,7 @@
             // 
             // btn_Create
             // 
-            this.btn_Create.Location = new System.Drawing.Point(385, 353);
+            this.btn_Create.Location = new System.Drawing.Point(385, 351);
             this.btn_Create.Name = "btn_Create";
             this.btn_Create.Size = new System.Drawing.Size(75, 23);
             this.btn_Create.TabIndex = 57;
@@ -770,9 +768,7 @@
             this.checkBox22.Size = new System.Drawing.Size(49, 17);
             this.checkBox22.TabIndex = 62;
             this.checkBox22.Text = "xhttp";
-            this.toolTip1.SetToolTip(this.checkBox22, "14699+ has native http functions, but you are forced to be logged into use them\r\n" +
-        "this patch removes that restriction, set to false to disable it if you have any " +
-        "problems");
+            this.toolTip1.SetToolTip(this.checkBox22, resources.GetString("checkBox22.ToolTip"));
             this.checkBox22.UseVisualStyleBackColor = true;
             // 
             // checkBox23
@@ -1287,7 +1283,7 @@
             this.tabAutoFake.Padding = new System.Windows.Forms.Padding(3);
             this.tabAutoFake.Size = new System.Drawing.Size(525, 293);
             this.tabAutoFake.TabIndex = 3;
-            this.tabAutoFake.Text = "Autofake";
+            this.tabAutoFake.Text = "autofake";
             this.tabAutoFake.UseVisualStyleBackColor = true;
             // 
             // autofake0
@@ -1491,8 +1487,7 @@
             this.MinimizeBox = false;
             this.Name = "DashLaunch";
             this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Dashlaunch INI Configurator";
+            this.Text = "Dashlaunch Ini Configurator";
             this.tabControl1.ResumeLayout(false);
             this.tabSettings.ResumeLayout(false);
             this.tabSettings.PerformLayout();

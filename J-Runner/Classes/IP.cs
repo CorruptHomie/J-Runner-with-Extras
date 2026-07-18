@@ -40,7 +40,7 @@ namespace JRunner
         }
         string parsearp(string mac, string table)
         {
-            if (variables.debugMode) Console.WriteLine(mac);
+            if (variables.debugme) Console.WriteLine(mac);
             if (mac == "nomac") return "0.0.0.0";
             string[] values = table.Split('\n');
             string ip = "0.0.0.0";
@@ -48,12 +48,12 @@ namespace JRunner
             {
                 if (val.ToLower().Contains(mac.ToLower()))
                 {
-                    if (variables.debugMode) Console.WriteLine(val);
+                    if (variables.debugme) Console.WriteLine(val);
                     foreach (string lo in val.Split(' '))
                     {
                         if (IsIPv4(lo)) ip = lo;
                     }
-                    if (variables.debugMode) Console.WriteLine(ip);
+                    if (variables.debugme) Console.WriteLine(ip);
                 }
             }
             return ip;
@@ -83,40 +83,38 @@ namespace JRunner
                 string page = Client.DownloadString("http://" + ip);
                 string regex = @"(?<=<title.*>)([\s\S]*)(?=</title>)";
                 Regex ex = new Regex(regex, RegexOptions.IgnoreCase);
-                if (variables.debugMode) Console.WriteLine(ex.Match(page).Value.Trim());
-                Console.WriteLine("Contacting {0}...", ip);
+                if (variables.debugme) Console.WriteLine(ex.Match(page).Value.Trim());
+                Console.WriteLine("Getting info from {0}...", ip);
                 if (ex.Match(page).Value.Trim().Contains("Reloaded"))
                 {
                     string fuse = Client.DownloadString(fuses);
-                    string[] fuseArr = Regex.Split(fuse, "\n");
-                    foreach (char c in fuseArr[7].Substring(fuseArr[7].IndexOf(':')))
+                    string[] fuck = Regex.Split(fuse, "\n");
+                    foreach (char c in fuck[7].Substring(fuck[7].IndexOf(':')))
                     {
                         if (c == 'f') ldvvalue++;
                     }
-                    foreach (char c in fuseArr[8].Substring(fuseArr[8].IndexOf(':')))
+                    foreach (char c in fuck[8].Substring(fuck[8].IndexOf(':')))
                     {
                         if (c == 'f') ldvvalue++;
                     }
+                    Console.WriteLine("LockDownValue is {0}", ldvvalue);
                     StreamWriter SW = File.AppendText(Path.Combine(folder, "Fuses.txt"));
-                    foreach (string oi in fuseArr)
+                    foreach (string oi in fuck)
                     {
                         SW.WriteLine(oi);
                     }
                     string cpukeytag = page.Substring(page.IndexOf("CPU Key:"), 70);
-                    if (variables.debugMode) Console.WriteLine("Cpukey before edit: {0}", cpukeytag);
+                    if (variables.debugme) Console.WriteLine("Cpukey before edit: {0}", cpukeytag);
                     cpukey = cpukeytag.Substring(cpukeytag.IndexOf("<td>") + 4, 32);
-                    variables.cpukey = cpukey;
-                    if (variables.debugMode) Console.WriteLine("Cpukey: {0}", cpukey);
+                    variables.cpkey = cpukey;
+                    if (variables.debugme) Console.WriteLine("Cpukey: {0}", cpukey);
                     string dvdkeytag = page.Substring(page.IndexOf("DVD Key:"), 70);
-                    if (variables.debugMode) Console.WriteLine("DVDkey before edit: {0}", dvdkeytag);
+                    if (variables.debugme) Console.WriteLine("DVDkey before edit: {0}", dvdkeytag);
 
                     cpukeytag = StripTagsCharArray(cpukeytag);
                     dvdkeytag = StripTagsCharArray(dvdkeytag);
-                    if (variables.debugMode) Console.WriteLine("Cpukey after edit: {0}", cpukeytag);
-                    if (variables.debugMode) Console.WriteLine("dvdkey after edit: {0}", dvdkeytag);
-
-                    Console.WriteLine("6BL Lockdown Value: {0}", ldvvalue);
-
+                    if (variables.debugme) Console.WriteLine("Cpukey after edit: {0}", cpukeytag);
+                    if (variables.debugme) Console.WriteLine("dvdkey after edit: {0}", dvdkeytag);
                     SW.WriteLine("");
                     SW.WriteLine(cpukeytag);
                     SW.WriteLine(dvdkeytag);
@@ -126,45 +124,43 @@ namespace JRunner
                 else if (ex.Match(page).Value.Trim().Contains("XeLLous"))
                 {
                     string cpukeytag = page.Substring(page.IndexOf("CPU"), 70);
-                    if (variables.debugMode) Console.WriteLine("Cpukey before edit: {0}", cpukeytag);
+                    if (variables.debugme) Console.WriteLine("Cpukey before edit: {0}", cpukeytag);
                     cpukey = cpukeytag.Substring(cpukeytag.IndexOf("<td>") + 4, 32);
-                    variables.cpukey = cpukey;
-                    if (variables.debugMode) Console.WriteLine("Cpukey: {0}", cpukey);
+                    variables.cpkey = cpukey;
+                    if (variables.debugme) Console.WriteLine("Cpukey: {0}", cpukey);
 
                     cpukeytag = StripTagsCharArray(cpukeytag);
-                    if (variables.debugMode) Console.WriteLine("Cpukey after edit: {0}", cpukeytag);
+                    if (variables.debugme) Console.WriteLine("Cpukey after edit: {0}", cpukeytag);
                     string fuse = Client.DownloadString(fuses);
-                    string[] fuseArr = Regex.Split(fuse, "\n");
-                    foreach (char c in fuseArr[8].Substring(fuseArr[8].IndexOf(':')))
+                    string[] fuck = Regex.Split(fuse, "\n");
+                    foreach (char c in fuck[8].Substring(fuck[8].IndexOf(':')))
                     {
                         if (c == 'f') ldvvalue++;
                     }
-                    foreach (char c in fuseArr[9].Substring(fuseArr[9].IndexOf(':')))
+                    foreach (char c in fuck[9].Substring(fuck[9].IndexOf(':')))
                     {
                         if (c == 'f') ldvvalue++;
                     }
-
-                    Console.WriteLine("6BL Lockdown Value: {0}", ldvvalue); 
-
+                    if (variables.debugme) Console.WriteLine(ldvvalue);
                     StreamWriter SW = File.AppendText(Path.Combine(folder, "Fuses.txt"));
-                    for (int i = 1; i < fuseArr.Count(); i++)
+                    for (int i = 1; i < fuck.Count(); i++)
                     {
-                        SW.WriteLine(fuseArr[i]);
+                        SW.WriteLine(fuck[i]);
                     }
                     SW.Close();
                     MainForm._event1.Set();
                 }
             }
-            catch (System.Net.WebException) { Console.WriteLine("Connection Timeout"); return cpukey; }
+            catch (System.Net.WebException) { Console.WriteLine("Connection TimeOut"); return cpukey; }
             catch (Exception ex) { Console.WriteLine(ex.Message); return cpukey; }
-            if (variables.debugMode) Console.WriteLine("Finished");
+            if (variables.debugme) Console.WriteLine("Finished");
             return cpukey;
         }
         public string IP_GetCpuKey(string ip, bool print, int saveDir = 0)
         {
             ldvvalue = 0;
             cpukey = "";
-            if (variables.debugMode) Console.WriteLine(ip);
+            if (variables.debugme) Console.WriteLine(ip);
             string folder = variables.outfolder;
             if (saveDir == 2) folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             else if (saveDir == 1) folder = MainForm.mainForm.getCurrentWorkingFolder();
@@ -176,43 +172,41 @@ namespace JRunner
                 string page = Client.DownloadString("http://" + ip);
                 string regex = @"(?<=<title.*>)([\s\S]*)(?=</title>)";
                 Regex ex = new Regex(regex, RegexOptions.IgnoreCase);
-                if (variables.debugMode) Console.WriteLine(ex.Match(page).Value.Trim());
-                if (print) Console.WriteLine("Contacting {0}...", ip);
+                if (variables.debugme) Console.WriteLine(ex.Match(page).Value.Trim());
+                if (print) Console.WriteLine("Getting info from {0}...", ip);
                 if (ex.Match(page).Value.Trim().Contains("Reloaded"))
                 {
+                    Console.WriteLine("");
                     found = true;
-                    Console.WriteLine("Found Xbox in XeLL: {0}", ip);
-
                     string fuse = Client.DownloadString(fuses);
-                    string[] fuseArr = Regex.Split(fuse, "\n");
-                    foreach (char c in fuseArr[7].Substring(fuseArr[7].IndexOf(':')))
+                    string[] fuck = Regex.Split(fuse, "\n");
+                    foreach (char c in fuck[7].Substring(fuck[7].IndexOf(':')))
                     {
                         if (c == 'f') ldvvalue++;
                     }
-                    foreach (char c in fuseArr[8].Substring(fuseArr[8].IndexOf(':')))
+                    foreach (char c in fuck[8].Substring(fuck[8].IndexOf(':')))
                     {
                         if (c == 'f') ldvvalue++;
                     }
+                    Console.WriteLine("Lock Down Value: {0}", ldvvalue);
                     StreamWriter SW = File.AppendText(Path.Combine(folder, "Fuses.txt"));
-                    foreach (string oi in fuseArr)
+                    foreach (string oi in fuck)
                     {
                         SW.WriteLine(oi);
                     }
                     string cpukeytag = page.Substring(page.IndexOf("CPU Key:"), 70);
-                    if (variables.debugMode) Console.WriteLine("Cpukey before edit: {0}", cpukeytag);
+                    if (variables.debugme) Console.WriteLine("Cpukey before edit: {0}", cpukeytag);
                     cpukey = cpukeytag.Substring(cpukeytag.IndexOf("<td>") + 4, 32);
-                    variables.cpukey = cpukey;
-                    if (variables.debugMode) Console.WriteLine("Cpukey: {0}", cpukey);
+                    variables.cpkey = cpukey;
+                    if (variables.debugme) Console.WriteLine("Cpukey: {0}", cpukey);
                     string dvdkeytag = page.Substring(page.IndexOf("DVD Key:"), 70);
-                    if (variables.debugMode) Console.WriteLine("DVDkey before edit: {0}", dvdkeytag);
+                    if (variables.debugme) Console.WriteLine("DVDkey before edit: {0}", dvdkeytag);
 
                     cpukeytag = StripTagsCharArray(cpukeytag);
                     dvdkeytag = StripTagsCharArray(dvdkeytag);
-                    if (variables.debugMode) Console.WriteLine("Cpukey after edit: {0}", cpukeytag);
-                    if (variables.debugMode) Console.WriteLine("dvdkey after edit: {0}", dvdkeytag);
-
-                    Console.WriteLine("6BL Lockdown Value: {0}", ldvvalue);
-
+                    if (variables.debugme) Console.WriteLine("Cpukey after edit: {0}", cpukeytag);
+                    if (variables.debugme) Console.WriteLine("dvdkey after edit: {0}", dvdkeytag);
+                    Console.WriteLine("CPU Key is {0}", cpukey);
                     SW.WriteLine("");
                     SW.WriteLine(cpukeytag);
                     SW.WriteLine(dvdkeytag);
@@ -221,41 +215,40 @@ namespace JRunner
                 }
                 else if (ex.Match(page).Value.Trim().Contains("XeLLous"))
                 {
+                    Console.WriteLine("");
                     found = true;
-                    Console.WriteLine("Found Xbox in XeLL: {0}", ip);
-
                     string cpukeytag = page.Substring(page.IndexOf("CPU"), 70);
-                    if (variables.debugMode) Console.WriteLine("Cpukey before edit: {0}", cpukeytag);
+                    if (variables.debugme) Console.WriteLine("Cpukey before edit: {0}", cpukeytag);
                     cpukey = cpukeytag.Substring(cpukeytag.IndexOf("<td>") + 4, 32);
-                    variables.cpukey = cpukey;
-                    if (variables.debugMode) Console.WriteLine("Cpukey: {0}", cpukey);
+                    variables.cpkey = cpukey;
+                    if (variables.debugme) Console.WriteLine("Cpukey: {0}", cpukey);
 
                     cpukeytag = StripTagsCharArray(cpukeytag);
-                    if (variables.debugMode) Console.WriteLine("Cpukey after edit: {0}", cpukeytag);
+                    if (variables.debugme) Console.WriteLine("Cpukey after edit: {0}", cpukeytag);
                     string fuse = Client.DownloadString(fuses);
-                    string[] fuseArr = Regex.Split(fuse, "\n");
-                    foreach (char c in fuseArr[8].Substring(fuseArr[8].IndexOf(':')))
+                    string[] fuck = Regex.Split(fuse, "\n");
+                    foreach (char c in fuck[8].Substring(fuck[8].IndexOf(':')))
                     {
                         if (c == 'f') ldvvalue++;
                     }
-                    foreach (char c in fuseArr[9].Substring(fuseArr[9].IndexOf(':')))
+                    foreach (char c in fuck[9].Substring(fuck[9].IndexOf(':')))
                     {
                         if (c == 'f') ldvvalue++;
                     }
-
-                    Console.WriteLine("6BL Lockdown Value: {0}", ldvvalue);
-
+                    Console.WriteLine("LockDownValue is {0}", ldvvalue);
+                    Console.WriteLine("CPU Key is {0}", cpukey);
                     StreamWriter SW = File.AppendText(Path.Combine(folder, "Fuses.txt"));
-                    for (int i = 1; i < fuseArr.Count(); i++)
+                    for (int i = 1; i < fuck.Count(); i++)
                     {
-                        SW.WriteLine(fuseArr[i]);
+                        SW.WriteLine(fuck[i]);
                     }
                     SW.Close();
                     MainForm._event1.Set();
                 }
             }
-            catch (System.Net.WebException) { if (print) Console.WriteLine("Connection Timeout"); return cpukey; }
+            catch (System.Net.WebException) { if (print) Console.WriteLine("Connection TimeOut"); return cpukey; }
             catch (Exception ex) { if (print) Console.WriteLine(ex.ToString()); return cpukey; }
+            if (variables.debugme) Console.WriteLine("Finished");
             return cpukey;
         }
 
@@ -296,38 +289,8 @@ namespace JRunner
 
         public static string getGatewayIp()
         {
-            string address;
-
-            // Get a list of network adapters on the system that meets the following requirements
-            // - Interface is up/connected
-            // - Interface is ethernet or WiFi
-            // - The interface doesn't contain "Virtual" in its name (avoids HyperV/VMware/VirtualBox vnet adapters)
-            var physicalAdapters = NetworkInterface.GetAllNetworkInterfaces()
-                .Where(ni =>
-                    ni.OperationalStatus == OperationalStatus.Up &&
-                    (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
-                     ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) &&
-                    !ni.Description.ToLower().Contains("virtual") &&
-                    !ni.Description.ToLower().Contains("vmware"))
-                .ToList();
-
-            // Loop through the list of adapters that was returned and validate the IP address
-            foreach (var adapter in physicalAdapters)
-            {
-                foreach (var addr in adapter.GetIPProperties().UnicastAddresses)
-                {
-                    // If the adapter has an InterNetwork IPv4 address, return it
-                    // (IPv6 = InterNetworkV6 would theoretically work but XeLL doesn't support IPv6)
-                    if (addr.Address.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        address = addr.Address.ToString();
-                        return address.Substring(0, address.LastIndexOf('.') + 1);
-                    }
-                }
-            }
-
-            // Do it the old way if we didn't find an adapter the new way
             var host = Dns.GetHostEntry(Dns.GetHostName());
+            string address;
             foreach (var ip in host.AddressList)
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
@@ -341,27 +304,19 @@ namespace JRunner
 
         public static void initaddresses()
         {
-            if (string.IsNullOrWhiteSpace(variables.ipPrefix))
-            {
-                localGatewayIp = getGatewayIp();
-            }
-            else
-            {
-                localGatewayIp = variables.ipPrefix + ".0";
-            }
-
-            if (!IsIPv4(variables.ipStart))
+            localGatewayIp = getGatewayIp();
+            if (!IsIPv4(variables.IPstart))
             {
                 if (localGatewayIp != "?")
                 {
-                    variables.ipStart = changelastquad(localGatewayIp, "0");
+                    variables.IPstart = changelastquad(localGatewayIp, "0");
                 }
             }
-            if (!IsIPv4(variables.ipEnd))
+            if (!IsIPv4(variables.IPend))
             {
                 if (localGatewayIp != "?")
                 {
-                    variables.ipEnd = changelastquad(localGatewayIp, "255");
+                    variables.IPend = changelastquad(localGatewayIp, "255");
                 }
             }
         }
@@ -387,6 +342,7 @@ namespace JRunner
             {
                 Console.WriteLine("Exceptin " + ex.Message);
             }
+
         }
         private void PingCompletedCallback(object sender, PingCompletedEventArgs e)
         {
@@ -455,6 +411,7 @@ namespace JRunner
             {
                 i = ((int)(ipLong - from) * pb.Maximum) / (int)(to - from);
                 pb.BeginInvoke(new Action(() => pb.Value = i));
+                //Console.Write("\r{0}%   ", i);
                 string address = ToAddr(ipLong);
                 sendAsyncPingPacket(address);
                 sendAsyncPingPacket(address);
@@ -463,6 +420,7 @@ namespace JRunner
                 Thread.Sleep(5);
                 ipLong++;
             }
+            //Console.WriteLine("\r100%   ");
             pb.BeginInvoke(new Action(() => pb.Value = pb.Maximum));
         }
 
@@ -479,24 +437,26 @@ namespace JRunner
         {
             found = false;
             initaddresses();
+            Console.WriteLine("Tip: Load the nand on source to have quicker results.");
             variables.isscanningip = true;
             try
             {
                 IP_GetCpuKey(parsearp(getmacaddress(), getarptable()), false);
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
             if (found)
             {
+                Console.WriteLine("Finished");
                 Console.WriteLine("");
                 variables.isscanningip = false;
                 return;
             }
             bool use = false;
-            Console.WriteLine("Scan Stage 1: Finding IPs...");
-            scanLiveHosts(variables.ipStart, variables.ipEnd, pb);
+            Console.WriteLine("IP Scan Stage 1: Please wait...");
+            scanLiveHosts(variables.IPstart, variables.IPend, pb);
             Thread.Sleep(500);
             found = false;
-            Console.WriteLine("Scan Stage 2: Searching IPs...");
+            Console.WriteLine("IP Scan Stage 2: This will take some time...");
             pb.BeginInvoke(new Action(() => pb.Value = pb.Minimum));
             foreach (string o in ip)
             {
@@ -515,9 +475,10 @@ namespace JRunner
                 if (o != localGatewayIp) IP_GetCpuKey(o, false);
                 if (found) break;
             }
-
+            Console.WriteLine("");
             pb.BeginInvoke(new Action(() => pb.Value = pb.Maximum));
-            if (!found) Console.WriteLine("No Xbox in XeLL detected");
+            if (!found) Console.WriteLine("No Xbox Detected");
+            else Console.WriteLine("Finished");
             Console.WriteLine("");
             variables.isscanningip = false;
         }

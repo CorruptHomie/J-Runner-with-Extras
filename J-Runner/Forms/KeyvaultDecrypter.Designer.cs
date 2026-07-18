@@ -45,12 +45,15 @@ namespace JRunner.Forms
             // 
             // DecryptWizard
             // 
-            this.DecryptWizard.FinishButtonText = "&Decypt";
+            this.DecryptWizard.BackColor = System.Drawing.Color.White;
+            this.DecryptWizard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DecryptWizard.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DecryptWizard.Location = new System.Drawing.Point(0, 0);
             this.DecryptWizard.Name = "DecryptWizard";
             this.DecryptWizard.Pages.Add(this.DecryptPage);
             this.DecryptWizard.Size = new System.Drawing.Size(554, 401);
             this.DecryptWizard.TabIndex = 0;
+            this.DecryptWizard.Text = "Decrypt Keyvault";
             this.DecryptWizard.Title = "Decrypt Keyvault";
             this.DecryptWizard.TitleIcon = ((System.Drawing.Icon)(resources.GetObject("DecryptWizard.TitleIcon")));
             // 
@@ -60,7 +63,7 @@ namespace JRunner.Forms
             this.DecryptPage.Controls.Add(this.KvGroup);
             this.DecryptPage.IsFinishPage = true;
             this.DecryptPage.Name = "DecryptPage";
-            this.DecryptPage.Size = new System.Drawing.Size(507, 247);
+            this.DecryptPage.Size = new System.Drawing.Size(507, 250);
             this.DecryptPage.TabIndex = 0;
             this.DecryptPage.Text = "Insert CPU Key and Keyvault";
             // 
@@ -80,7 +83,7 @@ namespace JRunner.Forms
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 19);
+            this.label1.Location = new System.Drawing.Point(6, 18);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(55, 15);
             this.label1.TabIndex = 5;
@@ -89,7 +92,6 @@ namespace JRunner.Forms
             // CpuKeyBox
             // 
             this.CpuKeyBox.AllowDrop = true;
-            this.CpuKeyBox.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.CpuKeyBox.Location = new System.Drawing.Point(67, 15);
             this.CpuKeyBox.MaxLength = 32;
             this.CpuKeyBox.Name = "CpuKeyBox";
@@ -102,7 +104,7 @@ namespace JRunner.Forms
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(37, 48);
+            this.label2.Location = new System.Drawing.Point(37, 47);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(24, 15);
             this.label2.TabIndex = 2;

@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Media;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -11,43 +10,57 @@ namespace JRunner
 {
     public class xFlasher
     {
-        [DllImport(@"common\xflasher\xFlasher.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(@"common\\xflasher\\FTDI2SPI.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern int spi(int mode, int size, string file, int startblock = 0, int length = 0);
 
-        [DllImport(@"common\xflasher\xFlasher.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(@"common\\xflasher\\FTDI2SPI.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern int spiGetBlocks();
 
-        [DllImport(@"common\xflasher\xFlasher.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(@"common\\xflasher\\FTDI2SPI.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern int spiGetConfig();
 
-        [DllImport(@"common\xflasher\xFlasher.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport(@"common\\xflasher\\FTDI2SPI.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public static extern void spiStop();
 
-
-        //xFlasher eMMC over SPI
-        [DllImport(@"common\xflasher\xFlasher.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public static extern int emmc_read(string file, int startBlock, int blockNum = 98304);
-
-        [DllImport(@"common\xflasher\xFlasher.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public static extern int emmc_write(string file, int startBlock);
-
-        [DllImport(@"common\xflasher\xFlasher.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public static extern int emmcGetBlocks();
-
+        public string svfPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Octal450\\TimingSvfTemp.svf");
+        public string svfRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Octal450");
 
         public bool ready = false;
         public bool inUse = false;
         public bool waiting = false;
         private string flashconf = "";
-        public int selType = 0;
+        private string jtagdevice = "";
 
         private static int initCount = 0;
-        public static int inUseCount = 0;
+        private static int inUseCount = 0;
         public static string xFlasherTimeString = "";
         System.Windows.Threading.DispatcherTimer initTimer;
-        public System.Timers.Timer inUseTimer;
+        System.Timers.Timer inUseTimer;
 
         // Libraries
+        public bool osCheck()
+        {
+            if (Environment.OSVersion.Version.Major > 6) // Win 10+
+            {
+                return true;
+            }
+            else if (Environment.OSVersion.Version.Major == 6)
+            {
+                if (Environment.OSVersion.Version.Minor > 0) return true; // Win 7/8/8.1
+                else if (Environment.OSVersion.ServicePack == "Service Pack 2") return true; // Vista SP2
+                else // Vista RTM/SP1
+                {
+                    MessageBox.Show("This version of Windows is not supported\n\nxFlasher requires Microsoft Windows Vista Service Pack 2 or later", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+            else // XP and older
+            {
+                MessageBox.Show("This version of Windows is not supported\n\nxFlasher requires Microsoft Windows Vista Service Pack 2 or later", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
         public void initTimerSetup()
         {
             initTimer = new System.Windows.Threading.DispatcherTimer();
@@ -71,10 +84,10 @@ namespace JRunner
             }
             else
             {
+                ready = true;
                 initTimer.Stop();
-                if (!inUse && MainForm.mainForm.getProgressBarStyle() == ProgressBarStyle.Marquee) MainForm.mainForm.xFlasherBusy(-1);
+                if (!inUse) MainForm.mainForm.xFlasherBusy(-1);
                 waiting = false;
-                ready = true; // Last
             }
         }
 
@@ -100,7 +113,15 @@ namespace JRunner
         // Flash Config
         public void getFlashConfig()
         {
-            if (inUse || waiting) return;
+            if (!osCheck()) return;
+
+            if (waiting) return;
+
+            if (inUse)
+            {
+                Console.WriteLine("xFlasher: Device Is Busy");
+                return;
+            }
 
             Thread ftdiThread = new Thread(() =>
             {
@@ -121,10 +142,8 @@ namespace JRunner
                 }
                 catch (Exception ex)
                 {
-                    inUse = false;
-
                     Console.WriteLine(ex.Message);
-                    if (variables.debugMode) Console.WriteLine(ex.ToString());
+                    if (variables.debugme) Console.WriteLine(ex.ToString());
                     Console.WriteLine("");
                 }
             });
@@ -136,9 +155,14 @@ namespace JRunner
             Console.WriteLine("xFlasher: Checking Console...");
             inUse = true;
 
-            int result = spi(0, 16, @"common\xflasher\nand.bin");
+            int result = spi(0, 16, "common/xflasher/nand.bin");
 
             flashconf = spiGetConfig().ToString("X8");
+
+            if (File.Exists("common/xflasher/nand.bin"))
+            {
+                File.Delete("common/xflasher/nand.bin");
+            }
 
             inUse = false;
 
@@ -149,15 +173,21 @@ namespace JRunner
                 if (flashconf == "00000000" || flashconf == "FFFFFFFF")
                 {
                     Console.WriteLine("xFlasher: Console Not Found");
+                    if (auto) Console.WriteLine("xFlasher: Can Not Continue");
                     Console.WriteLine("");
                     return 1;
                 }
 
                 if (flashconf == "C0462002")
                 {
-                    Console.WriteLine("Corona: 4GB");
+                    Console.WriteLine("Corona 4GB");
 
-
+                    if (auto)
+                    {
+                        Console.WriteLine("");
+                        MessageBox.Show("Unable to read/write eMMC type console in SPI mode\n\nPlease switch to eMMC mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return 1;
+                    }
                 }
                 else if (result == -4)
                 {
@@ -165,14 +195,11 @@ namespace JRunner
 
                     return 1;
                 }
-                else if (flashconf == "00023010") Console.WriteLine("Jasper, Trinity: 16MB");
-                else if (flashconf == "00043000") Console.WriteLine("Corona: 16MB");
-                else if (flashconf == "008A3020") Console.WriteLine("Jasper, Trinity: 256MB");
-                else if (flashconf == "00AA3020") Console.WriteLine("Jasper, Trinity: 512MB");
-                else if (flashconf == "008C3020") Console.WriteLine("Corona: 256MB");
-                else if (flashconf == "00AC3020") Console.WriteLine("Corona: 512MB");
-                else if (flashconf == "01198010") Console.WriteLine("Xenon, Zephyr, Falcon: 16MB");
-                else if (flashconf == "01198030") Console.WriteLine("Xenon, Zephyr, Falcon: 64MB");
+                else if (flashconf == "00023010") Console.WriteLine("Jasper 16MB, Trinity");
+                else if (flashconf == "00043000") Console.WriteLine("Corona 16MB");
+                else if (flashconf == "008A3020") Console.WriteLine("Jasper 256MB");
+                else if (flashconf == "00AA3020") Console.WriteLine("Jasper 512MB");
+                else if (flashconf == "01198010" || flashconf == "01198030") Console.WriteLine("Xenon, Zephyr, Falcon");
                 else Console.WriteLine("Unrecongized Flash Config");
 
                 Console.WriteLine("");
@@ -192,106 +219,17 @@ namespace JRunner
             }
         }
 
-        public void getConsoleCb()
-        {
-            if (inUse || waiting) return;
-
-            Thread ftdiThread = new Thread(() =>
-            {
-                try
-                {
-                    if (!ready)
-                    {
-                        waiting = true;
-                        MainForm.mainForm.xFlasherBusy(-2);
-                        Console.WriteLine("xFlasher: Waiting for device to become ready");
-                    }
-                    while (!ready)
-                    {
-                        // Do nothing and wait
-                    }
-
-                    if (getFlashConfigActual(true) != 0)
-                    {
-                        return;
-                    }
-
-                    if (File.Exists("common/xflasher/nand.bin")) File.Delete("common/xflasher/nand.bin");
-
-                    MainForm.mainForm.xFlasherBusy(-2);
-                    Console.WriteLine("xFlasher: Checking CB...");
-                    inUse = true;
-
-                    int result = spi(1, 16, @"common\xflasher\nand.bin", 0, 4); // Read Conf
-
-                    inUse = false;
-                    MainForm.mainForm.xFlasherBusy(-1);
-
-                    if (result == 0)
-                    {
-                        if (File.Exists("common/xflasher/nand.bin"))
-                        {
-                            variables.conf = File.ReadAllBytes("common/xflasher/nand.bin");
-                            MainForm.mainForm.getcb_v(flashconf);
-                            File.Delete("common/xflasher/nand.bin");
-                        }
-
-                        Console.WriteLine("");
-                    }
-                    else if (result == -2)
-                    {
-                        if (File.Exists("common/xflasher/nand.bin")) File.Delete("common/xflasher/nand.bin");
-                        Console.WriteLine("xFlasher: Device Not Initialized");
-                        Console.WriteLine("");
-                        return;
-                    }
-                    else if (result == -3)
-                    {
-                        if (File.Exists("common/xflasher/nand.bin")) File.Delete("common/xflasher/nand.bin");
-                        Console.WriteLine("xFlasher: Console Not Found");
-                        Console.WriteLine("");
-                        return;
-                    }
-                    else if (result == -4)
-                    {
-                        if (File.Exists("common/xflasher/nand.bin")) File.Delete("common/xflasher/nand.bin");
-                        Console.WriteLine("xFlasher: Unknown Nand");
-                        Console.WriteLine("");
-                        return;
-                    }
-                    else if (result == -11)
-                    {
-                        if (File.Exists("common/xflasher/nand.bin")) File.Delete("common/xflasher/nand.bin");
-                        Console.WriteLine("xFlasher: Couldn't Open File");
-                        Console.WriteLine("");
-                        return;
-                    }
-                    else
-                    {
-                        if (File.Exists("common/xflasher/nand.bin")) File.Delete("common/xflasher/nand.bin");
-                        Console.WriteLine("xFlasher: Unknown Error");
-                        Console.WriteLine("");
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    inUse = false;
-                    MainForm.mainForm.xFlasherBusy(-1);
-                    if (File.Exists("common/xflasher/nand.bin")) File.Delete("common/xflasher/nand.bin");
-
-                    Console.WriteLine(ex.Message);
-                    if (variables.debugMode) Console.WriteLine(ex.ToString());
-                    Console.WriteLine("");
-                }
-            });
-            ftdiThread.Start();
-        }
-
         // Read Nand
         public void readNandAuto(int size, int iterations, bool skipboardcheck = false) // Automated read, do not use for any special/custom read
         {
-            if (inUse || waiting) return;
+            if (!osCheck()) return;
+
+            if (waiting) return;
+
+            if (inUse)
+            {
+                return;
+            }
 
             Thread ftdiThread = new Thread(() =>
             {
@@ -325,18 +263,9 @@ namespace JRunner
                             {
                                 size = 64;
                             }
-                            else if (flashconf == "C0462002")
+                            else if (flashconf == "008A3020" || flashconf == "00AA3020")
                             {
-
-                            }
-                            else if (flashconf == "008A3020" || flashconf == "008C3020")
-                            {
-                                MainForm.mainForm.BeginInvoke((Action)(() => MainForm.mainForm.xFlasherNandSelShow(1, 2))); // Ask BB
-                                return;
-                            }
-                            else if (flashconf == "00AA3020" || flashconf == "00AC3020")
-                            {
-                                MainForm.mainForm.BeginInvoke((Action)(() => MainForm.mainForm.xFlasherNandSelShow(1, 3))); // Ask BB
+                                MainForm.mainForm.BeginInvoke((Action)(() => MainForm.mainForm.xFlasherNandSelShow(1, true))); // Ask BB
                                 return;
                             }
                             else
@@ -372,7 +301,7 @@ namespace JRunner
                         variables.filename = variables.outfolder + "\\nanddump" + i + ".bin";
                         if (File.Exists(variables.filename))
                         {
-                            if (DialogResult.Cancel == MessageBox.Show("A nand dump already exists!\n\nContinuing will cause the contents to be overwritten!", "File Conflict", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
+                            if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
                             {
                                 Console.WriteLine("xFlasher: Cancelled");
                                 Console.WriteLine("");
@@ -384,32 +313,15 @@ namespace JRunner
                         MainForm.mainForm.xFlasherBusy(1);
                         Console.WriteLine("xFlasher: Reading Nand to {0}", variables.filename);
 
-                        int result = -1;
-                        if (flashconf != "C0462002")
+                        Thread blocksThread = new Thread(() =>
                         {
-                            Thread blocksThread = new Thread(() =>
-                            {
-                                getBlocks(0, size * 64);
-                            });
+                            getBlocks(0, size * 64);
+                        });
 
-                            inUse = true;
-                            blocksThread.Start();
+                        inUse = true;
+                        blocksThread.Start();
 
-                            result = spi(1, size, variables.filename);
-                        }
-                        else
-                        {
-                            Thread blocksThread = new Thread(() =>
-                            {
-                                geteMMCBlocks(0, 98304);
-                            });
-
-                            inUse = true;
-                            blocksThread.Start();
-
-                            result = emmc_read(variables.filename, 0, 98304);
-
-                        }
+                        int result = spi(1, size, variables.filename);
 
                         inUseTimer.Enabled = false;
                         inUseCount = 0;
@@ -420,7 +332,7 @@ namespace JRunner
                         if (result == -1)
                         {
                             i = iterations + 1;
-                            Console.WriteLine("xFlasher: Cancelled");
+                            Console.WriteLine("xFlasher: Aborted!");
                             Console.WriteLine("");
                             return;
                         }
@@ -429,11 +341,9 @@ namespace JRunner
                             Console.WriteLine("xFlasher: Read Successful! Time Elapsed: {0}", xFlasherTimeString);
                             Console.WriteLine("");
 
-                            if (variables.playSuccess)
-                            {
-                                SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
-                                success.Play();
-                            }
+                            SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
+                            if (variables.soundsuccess != "") success.SoundLocation = variables.soundsuccess;
+                            success.Play();
                         }
                         else if (result == -2)
                         {
@@ -466,8 +376,6 @@ namespace JRunner
                             return;
                         }
 
-
-
                         i++;
                     }
                     if (i > iterations)
@@ -478,14 +386,8 @@ namespace JRunner
                 }
                 catch (Exception ex)
                 {
-                    inUseTimer.Enabled = false;
-                    inUseCount = 0;
-                    inUse = false;
-                    variables.reading = false;
-                    MainForm.mainForm.xFlasherBusy(0);
-
                     Console.WriteLine(ex.Message);
-                    if (variables.debugMode) Console.WriteLine(ex.ToString());
+                    if (variables.debugme) Console.WriteLine(ex.ToString());
                     Console.WriteLine("");
                 }
             });
@@ -494,9 +396,16 @@ namespace JRunner
 
         public void readNand(int size, string filename, int startblock = 0, int length = 0)
         {
-            if (inUse || waiting) return;
+            if (!osCheck()) return;
 
-            if (string.IsNullOrWhiteSpace(filename)) return;
+            if (waiting) return;
+
+            if (String.IsNullOrWhiteSpace(filename)) return;
+
+            if (inUse)
+            {
+                return;
+            }
 
             Thread ftdiThread = new Thread(() =>
             {
@@ -521,7 +430,7 @@ namespace JRunner
 
                     if (File.Exists(filename))
                     {
-                        if (DialogResult.Cancel == MessageBox.Show("A nand dump already exists!\n\nContinuing will cause the contents to be overwritten!", "File Conflict", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
+                        if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
                         {
                             Console.WriteLine("xFlasher: Cancelled");
                             Console.WriteLine("");
@@ -553,7 +462,7 @@ namespace JRunner
 
                     if (result == -1)
                     {
-                        Console.WriteLine("xFlasher: Cancelled");
+                        Console.WriteLine("xFlasher: Aborted!");
                         Console.WriteLine("");
                         return;
                     }
@@ -562,11 +471,9 @@ namespace JRunner
                         Console.WriteLine("xFlasher: Read Successful! Time Elapsed: {0}", xFlasherTimeString);
                         Console.WriteLine("");
 
-                        if (variables.playSuccess)
-                        {
-                            SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
-                            success.Play();
-                        }
+                        SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
+                        if (variables.soundsuccess != "") success.SoundLocation = variables.soundsuccess;
+                        success.Play();
                     }
                     else if (result == -2)
                     {
@@ -601,40 +508,59 @@ namespace JRunner
                 }
                 catch (Exception ex)
                 {
-                    inUseTimer.Enabled = false;
-                    inUseCount = 0;
-                    inUse = false;
-                    variables.reading = false;
-                    MainForm.mainForm.xFlasherBusy(0);
-
                     Console.WriteLine(ex.Message);
-                    if (variables.debugMode) Console.WriteLine(ex.ToString());
+                    if (variables.debugme) Console.WriteLine(ex.ToString());
                     Console.WriteLine("");
                 }
             });
             ftdiThread.Start();
         }
 
-        // Write Nand
+        // Write XeLL/ECC/Nand
         public void writeXeLLAuto()
         {
-            if (string.IsNullOrWhiteSpace(variables.filename1)) return;
+            if (String.IsNullOrWhiteSpace(variables.filename1)) return;
             if (!File.Exists(variables.filename1)) return;
 
-            if (Path.GetExtension(variables.filename1) == ".ecc") writeNand(16, variables.filename1, 1);
-            else writeNand(16, variables.filename1, 2);
+            if (Path.GetExtension(variables.filename1) == ".ecc")
+            {
+                Console.WriteLine("xFlasher: You need an .bin image");
+                return;
+            }
+
+            writeNand(16, variables.filename1, 2);
+        }
+
+        public void writeEccAuto()
+        {
+            if (String.IsNullOrWhiteSpace(variables.filename1)) return;
+            if (!File.Exists(variables.filename1)) return;
+
+            if (Path.GetExtension(variables.filename1) != ".ecc")
+            {
+                Console.WriteLine("xFlasher: You need an .ecc image");
+                return;
+            }
+
+            writeNand(16, variables.filename1, 1);
         }
 
         public void writeNandAuto()
         {
-            if (string.IsNullOrWhiteSpace(variables.filename1)) return;
+            if (String.IsNullOrWhiteSpace(variables.filename1)) return;
             if (!File.Exists(variables.filename1)) return;
 
-            long len = new FileInfo(variables.filename1).Length;
-            if (len == 0x3000000)
+            if (Path.GetExtension(variables.filename1) == ".ecc")
             {
-                variables.nandsizex = Nandsize.S64;
-                writeNand(64, variables.filename1);
+                Console.WriteLine("xFlasher: You need an .bin image");
+                return;
+            }
+
+            double len = new FileInfo(variables.filename1).Length;
+            if (len == 50331648)
+            {
+                MessageBox.Show("Unable to write eMMC type image in SPI mode\n\nPlease switch to eMMC mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
             else if (len == 553648128)
             {
@@ -656,10 +582,10 @@ namespace JRunner
                 variables.nandsizex = Nandsize.S16;
                 writeNand(16, variables.filename1);
             }
-            else if (len == 1310720 | len == 1351680)
+            else if (len == 1351680)
             {
                 variables.nandsizex = Nandsize.S16;
-                writeNand(16, variables.filename1, 2);
+                writeNand(16, variables.filename1, 3);
             }
             else
             {
@@ -669,12 +595,20 @@ namespace JRunner
 
         public void writeNand(int size, string filename, int mode = 0, int startblock = 0, int length = 0, bool skipboardcheck = false)
         {
-            if (inUse || waiting) return;
+            if (!osCheck()) return;
+
+            if (waiting) return;
 
             if (filename != "erase")
             {
-                if (string.IsNullOrWhiteSpace(filename)) return;
+                if (String.IsNullOrWhiteSpace(filename)) return;
                 if (!File.Exists(filename)) return;
+            }
+
+            if (inUse)
+            {
+                Console.WriteLine("xFlasher: Device Is Busy");
+                return;
             }
 
             Thread ftdiThread = new Thread(() =>
@@ -697,24 +631,14 @@ namespace JRunner
                     {
                         return;
                     }
-                    if (flashconf == "C0462002")
-                    {
-                        if (mode == 0)
-                        {
-                            mode = 3;
-                        }
-                        else
-                        {
-                            mode = 4;
-                        }
-                    }
+
                     if (mode == 0 && filename != "erase" && !skipboardcheck)
                     {
                         if (flashconf == "00023010" || flashconf == "00043000" || flashconf == "01198010")
                         {
                             if (size != 16)
                             {
-                                if (DialogResult.No == MessageBox.Show("You are attempting to write a " + size + "MB nand to a board with a 16MB flash config.\n\nAre you sure that you want to do that?", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+                                if (DialogResult.No == MessageBox.Show("You are attempting to write a " + size + "MB Nand to a board with a 16MB Flash Config.\n\nAre you sure that you want to do that?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
                                 {
                                     Console.WriteLine("xFlasher: Cancelled");
                                     Console.WriteLine("");
@@ -726,7 +650,7 @@ namespace JRunner
                         {
                             if (size != 64)
                             {
-                                if (DialogResult.No == MessageBox.Show("You are attempting to write a " + size + "MB nand to a board with a 64MB flash config.\n\nAre you sure that you want to do that?", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+                                if (DialogResult.No == MessageBox.Show("You are attempting to write a " + size + "MB Nand to a board with a 64MB Flash Config.\n\nAre you sure that you want to do that?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
                                 {
                                     Console.WriteLine("xFlasher: Cancelled");
                                     Console.WriteLine("");
@@ -734,23 +658,11 @@ namespace JRunner
                                 }
                             }
                         }
-                        else if (flashconf == "008A3020" || flashconf == "008C3020")
+                        else if (flashconf == "008A3020" || flashconf == "00AA3020")
                         {
-                            if (size == 16 || size == 512)
+                            if (size == 16)
                             {
-                                if (DialogResult.No == MessageBox.Show("You are attempting to write a " + size + "MB nand to a board with a 64/256MB flash config.\n\nAre you sure that you want to do that?", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
-                                {
-                                    Console.WriteLine("xFlasher: Cancelled");
-                                    Console.WriteLine("");
-                                    return;
-                                }
-                            }
-                        }
-                        else if (flashconf == "00AA3020" || flashconf == "00AC3020")
-                        {
-                            if (size == 16 || size == 256)
-                            {
-                                if (DialogResult.No == MessageBox.Show("You are attempting to write a " + size + "MB nand to a board with a 64/512MB flash config.\n\nAre you sure that you want to do that?", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+                                if (DialogResult.No == MessageBox.Show("You are attempting to write a " + size + "MB Nand to a board with a 64/256/512MB Flash Config.\n\nAre you sure that you want to do the things?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
                                 {
                                     Console.WriteLine("xFlasher: Cancelled");
                                     Console.WriteLine("");
@@ -780,47 +692,25 @@ namespace JRunner
                         MainForm.mainForm.xFlasherBusy(2);
                         Console.WriteLine("xFlasher: Writing {0} to Nand", Path.GetFileName(filename));
                     }
-                    if (flashconf != "C0462002")
-                    {
-                        Thread blocksThread = new Thread(() =>
-                        {
-                            if (mode == 1 || mode == 2) getBlocks(0, 80);
-                            else
-                            {
-                                int len = size * 64;
-                                if (length > 0) len = length;
-                                getBlocks(startblock, len);
-                            }
-                        });
-                        inUse = true;
-                        blocksThread.Start();
-                    }
-                    else
-                    {
-                        Thread blocksThread = new Thread(() =>
-                        {
-                            if (mode == 4)
-                            {
-                                geteMMCBlocks(0, 2560);
-                            }
-                            else
-                            {
-                                geteMMCBlocks(0, 98304);
-                            }
 
-                        });
-                        inUse = true;
-                        blocksThread.Start();
-                    }
+                    Thread blocksThread = new Thread(() =>
+                    {
+                        if (mode >= 1) getBlocks(0, 80);
+                        else
+                        {
+                            int len = size * 64;
+                            if (length > 0) len = length;
+                            getBlocks(startblock, len);
+                        }
+                    });
+
+                    inUse = true;
+                    blocksThread.Start();
 
                     int result;
                     if (filename == "erase")
                     {
                         result = spi(5, size, "erase", startblock, length);
-                    }
-                    else if ((mode == 3) || (mode == 4))
-                    {
-                        result = emmc_write(filename, 0);
                     }
                     else if (mode == 1)
                     {
@@ -839,7 +729,7 @@ namespace JRunner
 
                     if (result == -1)
                     {
-                        Console.WriteLine("xFlasher: Cancelled");
+                        Console.WriteLine("xFlasher: Aborted!");
                         Console.WriteLine("");
                         return;
                     }
@@ -849,16 +739,14 @@ namespace JRunner
                         else Console.WriteLine("xFlasher: Write Successful! Time Elapsed: {0}", xFlasherTimeString);
                         Console.WriteLine("");
 
-                        if (variables.playSuccess)
-                        {
-                            SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
-                            success.Play();
-                        }
+                        SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
+                        if (variables.soundsuccess != "") success.SoundLocation = variables.soundsuccess;
+                        success.Play();
 
-                        if (mode == 1 || mode == 2)
+                        if (mode >= 1)
                         {
                             Thread.Sleep(500);
-                            MainForm.mainForm.afterWriteXeLLCleanup();
+                            MainForm.mainForm.xFlasherEccCleanup();
                         }
                     }
                     else if (result == -2)
@@ -894,14 +782,8 @@ namespace JRunner
                 }
                 catch (Exception ex)
                 {
-                    inUseTimer.Enabled = false;
-                    inUseCount = 0;
-                    inUse = false;
-                    variables.writing = false;
-                    MainForm.mainForm.xFlasherBusy(0);
-
                     Console.WriteLine(ex.Message);
-                    if (variables.debugMode) Console.WriteLine(ex.ToString());
+                    if (variables.debugme) Console.WriteLine(ex.ToString());
                     Console.WriteLine("");
                 }
             });
@@ -927,51 +809,30 @@ namespace JRunner
                 Thread.Sleep(40);
             }
         }
-        public void geteMMCBlocks(int start, int length)
-        {
-            int blocks = 0;
-            while (inUse)
-            {
-                blocks = emmcGetBlocks();
-                if (blocks >= 0)
-                {
-                    if (!inUseTimer.Enabled)
-                    {
-                        xFlasherTimeString = "< 1 sec(s)"; // If it doesn't update at least once, time was less than 1 second
-                        inUseTimer.Enabled = true;
-                    }
-
-                    MainForm.mainForm.xFlasherBlocksUpdate(blocks.ToString("X"), ((blocks - start) * 100) / length);
-                }
-                else MainForm.mainForm.xFlasherBlocksUpdate("Initializing", 0);
-                Thread.Sleep(40);
-            }
-        }
 
         // SVF Flashing
-        public void flashSvf(string filename, string speed = "1M")
+        public void flashSvf(string filename)
         {
-            string xsvfToolPath = @"common/xsvftool/x86/xsvftool-ftd2xx.exe";
+            if (!osCheck()) return;
 
-            if (Environment.Is64BitOperatingSystem)
+            if (waiting) return;
+
+            if (inUse)
             {
-                xsvfToolPath = @"common/xsvftool/x64/xsvftool-ftd2xx.exe";
-            }
-
-            if (inUse || waiting) return;
-
-            if (Process.GetProcessesByName("xsvftool").Length > 0)
-            {
-                Console.WriteLine("xFlasher: XSVFtool is already running!");
+                Console.WriteLine("xFlasher: Device Is Busy");
                 return;
             }
 
-            Thread xsvfToolThread = new Thread(() =>
+            if (Process.GetProcessesByName("jtag").Length > 0)
+            {
+                Console.WriteLine("xFlasher: SVF software is already running, Can Not Continue");
+                return;
+            }
+
+            Thread urJtagThread = new Thread(() =>
             {
                 try
                 {
-                    bool xsvf = false;
-                    bool bChipIsDetected = false;
 
                     if (!ready)
                     {
@@ -989,35 +850,32 @@ namespace JRunner
                         Console.WriteLine("xFlasher: File Not Found: {0}", filename);
                         return;
                     }
-                    if (Path.GetExtension(filename) != ".svf" && Path.GetExtension(filename) != ".xsvf")
+                    if (Path.GetExtension(filename) != ".svf")
                     {
                         Console.WriteLine("xFlasher: Wrong File Type: {0}", filename);
                         return;
                     }
-                    if (Path.GetExtension(filename) == ".xsvf") xsvf = true;
+
                     try
                     {
-                        if (File.Exists(MainForm.tempTimingPath))
+                        Directory.CreateDirectory(svfRoot);
+                        if (File.Exists(svfPath))
                         {
-                            File.Delete(MainForm.tempTimingPath);
+                            File.Delete(svfPath);
                         }
-                        File.Copy(filename, MainForm.tempTimingPath);
+                        File.Copy(filename, svfPath);
                     }
                     catch
                     {
                         Console.WriteLine("xFlasher: Could not open temporary file for flashing");
-                        Console.WriteLine("xFlasher: {0} is locked by another process", MainForm.tempTimingPath);
+                        Console.WriteLine("xFlasher: {0} is locked by another process", svfPath);
                         return;
                     }
 
-                    Console.WriteLine("xFlasher: Flashing {0} via xsvftool", Path.GetFileName(filename));
-                    Console.WriteLine("xFlasher: Setting flash speed to {0}", speed);
+                    Console.WriteLine("xFlasher: Flashing {0} via JTAG", Path.GetFileName(filename));
 
                     Process psi = new Process();
-                    psi.StartInfo.FileName = xsvfToolPath;
-
-                    // Ask xsvftool to scan the JTAG chain on channel 0, if a glitch chip is connected it should return something
-                    psi.StartInfo.Arguments = "-j 0 -c";
+                    psi.StartInfo.FileName = @"common/xflasher/jtag.exe";
                     psi.StartInfo.CreateNoWindow = true;
                     psi.StartInfo.UseShellExecute = false;
                     psi.StartInfo.RedirectStandardOutput = true;
@@ -1027,121 +885,73 @@ namespace JRunner
                     inUse = true;
                     psi.Start();
 
+                    StreamWriter wr = psi.StandardInput;
                     StreamReader rr = psi.StandardOutput;
-                    string str = rr.ReadToEnd().Replace("\n", "\r\n");
-                    rr.Close();
-                    inUse = false;
 
-                    Match dev = Regex.Match(str, @"idcode=0x(?<idcode>[0-9A-Fa-f]+),\s*revision=0x(?<revision>[0-9A-Fa-f]+),\s*part=0x(?<part>[0-9A-Fa-f]+),\s*manufactor=0x(?<manufacturer>[0-9A-Fa-f]+)");
+                    wr.WriteLine("cable ft2232");
+                    wr.WriteLine("detect");
+                    wr.WriteLine("svf " + svfPath + " progress");
+                    wr.WriteLine("quit");
+                    wr.Flush();
+                    wr.Close();
 
-                    if (dev.Success &&
-                        psi.ExitCode == 0)
+                    string str = "";
+                    str = "--";
+                    str += rr.ReadToEnd().Replace("\n", "\r\n");
+
+                    if (str.Length >= 4)
                     {
-                        try
-                        {
-                            // If xsvftool returned something, but that something was all zeros,
-                            // then something went wrong with the JTAG device or one wasn't attached
-                            if (Convert.ToInt32(dev.Groups["idcode"].Value, 16) != 0)
-                            {
-                                bChipIsDetected = true;
-                            }
-                        }
-                        catch { }
+                        str = str.Remove(str.Length - 4, 4);
                     }
 
-                    if (bChipIsDetected)
+                    string strLower = str.ToLower();
+                    inUse = false;
+
+                    if (strLower.Contains("99%"))
                     {
-                        Console.WriteLine($"xFlasher: Detected chip ID: " + dev.Groups["idcode"].Value);
-                        psi = new Process();
-                        psi.StartInfo.FileName = xsvfToolPath;
-                        psi.StartInfo.Arguments = "-j 0 -p -f " + speed + (xsvf ? " -x" : " -s") + " \"" + MainForm.tempTimingPath + "\"";
-                        psi.StartInfo.CreateNoWindow = true;
-                        psi.StartInfo.UseShellExecute = false;
-                        psi.StartInfo.RedirectStandardOutput = true;
-                        psi.StartInfo.RedirectStandardInput = true;
-                        psi.StartInfo.RedirectStandardError = true;
-                        psi.OutputDataReceived += (procSender, procE) =>
+                        int start = str.IndexOf("Part(0):") + 8;
+                        int end = str.IndexOf("Stepping:") - start;
+
+                        if (start <= 0 || end <= 0)
                         {
-                            if (procE.Data != null)
-                            {
-                                if (procE.Data.Contains("Progress : "))
-                                    MainForm.mainForm.updateProgress(int.Parse(new Regex(@"\[(.*?)\]").Match(procE.Data).Groups[0].Value.Replace("[", "").Replace("%]", "")));
-                            }
-                        };
-                        inUse = true;
-
-                        // Count process time
-                        Stopwatch watch = new Stopwatch();
-                        watch.Start();
-                        psi.Start();
-                        psi.BeginOutputReadLine();
-                        psi.WaitForExit();
-                        watch.Stop();
-
-                        inUse = false;
-
-                        if (psi.ExitCode == 0)
-                        {
-                            if (variables.playSuccess)
-                            {
-                                SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
-                                success.Play();
-                            }
-                            string time = $"{watch.Elapsed.TotalSeconds:F2} sec(s)";
-                            Console.WriteLine("xFlasher: Flash Successful! Time Elapsed: {0}", time);
+                            Console.WriteLine("xFlasher: Failed to detect CPLD type");
                         }
                         else
                         {
-                            Console.WriteLine("xFlasher: Flash Failed!");
-                            MainForm.mainForm.updateProgress(100);
+                            jtagdevice = str.Substring(start, end).Trim().Replace("\r\n", "");
+                            Console.WriteLine("xFlasher: {0} Detected", jtagdevice);
                         }
 
-                        Console.WriteLine();
-
-                        if (File.Exists(MainForm.tempTimingPath))
-                        {
-                            File.Delete(MainForm.tempTimingPath);
-                        }
+                        Console.WriteLine("xFlasher: SVF Flash Successful!");
+                        Console.WriteLine("");
+                        SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
+                        if (variables.soundsuccess != "") success.SoundLocation = variables.soundsuccess;
+                        success.Play();
+                    }
+                    else if (strLower.Contains("chain without any parts") == true)
+                    {
+                        Console.WriteLine("xFlasher: Could not connect to CPLD");
+                        Console.WriteLine("");
                     }
                     else
                     {
-                        if (psi.ExitCode == 0)
-                        {
-                            // the xsvftool call succeeded, but there were no suitable JTAG devices returned
-                            Console.WriteLine("xFlasher: Glitch Chip not detected");
-                        }
-                        else
-                        {
-                            // xsvftool returned an error when scanning for the glitch chip, rip
-                            Console.WriteLine($"xFlasher: xsfvtool returned error {psi.ExitCode} when scanning for glitch chips");
-                        }
-                        
-                        // If JRunner is in debug mode, print the contents of stdout and stderr
-                        // from xsvftool to the console
-                        if (variables.debugMode)
-                        {
-                            Console.WriteLine(str);
+                        Console.WriteLine("xFlasher: SVF Flash Failed");
+                        Console.WriteLine("");
+                    }
 
-                            StreamReader rErr = psi.StandardError;
-                            string strErr = rErr.ReadToEnd().Replace("\n", "\r\n");
-                            rErr.Close();
-
-                            Console.WriteLine(strErr);
-                        }
-
-                        MainForm.mainForm.updateProgress(100);
+                    if (File.Exists(svfPath))
+                    {
+                        File.Delete(svfPath);
                     }
                 }
                 catch (Exception ex)
                 {
-                    inUse = false;
-
                     Console.WriteLine(ex.Message);
-                    if (variables.debugMode) Console.WriteLine(ex.ToString());
+                    if (variables.debugme) Console.WriteLine(ex.ToString());
                     Console.WriteLine("");
                 }
             });
-            xsvfToolThread.Start();
+            urJtagThread.Start();
         }
     }
 }

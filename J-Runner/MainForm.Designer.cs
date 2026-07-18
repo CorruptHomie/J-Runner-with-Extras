@@ -36,54 +36,48 @@ namespace JRunner
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.btnExit = new System.Windows.Forms.Button();
-            this.btnCompare = new System.Windows.Forms.Button();
-            this.btnLoadExtra = new System.Windows.Forms.Button();
-            this.btnLoadSource = new System.Windows.Forms.Button();
-            this.txtFileExtra = new System.Windows.Forms.TextBox();
-            this.txtFileSource = new System.Windows.Forms.TextBox();
+            this.comparebutton = new System.Windows.Forms.Button();
+            this.btnLoadFile2 = new System.Windows.Forms.Button();
+            this.btnLoadFile1 = new System.Windows.Forms.Button();
+            this.txtFilePath2 = new System.Windows.Forms.TextBox();
+            this.txtFilePath1 = new System.Windows.Forms.TextBox();
             this.txtConsole = new System.Windows.Forms.TextBox();
             this.txtCPUKey = new System.Windows.Forms.TextBox();
             this.lblCpuKey = new System.Windows.Forms.Label();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.btnIPGetCPU = new UI.MenuButton();
-            this.getCpuKeyMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.btnIPGetCPU = new UI.SplitButton();
+            this.getCpuKeyContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.getAndSaveToWorkingFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToDesktopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.labelIP = new System.Windows.Forms.Label();
             this.txtIP = new System.Windows.Forms.TextBox();
             this.btnScanner = new System.Windows.Forms.Button();
-            this.btnReload = new System.Windows.Forms.Button();
+            this.btnInit = new System.Windows.Forms.Button();
+            this.btnSettings = new System.Windows.Forms.Button();
             this.btnNewSession = new System.Windows.Forms.Button();
-            this.btnRestart = new System.Windows.Forms.Button();
-            this.btnScanDevices = new System.Windows.Forms.Button();
-            this.btnShowWorkingFolder = new UI.MenuButton();
+            this.btnShowWorkingFolder = new UI.SplitButton();
             this.showWorkingFolderMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.showDataFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.showOutputFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showRootFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnBackup = new UI.MenuButton();
-            this.backupContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.backupToZIPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.autoBackupNowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.showLastBackupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.configureBackupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showOutputFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnRestart = new System.Windows.Forms.Button();
             this.XeBuildOptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.StatusBlank = new System.Windows.Forms.ToolStripStatusLabel();
-            this.VersionLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.BlankSpace1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.BackupLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.BlankSpace2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.CopiedToClipboard = new System.Windows.Forms.ToolStripStatusLabel();
+            this.XeBuildLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.XeBuildVersion = new System.Windows.Forms.ToolStripStatusLabel();
+            this.BlankSpace = new System.Windows.Forms.ToolStripStatusLabel();
+            this.DashlaunchLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.DashlaunchVersion = new System.Windows.Forms.ToolStripStatusLabel();
             this.ModeStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.ModeVersion = new System.Windows.Forms.ToolStripStatusLabel();
             this.FWStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.FWVersion = new System.Windows.Forms.ToolStripStatusLabel();
             this.FlashStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.FlashVersion = new System.Windows.Forms.ToolStripStatusLabel();
+            this.splitter1 = new System.Windows.Forms.Splitter();
             this.btnCheckBadBlocks = new System.Windows.Forms.Button();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.pnlInfo = new System.Windows.Forms.Panel();
@@ -92,39 +86,28 @@ namespace JRunner
             this.pnlTools = new System.Windows.Forms.Panel();
             this.pnlExtra = new System.Windows.Forms.Panel();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.rescanDevicesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.pOSTMonitorRATERToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cOMMonitorAdvancedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.soundEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripSeparator();
-            this.cBFuseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.timingAssistantToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem12 = new System.Windows.Forms.ToolStripSeparator();
+            this.SoundEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.rescanDevicesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mTXUSBFirmwareUtilityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.xboxOneHDDToolToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripSeparator();
+            this.timingAssistantToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cBFuseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator11 = new System.Windows.Forms.ToolStripSeparator();
             this.advancedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.nandTimingFunctionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.customNandProCommandToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.corona4GBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.writeFusionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.convertToRGH3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.checkSecdataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CustomXeBuildMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.enableDevGLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.writeFusionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
-            this.hexEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.kVViewerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.generateCpuKeyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.experimentalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.g3fixToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.zeroPairSbToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.injectGlitch3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.injectRGH3CBXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.linuxFeaturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toggleDebugModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripHexEditor = new System.Windows.Forms.ToolStripMenuItem();
+            this.cPUKeyToolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator15 = new System.Windows.Forms.ToolStripSeparator();
+            this.checkSecdataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.xValueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.jRPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.powerOnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.shutdownToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -144,50 +127,31 @@ namespace JRunner
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.changelogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.shortcutsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem10 = new System.Windows.Forms.ToolStripSeparator();
             this.reportIssueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.restoreFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.shortcutsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.newSessionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nandToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extractFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.createDonorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.createSafeDualImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem11 = new System.Windows.Forms.ToolStripSeparator();
-            this.patchKVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.smcConfigViewerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.changeLDVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem9 = new System.Windows.Forms.ToolStripSeparator();
-            this.nANDAlignmentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.gB16MBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mB64MBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.addressCalculatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.keyvaultOptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createDonorNandToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.decryptKeyvaultToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.injectKeyvaultToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.xeLLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadGlitch2XeLLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadJTAGXeLLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.injectXeLLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.customizeThemeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem9 = new System.Windows.Forms.ToolStripSeparator();
+            this.sMCConfigViewerToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.patchNandToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.changeLDVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.xFlasherToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.installDriversToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.checkConsoleCBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.flashOpenXeniumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nANDXToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mtxUsbModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.jRPBLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.updateJRPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.keyDatabaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.versionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox8.SuspendLayout();
-            this.getCpuKeyMenu.SuspendLayout();
+            this.getCpuKeyContextMenu.SuspendLayout();
             this.showWorkingFolderMenu.SuspendLayout();
-            this.backupContextMenu.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -197,92 +161,93 @@ namespace JRunner
             // 
             this.btnExit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.btnExit.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnExit.Location = new System.Drawing.Point(567, 550);
+            this.btnExit.Location = new System.Drawing.Point(568, 547);
             this.btnExit.Name = "btnExit";
-            this.btnExit.Size = new System.Drawing.Size(85, 26);
-            this.btnExit.TabIndex = 298;
+            this.btnExit.Size = new System.Drawing.Size(82, 26);
+            this.btnExit.TabIndex = 2;
             this.btnExit.Text = "Exit";
             this.toolTip1.SetToolTip(this.btnExit, "Exit the application");
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
-            // btnCompare
+            // comparebutton
             // 
-            this.btnCompare.Location = new System.Drawing.Point(390, 42);
-            this.btnCompare.Name = "btnCompare";
-            this.btnCompare.Size = new System.Drawing.Size(65, 22);
-            this.btnCompare.TabIndex = 25;
-            this.btnCompare.Text = "Compare";
-            this.toolTip1.SetToolTip(this.btnCompare, "Compares the source and extra nands");
-            this.btnCompare.UseVisualStyleBackColor = true;
-            this.btnCompare.Click += new System.EventHandler(this.btnCompare_Click);
+            this.comparebutton.Location = new System.Drawing.Point(387, 14);
+            this.comparebutton.Name = "comparebutton";
+            this.comparebutton.Size = new System.Drawing.Size(66, 51);
+            this.comparebutton.TabIndex = 19;
+            this.comparebutton.TabStop = false;
+            this.comparebutton.Text = "Nand Compare";
+            this.toolTip1.SetToolTip(this.comparebutton, "Compares the source and extra nands");
+            this.comparebutton.UseVisualStyleBackColor = true;
+            this.comparebutton.Click += new System.EventHandler(this.comparebutton_Click);
             // 
-            // btnLoadExtra
+            // btnLoadFile2
             // 
-            this.btnLoadExtra.Location = new System.Drawing.Point(7, 42);
-            this.btnLoadExtra.Name = "btnLoadExtra";
-            this.btnLoadExtra.Size = new System.Drawing.Size(76, 22);
-            this.btnLoadExtra.TabIndex = 23;
-            this.btnLoadExtra.Text = "Load Extra";
-            this.toolTip1.SetToolTip(this.btnLoadExtra, "Load an extra nand for comparison");
-            this.btnLoadExtra.UseVisualStyleBackColor = true;
-            this.btnLoadExtra.Click += new System.EventHandler(this.btnLoadExtra_Click);
+            this.btnLoadFile2.Location = new System.Drawing.Point(6, 43);
+            this.btnLoadFile2.Name = "btnLoadFile2";
+            this.btnLoadFile2.Size = new System.Drawing.Size(76, 22);
+            this.btnLoadFile2.TabIndex = 16;
+            this.btnLoadFile2.TabStop = false;
+            this.btnLoadFile2.Text = "Load Extra";
+            this.toolTip1.SetToolTip(this.btnLoadFile2, "Load an extra nand for comparison");
+            this.btnLoadFile2.UseVisualStyleBackColor = true;
+            this.btnLoadFile2.Click += new System.EventHandler(this.btnLoadFile2_Click);
             // 
-            // btnLoadSource
+            // btnLoadFile1
             // 
-            this.btnLoadSource.Location = new System.Drawing.Point(7, 13);
-            this.btnLoadSource.Name = "btnLoadSource";
-            this.btnLoadSource.Size = new System.Drawing.Size(76, 22);
-            this.btnLoadSource.TabIndex = 20;
-            this.btnLoadSource.Text = "Load Source";
-            this.toolTip1.SetToolTip(this.btnLoadSource, "Load the primary working nand");
-            this.btnLoadSource.UseVisualStyleBackColor = true;
-            this.btnLoadSource.Click += new System.EventHandler(this.btnLoadSource_Click);
+            this.btnLoadFile1.Location = new System.Drawing.Point(6, 14);
+            this.btnLoadFile1.Name = "btnLoadFile1";
+            this.btnLoadFile1.Size = new System.Drawing.Size(76, 22);
+            this.btnLoadFile1.TabIndex = 15;
+            this.btnLoadFile1.TabStop = false;
+            this.btnLoadFile1.Text = "Load Source";
+            this.toolTip1.SetToolTip(this.btnLoadFile1, "Load the primary working nand");
+            this.btnLoadFile1.UseVisualStyleBackColor = true;
+            this.btnLoadFile1.Click += new System.EventHandler(this.btnLoadFile1_Click);
             // 
-            // txtFileExtra
+            // txtFilePath2
             // 
-            this.txtFileExtra.AllowDrop = true;
-            this.txtFileExtra.BackColor = System.Drawing.Color.White;
-            this.txtFileExtra.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtFileExtra.Location = new System.Drawing.Point(89, 43);
-            this.txtFileExtra.Name = "txtFileExtra";
-            this.txtFileExtra.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.txtFileExtra.Size = new System.Drawing.Size(295, 20);
-            this.txtFileExtra.TabIndex = 24;
-            this.toolTip1.SetToolTip(this.txtFileExtra, "The file listed in this box is used to compare against file loaded in \"Source fil" +
+            this.txtFilePath2.AllowDrop = true;
+            this.txtFilePath2.BackColor = System.Drawing.Color.White;
+            this.txtFilePath2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtFilePath2.Location = new System.Drawing.Point(88, 44);
+            this.txtFilePath2.Name = "txtFilePath2";
+            this.txtFilePath2.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.txtFilePath2.Size = new System.Drawing.Size(293, 20);
+            this.txtFilePath2.TabIndex = 2;
+            this.toolTip1.SetToolTip(this.txtFilePath2, "The file listed in this box is used to compare against file loaded in \"Source fil" +
         "e\" box\r\n");
-            this.txtFileExtra.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtFileExtra_DragDrop);
-            this.txtFileExtra.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtFileExtra_DragEnter);
-            this.txtFileExtra.DoubleClick += new System.EventHandler(this.txtFileExtra_DoubleClick);
+            this.txtFilePath2.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtFilePath2_DragDrop);
+            this.txtFilePath2.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtFilePath2_DragEnter);
             // 
-            // txtFileSource
+            // txtFilePath1
             // 
-            this.txtFileSource.AllowDrop = true;
-            this.txtFileSource.BackColor = System.Drawing.SystemColors.Window;
-            this.txtFileSource.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtFileSource.Location = new System.Drawing.Point(89, 14);
-            this.txtFileSource.Name = "txtFileSource";
-            this.txtFileSource.Size = new System.Drawing.Size(295, 20);
-            this.txtFileSource.TabIndex = 21;
-            this.toolTip1.SetToolTip(this.txtFileSource, "The file in this box is used for all read/write/create operations.\r\nif you use th" +
+            this.txtFilePath1.AllowDrop = true;
+            this.txtFilePath1.BackColor = System.Drawing.SystemColors.Window;
+            this.txtFilePath1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtFilePath1.Location = new System.Drawing.Point(88, 15);
+            this.txtFilePath1.Name = "txtFilePath1";
+            this.txtFilePath1.Size = new System.Drawing.Size(293, 20);
+            this.txtFilePath1.TabIndex = 1;
+            this.toolTip1.SetToolTip(this.txtFilePath1, "The file in this box is used for all read/write/create operations.\r\nif you use th" +
         "e functions above out of order, ensure your required\r\nfile is loaded into this b" +
         "ox first.");
-            this.txtFileSource.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtFileSource_DragDrop);
-            this.txtFileSource.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtFileSource_DragEnter);
-            this.txtFileSource.DoubleClick += new System.EventHandler(this.txtFileSource_DoubleClick);
+            this.txtFilePath1.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtFilePath1_DragDrop);
+            this.txtFilePath1.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtFilePath1_DragEnter);
             // 
             // txtConsole
             // 
             this.txtConsole.BackColor = System.Drawing.Color.Black;
             this.txtConsole.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(161)));
             this.txtConsole.ForeColor = System.Drawing.Color.White;
-            this.txtConsole.Location = new System.Drawing.Point(12, 322);
+            this.txtConsole.Location = new System.Drawing.Point(12, 321);
             this.txtConsole.Multiline = true;
             this.txtConsole.Name = "txtConsole";
             this.txtConsole.ReadOnly = true;
             this.txtConsole.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtConsole.Size = new System.Drawing.Size(462, 253);
-            this.txtConsole.TabIndex = 22;
+            this.txtConsole.TabIndex = 11;
             this.txtConsole.TabStop = false;
             this.txtConsole.DoubleClick += new System.EventHandler(this.txtConsole_DoubleClick);
             // 
@@ -291,24 +256,23 @@ namespace JRunner
             this.txtCPUKey.AllowDrop = true;
             this.txtCPUKey.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtCPUKey.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.txtCPUKey.Location = new System.Drawing.Point(89, 72);
+            this.txtCPUKey.Location = new System.Drawing.Point(88, 73);
             this.txtCPUKey.MaxLength = 32;
             this.txtCPUKey.Name = "txtCPUKey";
-            this.txtCPUKey.Size = new System.Drawing.Size(295, 20);
-            this.txtCPUKey.TabIndex = 26;
+            this.txtCPUKey.Size = new System.Drawing.Size(293, 20);
+            this.txtCPUKey.TabIndex = 3;
             this.toolTip1.SetToolTip(this.txtCPUKey, "This is where your CPU key should be entered. You can drag and drop previously sa" +
         "ved cpukey.txt or paste in your CPU Key details.");
             this.txtCPUKey.TextChanged += new System.EventHandler(this.txtCPUKey_TextChanged);
             this.txtCPUKey.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtCPUKey_DragDrop);
             this.txtCPUKey.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtCPUKey_DragEnter);
-            this.txtCPUKey.DoubleClick += new System.EventHandler(this.txtCPUKey_DoubleClick);
             // 
             // lblCpuKey
             // 
             this.lblCpuKey.AutoSize = true;
             this.lblCpuKey.BackColor = System.Drawing.Color.Transparent;
             this.lblCpuKey.ForeColor = System.Drawing.Color.Black;
-            this.lblCpuKey.Location = new System.Drawing.Point(19, 74);
+            this.lblCpuKey.Location = new System.Drawing.Point(18, 75);
             this.lblCpuKey.Name = "lblCpuKey";
             this.lblCpuKey.Size = new System.Drawing.Size(53, 13);
             this.lblCpuKey.TabIndex = 27;
@@ -329,10 +293,10 @@ namespace JRunner
             this.groupBox8.Controls.Add(this.btnIPGetCPU);
             this.groupBox8.Controls.Add(this.labelIP);
             this.groupBox8.Controls.Add(this.txtIP);
-            this.groupBox8.Location = new System.Drawing.Point(656, 483);
+            this.groupBox8.Location = new System.Drawing.Point(656, 480);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(164, 66);
-            this.groupBox8.TabIndex = 299;
+            this.groupBox8.Size = new System.Drawing.Size(165, 66);
+            this.groupBox8.TabIndex = 73;
             this.groupBox8.TabStop = false;
             this.toolTip1.SetToolTip(this.groupBox8, "If you connect your Xbox 360 to your PC using a network cable, \r\nOnce booted with" +
         " Xellous or Xell-Reloaded place the displayed IP address in\r\nthe box and retriev" +
@@ -342,48 +306,46 @@ namespace JRunner
             // 
             this.btnIPGetCPU.AutoSize = true;
             this.btnIPGetCPU.BtnImage = ((System.Drawing.Image)(resources.GetObject("btnIPGetCPU.BtnImage")));
-            this.btnIPGetCPU.ContextMenuStrip = this.getCpuKeyMenu;
-            this.btnIPGetCPU.DropDownContextMenu = this.getCpuKeyMenu;
+            this.btnIPGetCPU.ContextMenuStrip = this.getCpuKeyContextMenu;
+            this.btnIPGetCPU.DropDownContextMenu = this.getCpuKeyContextMenu;
             this.btnIPGetCPU.Image = ((System.Drawing.Image)(resources.GetObject("btnIPGetCPU.Image")));
             this.btnIPGetCPU.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnIPGetCPU.Location = new System.Drawing.Point(6, 36);
             this.btnIPGetCPU.Name = "btnIPGetCPU";
             this.btnIPGetCPU.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.btnIPGetCPU.Size = new System.Drawing.Size(152, 26);
-            this.btnIPGetCPU.SplitButton = true;
-            this.btnIPGetCPU.TabIndex = 11;
+            this.btnIPGetCPU.Size = new System.Drawing.Size(153, 26);
+            this.btnIPGetCPU.TabIndex = 6;
             this.btnIPGetCPU.Text = "Get CPU Key";
             this.toolTip1.SetToolTip(this.btnIPGetCPU, "Tries to retrieve the CPU Key and Fuses from XeLL using the IP above");
             this.btnIPGetCPU.UseVisualStyleBackColor = true;
             this.btnIPGetCPU.Click += new System.EventHandler(this.btnIPGetCPU_Click);
             // 
-            // getCpuKeyMenu
+            // getCpuKeyContextMenu
             // 
-            this.getCpuKeyMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.getCpuKeyMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.getCpuKeyContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.getAndSaveToWorkingFolderToolStripMenuItem,
             this.saveToDesktopToolStripMenuItem});
-            this.getCpuKeyMenu.Name = "contextMenuStrip1";
-            this.getCpuKeyMenu.Size = new System.Drawing.Size(199, 48);
+            this.getCpuKeyContextMenu.Name = "contextMenuStrip1";
+            this.getCpuKeyContextMenu.Size = new System.Drawing.Size(200, 48);
             // 
             // getAndSaveToWorkingFolderToolStripMenuItem
             // 
             this.getAndSaveToWorkingFolderToolStripMenuItem.Name = "getAndSaveToWorkingFolderToolStripMenuItem";
-            this.getAndSaveToWorkingFolderToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
+            this.getAndSaveToWorkingFolderToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.getAndSaveToWorkingFolderToolStripMenuItem.Text = "Save To Working Folder";
             this.getAndSaveToWorkingFolderToolStripMenuItem.Click += new System.EventHandler(this.getAndSaveToWorkingFolderToolStripMenuItem_Click);
             // 
             // saveToDesktopToolStripMenuItem
             // 
             this.saveToDesktopToolStripMenuItem.Name = "saveToDesktopToolStripMenuItem";
-            this.saveToDesktopToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
+            this.saveToDesktopToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.saveToDesktopToolStripMenuItem.Text = "Save To Desktop";
             this.saveToDesktopToolStripMenuItem.Click += new System.EventHandler(this.saveToDesktopToolStripMenuItem_Click);
             // 
             // labelIP
             // 
             this.labelIP.AutoSize = true;
-            this.labelIP.Location = new System.Drawing.Point(4, 15);
+            this.labelIP.Location = new System.Drawing.Point(8, 14);
             this.labelIP.Name = "labelIP";
             this.labelIP.Size = new System.Drawing.Size(20, 13);
             this.labelIP.TabIndex = 5;
@@ -391,73 +353,60 @@ namespace JRunner
             // 
             // txtIP
             // 
-            this.txtIP.Location = new System.Drawing.Point(29, 12);
-            this.txtIP.MaxLength = 15;
+            this.txtIP.Location = new System.Drawing.Point(34, 11);
             this.txtIP.Name = "txtIP";
-            this.txtIP.Size = new System.Drawing.Size(128, 20);
-            this.txtIP.TabIndex = 10;
-            this.txtIP.DoubleClick += new System.EventHandler(this.txtIP_DoubleClick);
+            this.txtIP.Size = new System.Drawing.Size(124, 20);
+            this.txtIP.TabIndex = 5;
             this.txtIP.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtIP_KeyUp);
             // 
             // btnScanner
             // 
-            this.btnScanner.Location = new System.Drawing.Point(662, 550);
+            this.btnScanner.Location = new System.Drawing.Point(662, 547);
             this.btnScanner.Name = "btnScanner";
-            this.btnScanner.Size = new System.Drawing.Size(152, 26);
-            this.btnScanner.TabIndex = 300;
-            this.btnScanner.Text = "Scan IP Range";
+            this.btnScanner.Size = new System.Drawing.Size(153, 26);
+            this.btnScanner.TabIndex = 6;
+            this.btnScanner.TabStop = false;
+            this.btnScanner.Text = "Scan IP";
             this.toolTip1.SetToolTip(this.btnScanner, "Scans the IP range looking for XeLL to retrieve the CPU Key and Fuses");
             this.btnScanner.UseVisualStyleBackColor = true;
             this.btnScanner.Click += new System.EventHandler(this.btnScanner_Click);
             // 
-            // btnReload
+            // btnInit
             // 
-            this.btnReload.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnReload.Location = new System.Drawing.Point(390, 71);
-            this.btnReload.Name = "btnReload";
-            this.btnReload.Size = new System.Drawing.Size(65, 22);
-            this.btnReload.TabIndex = 27;
-            this.btnReload.Text = "Reload";
-            this.toolTip1.SetToolTip(this.btnReload, "Reloads and initializes the nand in source box");
-            this.btnReload.UseVisualStyleBackColor = true;
-            this.btnReload.Click += new System.EventHandler(this.btnReload_Click);
+            this.btnInit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnInit.Location = new System.Drawing.Point(387, 72);
+            this.btnInit.Name = "btnInit";
+            this.btnInit.Size = new System.Drawing.Size(66, 22);
+            this.btnInit.TabIndex = 61;
+            this.btnInit.TabStop = false;
+            this.btnInit.Text = "Reload";
+            this.toolTip1.SetToolTip(this.btnInit, "Reloads and initializes the nand in source box");
+            this.btnInit.UseVisualStyleBackColor = true;
+            this.btnInit.Click += new System.EventHandler(this.btnInit_Click);
+            // 
+            // btnSettings
+            // 
+            this.btnSettings.Location = new System.Drawing.Point(567, 516);
+            this.btnSettings.Name = "btnSettings";
+            this.btnSettings.Size = new System.Drawing.Size(83, 26);
+            this.btnSettings.TabIndex = 80;
+            this.btnSettings.TabStop = false;
+            this.btnSettings.Text = "Settings";
+            this.toolTip1.SetToolTip(this.btnSettings, "Edit settings and behavior");
+            this.btnSettings.UseVisualStyleBackColor = true;
+            this.btnSettings.Click += new System.EventHandler(this.btnSettings_Click);
             // 
             // btnNewSession
             // 
-            this.btnNewSession.Location = new System.Drawing.Point(478, 519);
+            this.btnNewSession.Location = new System.Drawing.Point(480, 516);
             this.btnNewSession.Name = "btnNewSession";
-            this.btnNewSession.Size = new System.Drawing.Size(85, 26);
-            this.btnNewSession.TabIndex = 295;
+            this.btnNewSession.Size = new System.Drawing.Size(83, 26);
+            this.btnNewSession.TabIndex = 92;
+            this.btnNewSession.TabStop = false;
             this.btnNewSession.Text = "New Session";
             this.toolTip1.SetToolTip(this.btnNewSession, "Closes the current nand and starts a new session");
             this.btnNewSession.UseVisualStyleBackColor = true;
             this.btnNewSession.Click += new System.EventHandler(this.btnNewSession_Click);
-            // 
-            // btnRestart
-            // 
-            this.btnRestart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.btnRestart.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnRestart.Location = new System.Drawing.Point(478, 550);
-            this.btnRestart.Name = "btnRestart";
-            this.btnRestart.Size = new System.Drawing.Size(85, 26);
-            this.btnRestart.TabIndex = 297;
-            this.btnRestart.Text = "Restart";
-            this.toolTip1.SetToolTip(this.btnRestart, "Completely restarts the application");
-            this.btnRestart.UseVisualStyleBackColor = true;
-            this.btnRestart.Click += new System.EventHandler(this.btnRestart_Click);
-            // 
-            // btnScanDevices
-            // 
-            this.btnScanDevices.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.btnScanDevices.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnScanDevices.Location = new System.Drawing.Point(567, 519);
-            this.btnScanDevices.Name = "btnScanDevices";
-            this.btnScanDevices.Size = new System.Drawing.Size(85, 26);
-            this.btnScanDevices.TabIndex = 296;
-            this.btnScanDevices.Text = "Scan Devices";
-            this.toolTip1.SetToolTip(this.btnScanDevices, "Scans USB ports for programmers and other devices");
-            this.btnScanDevices.UseVisualStyleBackColor = true;
-            this.btnScanDevices.Click += new System.EventHandler(this.btnScanDevices_Click);
             // 
             // btnShowWorkingFolder
             // 
@@ -467,11 +416,10 @@ namespace JRunner
             this.btnShowWorkingFolder.DropDownContextMenu = this.showWorkingFolderMenu;
             this.btnShowWorkingFolder.Image = ((System.Drawing.Image)(resources.GetObject("btnShowWorkingFolder.Image")));
             this.btnShowWorkingFolder.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnShowWorkingFolder.Location = new System.Drawing.Point(478, 488);
+            this.btnShowWorkingFolder.Location = new System.Drawing.Point(480, 485);
             this.btnShowWorkingFolder.Name = "btnShowWorkingFolder";
-            this.btnShowWorkingFolder.Size = new System.Drawing.Size(174, 26);
-            this.btnShowWorkingFolder.SplitButton = true;
-            this.btnShowWorkingFolder.TabIndex = 294;
+            this.btnShowWorkingFolder.Size = new System.Drawing.Size(170, 26);
+            this.btnShowWorkingFolder.TabIndex = 90;
             this.btnShowWorkingFolder.Text = "Show Working Folder";
             this.toolTip1.SetToolTip(this.btnShowWorkingFolder, "Shows the working folder in Windows Explorer");
             this.btnShowWorkingFolder.UseVisualStyleBackColor = true;
@@ -479,27 +427,11 @@ namespace JRunner
             // 
             // showWorkingFolderMenu
             // 
-            this.showWorkingFolderMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.showWorkingFolderMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.showDataFolderToolStripMenuItem,
-            this.showOutputFolderToolStripMenuItem,
-            this.showRootFolderToolStripMenuItem});
+            this.showRootFolderToolStripMenuItem,
+            this.showOutputFolderToolStripMenuItem});
             this.showWorkingFolderMenu.Name = "contextMenuStrip1";
-            this.showWorkingFolderMenu.Size = new System.Drawing.Size(181, 70);
-            // 
-            // showDataFolderToolStripMenuItem
-            // 
-            this.showDataFolderToolStripMenuItem.Name = "showDataFolderToolStripMenuItem";
-            this.showDataFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.showDataFolderToolStripMenuItem.Text = "Show Data Folder";
-            this.showDataFolderToolStripMenuItem.Click += new System.EventHandler(this.showDataFolderToolStripMenuItem_Click);
-            // 
-            // showOutputFolderToolStripMenuItem
-            // 
-            this.showOutputFolderToolStripMenuItem.Name = "showOutputFolderToolStripMenuItem";
-            this.showOutputFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.showOutputFolderToolStripMenuItem.Text = "Show Output Folder";
-            this.showOutputFolderToolStripMenuItem.Click += new System.EventHandler(this.showOutputFolderToolStripMenuItem_Click);
+            this.showWorkingFolderMenu.Size = new System.Drawing.Size(181, 48);
             // 
             // showRootFolderToolStripMenuItem
             // 
@@ -508,61 +440,25 @@ namespace JRunner
             this.showRootFolderToolStripMenuItem.Text = "Show Root Folder";
             this.showRootFolderToolStripMenuItem.Click += new System.EventHandler(this.showRootFolderToolStripMenuItem_Click);
             // 
-            // btnBackup
+            // showOutputFolderToolStripMenuItem
             // 
-            this.btnBackup.BtnImage = ((System.Drawing.Image)(resources.GetObject("btnBackup.BtnImage")));
-            this.btnBackup.ContextMenuStrip = this.backupContextMenu;
-            this.btnBackup.DropDownContextMenu = this.backupContextMenu;
-            this.btnBackup.Image = ((System.Drawing.Image)(resources.GetObject("btnBackup.Image")));
-            this.btnBackup.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.btnBackup.Location = new System.Drawing.Point(390, 13);
-            this.btnBackup.Name = "btnBackup";
-            this.btnBackup.Size = new System.Drawing.Size(65, 22);
-            this.btnBackup.TabIndex = 22;
-            this.btnBackup.Text = "Backup";
-            this.btnBackup.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.toolTip1.SetToolTip(this.btnBackup, "Displays a menu of backup options");
-            this.btnBackup.UseVisualStyleBackColor = true;
+            this.showOutputFolderToolStripMenuItem.Name = "showOutputFolderToolStripMenuItem";
+            this.showOutputFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.showOutputFolderToolStripMenuItem.Text = "Show Output Folder";
+            this.showOutputFolderToolStripMenuItem.Click += new System.EventHandler(this.showOutputFolderToolStripMenuItem_Click);
             // 
-            // backupContextMenu
+            // btnRestart
             // 
-            this.backupContextMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.backupContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.backupToZIPToolStripMenuItem,
-            this.autoBackupNowToolStripMenuItem,
-            this.showLastBackupToolStripMenuItem,
-            this.configureBackupToolStripMenuItem});
-            this.backupContextMenu.Name = "contextMenuStrip1";
-            this.backupContextMenu.Size = new System.Drawing.Size(179, 92);
-            // 
-            // backupToZIPToolStripMenuItem
-            // 
-            this.backupToZIPToolStripMenuItem.Name = "backupToZIPToolStripMenuItem";
-            this.backupToZIPToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.backupToZIPToolStripMenuItem.Text = "Backup to ZIP…";
-            this.backupToZIPToolStripMenuItem.Click += new System.EventHandler(this.backupToZIPToolStripMenuItem_Click);
-            // 
-            // autoBackupNowToolStripMenuItem
-            // 
-            this.autoBackupNowToolStripMenuItem.Enabled = false;
-            this.autoBackupNowToolStripMenuItem.Name = "autoBackupNowToolStripMenuItem";
-            this.autoBackupNowToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.autoBackupNowToolStripMenuItem.Text = "Auto Backup Now";
-            this.autoBackupNowToolStripMenuItem.Click += new System.EventHandler(this.autoBackupNowToolStripMenuItem_Click);
-            // 
-            // showLastBackupToolStripMenuItem
-            // 
-            this.showLastBackupToolStripMenuItem.Name = "showLastBackupToolStripMenuItem";
-            this.showLastBackupToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.showLastBackupToolStripMenuItem.Text = "Show Last Backup";
-            this.showLastBackupToolStripMenuItem.Click += new System.EventHandler(this.showLastBackupToolStripMenuItem_Click);
-            // 
-            // configureBackupToolStripMenuItem
-            // 
-            this.configureBackupToolStripMenuItem.Name = "configureBackupToolStripMenuItem";
-            this.configureBackupToolStripMenuItem.Size = new System.Drawing.Size(178, 22);
-            this.configureBackupToolStripMenuItem.Text = "Configure Backup…";
-            this.configureBackupToolStripMenuItem.Click += new System.EventHandler(this.configureBackupToolStripMenuItem_Click);
+            this.btnRestart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
+            this.btnRestart.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnRestart.Location = new System.Drawing.Point(480, 547);
+            this.btnRestart.Name = "btnRestart";
+            this.btnRestart.Size = new System.Drawing.Size(83, 26);
+            this.btnRestart.TabIndex = 91;
+            this.btnRestart.Text = "Restart";
+            this.toolTip1.SetToolTip(this.btnRestart, "Completely restarts the application");
+            this.btnRestart.UseVisualStyleBackColor = true;
+            this.btnRestart.Click += new System.EventHandler(this.btnRestart_Click);
             // 
             // XeBuildOptionsToolStripMenuItem
             // 
@@ -573,19 +469,18 @@ namespace JRunner
             // groupBox4
             // 
             this.groupBox4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
-            this.groupBox4.Controls.Add(this.btnBackup);
-            this.groupBox4.Controls.Add(this.btnLoadExtra);
-            this.groupBox4.Controls.Add(this.btnReload);
-            this.groupBox4.Controls.Add(this.txtFileExtra);
-            this.groupBox4.Controls.Add(this.txtFileSource);
-            this.groupBox4.Controls.Add(this.btnLoadSource);
+            this.groupBox4.Controls.Add(this.btnLoadFile2);
+            this.groupBox4.Controls.Add(this.btnInit);
+            this.groupBox4.Controls.Add(this.txtFilePath2);
+            this.groupBox4.Controls.Add(this.txtFilePath1);
+            this.groupBox4.Controls.Add(this.btnLoadFile1);
             this.groupBox4.Controls.Add(this.lblCpuKey);
-            this.groupBox4.Controls.Add(this.btnCompare);
+            this.groupBox4.Controls.Add(this.comparebutton);
             this.groupBox4.Controls.Add(this.txtCPUKey);
             this.groupBox4.Location = new System.Drawing.Point(12, 192);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(462, 101);
-            this.groupBox4.TabIndex = 21;
+            this.groupBox4.Size = new System.Drawing.Size(460, 101);
+            this.groupBox4.TabIndex = 67;
             this.groupBox4.TabStop = false;
             // 
             // statusStrip1
@@ -593,18 +488,18 @@ namespace JRunner
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.StatusBlank,
-            this.VersionLabel,
-            this.BlankSpace1,
-            this.BackupLabel,
-            this.BlankSpace2,
-            this.CopiedToClipboard,
+            this.XeBuildLabel,
+            this.XeBuildVersion,
+            this.BlankSpace,
+            this.DashlaunchLabel,
+            this.DashlaunchVersion,
             this.ModeStatus,
             this.ModeVersion,
             this.FWStatus,
             this.FWVersion,
             this.FlashStatus,
             this.FlashVersion});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 578);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 581);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(832, 22);
             this.statusStrip1.SizingGrip = false;
@@ -617,39 +512,33 @@ namespace JRunner
             this.StatusBlank.Size = new System.Drawing.Size(10, 17);
             this.StatusBlank.Text = " ";
             // 
-            // VersionLabel
+            // XeBuildLabel
             // 
-            this.VersionLabel.Name = "VersionLabel";
-            this.VersionLabel.Size = new System.Drawing.Size(45, 17);
-            this.VersionLabel.Text = "Version";
-            this.VersionLabel.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            this.XeBuildLabel.Name = "XeBuildLabel";
+            this.XeBuildLabel.Size = new System.Drawing.Size(50, 17);
+            this.XeBuildLabel.Text = "XeBuild:";
             // 
-            // BlankSpace1
+            // XeBuildVersion
             // 
-            this.BlankSpace1.Name = "BlankSpace1";
-            this.BlankSpace1.Size = new System.Drawing.Size(10, 17);
-            this.BlankSpace1.Text = " ";
+            this.XeBuildVersion.Name = "XeBuildVersion";
+            this.XeBuildVersion.Size = new System.Drawing.Size(0, 17);
             // 
-            // BackupLabel
+            // BlankSpace
             // 
-            this.BackupLabel.Name = "BackupLabel";
-            this.BackupLabel.Size = new System.Drawing.Size(98, 17);
-            this.BackupLabel.Text = "Auto Backup: Off";
-            this.BackupLabel.Click += new System.EventHandler(this.configureBackupToolStripMenuItem_Click);
+            this.BlankSpace.Name = "BlankSpace";
+            this.BlankSpace.Size = new System.Drawing.Size(10, 17);
+            this.BlankSpace.Text = " ";
             // 
-            // BlankSpace2
+            // DashlaunchLabel
             // 
-            this.BlankSpace2.Name = "BlankSpace2";
-            this.BlankSpace2.Size = new System.Drawing.Size(10, 17);
-            this.BlankSpace2.Text = " ";
+            this.DashlaunchLabel.Name = "DashlaunchLabel";
+            this.DashlaunchLabel.Size = new System.Drawing.Size(72, 17);
+            this.DashlaunchLabel.Text = "Dashlaunch:";
             // 
-            // CopiedToClipboard
+            // DashlaunchVersion
             // 
-            this.CopiedToClipboard.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.CopiedToClipboard.Name = "CopiedToClipboard";
-            this.CopiedToClipboard.Size = new System.Drawing.Size(119, 17);
-            this.CopiedToClipboard.Text = "Copied to Clipboard!";
-            this.CopiedToClipboard.Visible = false;
+            this.DashlaunchVersion.Name = "DashlaunchVersion";
+            this.DashlaunchVersion.Size = new System.Drawing.Size(0, 17);
             // 
             // ModeStatus
             // 
@@ -657,7 +546,7 @@ namespace JRunner
             this.ModeStatus.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
             this.ModeStatus.BorderStyle = System.Windows.Forms.Border3DStyle.Etched;
             this.ModeStatus.Name = "ModeStatus";
-            this.ModeStatus.Size = new System.Drawing.Size(418, 17);
+            this.ModeStatus.Size = new System.Drawing.Size(449, 17);
             this.ModeStatus.Spring = true;
             this.ModeStatus.Text = "MODE: ";
             this.ModeStatus.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -707,6 +596,16 @@ namespace JRunner
             this.FlashVersion.Text = "NOFLASH";
             this.FlashVersion.Visible = false;
             // 
+            // splitter1
+            // 
+            this.splitter1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.splitter1.Enabled = false;
+            this.splitter1.Location = new System.Drawing.Point(0, 578);
+            this.splitter1.Name = "splitter1";
+            this.splitter1.Size = new System.Drawing.Size(832, 3);
+            this.splitter1.TabIndex = 78;
+            this.splitter1.TabStop = false;
+            // 
             // btnCheckBadBlocks
             // 
             this.btnCheckBadBlocks.Location = new System.Drawing.Point(0, 0);
@@ -718,8 +617,8 @@ namespace JRunner
             // 
             this.pnlInfo.Location = new System.Drawing.Point(479, 186);
             this.pnlInfo.Name = "pnlInfo";
-            this.pnlInfo.Size = new System.Drawing.Size(342, 298);
-            this.pnlInfo.TabIndex = 23;
+            this.pnlInfo.Size = new System.Drawing.Size(342, 294);
+            this.pnlInfo.TabIndex = 79;
             // 
             // txtBlocks
             // 
@@ -736,7 +635,7 @@ namespace JRunner
             // ProgressLabel
             // 
             this.ProgressLabel.AutoSize = true;
-            this.ProgressLabel.Location = new System.Drawing.Point(9, 300);
+            this.ProgressLabel.Location = new System.Drawing.Point(10, 300);
             this.ProgressLabel.Name = "ProgressLabel";
             this.ProgressLabel.Size = new System.Drawing.Size(48, 13);
             this.ProgressLabel.TabIndex = 83;
@@ -744,47 +643,34 @@ namespace JRunner
             // 
             // pnlTools
             // 
-            this.pnlTools.Location = new System.Drawing.Point(9, 25);
+            this.pnlTools.Location = new System.Drawing.Point(9, 24);
             this.pnlTools.Name = "pnlTools";
-            this.pnlTools.Size = new System.Drawing.Size(465, 173);
-            this.pnlTools.TabIndex = 20;
+            this.pnlTools.Size = new System.Drawing.Size(463, 174);
+            this.pnlTools.TabIndex = 84;
             // 
             // pnlExtra
             // 
             this.pnlExtra.Location = new System.Drawing.Point(479, 25);
             this.pnlExtra.Name = "pnlExtra";
             this.pnlExtra.Size = new System.Drawing.Size(342, 156);
-            this.pnlExtra.TabIndex = 22;
+            this.pnlExtra.TabIndex = 85;
             // 
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.rescanDevicesToolStripMenuItem,
-            this.toolStripMenuItem3,
             this.pOSTMonitorRATERToolStripMenuItem,
             this.cOMMonitorAdvancedToolStripMenuItem,
-            this.soundEditorToolStripMenuItem,
-            this.toolStripMenuItem8,
-            this.cBFuseToolStripMenuItem,
-            this.timingAssistantToolStripMenuItem,
-            this.toolStripMenuItem12,
+            this.SoundEditorToolStripMenuItem,
+            this.toolStripMenuItem3,
+            this.rescanDevicesToolStripMenuItem,
             this.mTXUSBFirmwareUtilityToolStripMenuItem,
-            this.xboxOneHDDToolToolStripMenuItem});
+            this.xboxOneHDDToolToolStripMenuItem,
+            this.toolStripMenuItem8,
+            this.timingAssistantToolStripMenuItem,
+            this.cBFuseToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
-            // 
-            // rescanDevicesToolStripMenuItem
-            // 
-            this.rescanDevicesToolStripMenuItem.Name = "rescanDevicesToolStripMenuItem";
-            this.rescanDevicesToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
-            this.rescanDevicesToolStripMenuItem.Text = "Scan Devices";
-            this.rescanDevicesToolStripMenuItem.Click += new System.EventHandler(this.btnScanDevices_Click);
-            // 
-            // toolStripMenuItem3
-            // 
-            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(206, 6);
             // 
             // pOSTMonitorRATERToolStripMenuItem
             // 
@@ -800,37 +686,24 @@ namespace JRunner
             this.cOMMonitorAdvancedToolStripMenuItem.Text = "COM Monitor";
             this.cOMMonitorAdvancedToolStripMenuItem.Click += new System.EventHandler(this.btnCOM_Click);
             // 
-            // soundEditorToolStripMenuItem
+            // SoundEditorToolStripMenuItem
             // 
-            this.soundEditorToolStripMenuItem.Name = "soundEditorToolStripMenuItem";
-            this.soundEditorToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
-            this.soundEditorToolStripMenuItem.Text = "ISD Sound Editor";
-            this.soundEditorToolStripMenuItem.Click += new System.EventHandler(this.soundEditorToolStripMenuItem_Click);
+            this.SoundEditorToolStripMenuItem.Name = "SoundEditorToolStripMenuItem";
+            this.SoundEditorToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.SoundEditorToolStripMenuItem.Text = "Sound Editor";
+            this.SoundEditorToolStripMenuItem.Click += new System.EventHandler(this.SoundEditorToolStripMenuItem_Click);
             // 
-            // toolStripMenuItem8
+            // toolStripMenuItem3
             // 
-            this.toolStripMenuItem8.Name = "toolStripMenuItem8";
-            this.toolStripMenuItem8.Size = new System.Drawing.Size(206, 6);
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(206, 6);
             // 
-            // cBFuseToolStripMenuItem
+            // rescanDevicesToolStripMenuItem
             // 
-            this.cBFuseToolStripMenuItem.Name = "cBFuseToolStripMenuItem";
-            this.cBFuseToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
-            this.cBFuseToolStripMenuItem.Text = "CB Fuse Table";
-            this.cBFuseToolStripMenuItem.Click += new System.EventHandler(this.cBFuseToolStripMenuItem_Click);
-            // 
-            // timingAssistantToolStripMenuItem
-            // 
-            this.timingAssistantToolStripMenuItem.Name = "timingAssistantToolStripMenuItem";
-            this.timingAssistantToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F6;
-            this.timingAssistantToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
-            this.timingAssistantToolStripMenuItem.Text = "Timing Assistant";
-            this.timingAssistantToolStripMenuItem.Click += new System.EventHandler(this.timingAssistantToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem12
-            // 
-            this.toolStripMenuItem12.Name = "toolStripMenuItem12";
-            this.toolStripMenuItem12.Size = new System.Drawing.Size(206, 6);
+            this.rescanDevicesToolStripMenuItem.Name = "rescanDevicesToolStripMenuItem";
+            this.rescanDevicesToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.rescanDevicesToolStripMenuItem.Text = "Re-Scan Devices";
+            this.rescanDevicesToolStripMenuItem.Click += new System.EventHandler(this.rescanDevicesToolStripMenuItem_Click);
             // 
             // mTXUSBFirmwareUtilityToolStripMenuItem
             // 
@@ -846,6 +719,26 @@ namespace JRunner
             this.xboxOneHDDToolToolStripMenuItem.Text = "Xbox One HDD Tool";
             this.xboxOneHDDToolToolStripMenuItem.Click += new System.EventHandler(this.xboxOneHDDToolToolStripMenuItem_Click);
             // 
+            // toolStripMenuItem8
+            // 
+            this.toolStripMenuItem8.Name = "toolStripMenuItem8";
+            this.toolStripMenuItem8.Size = new System.Drawing.Size(206, 6);
+            // 
+            // timingAssistantToolStripMenuItem
+            // 
+            this.timingAssistantToolStripMenuItem.Name = "timingAssistantToolStripMenuItem";
+            this.timingAssistantToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F6;
+            this.timingAssistantToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.timingAssistantToolStripMenuItem.Text = "Timing Assistant";
+            this.timingAssistantToolStripMenuItem.Click += new System.EventHandler(this.timingAssistantToolStripMenuItem_Click);
+            // 
+            // cBFuseToolStripMenuItem
+            // 
+            this.cBFuseToolStripMenuItem.Name = "cBFuseToolStripMenuItem";
+            this.cBFuseToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.cBFuseToolStripMenuItem.Text = "CB Fuse Table";
+            this.cBFuseToolStripMenuItem.Click += new System.EventHandler(this.cBFuseToolStripMenuItem_Click);
+            // 
             // toolStripSeparator11
             // 
             this.toolStripSeparator11.Name = "toolStripSeparator11";
@@ -854,33 +747,28 @@ namespace JRunner
             // advancedToolStripMenuItem
             // 
             this.advancedToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.nandTimingFunctionsToolStripMenuItem,
+            this.customNandProCommandToolStripMenuItem,
             this.corona4GBToolStripMenuItem,
-            this.writeFusionToolStripMenuItem,
-            this.toolStripMenuItem1,
-            this.convertToRGH3ToolStripMenuItem,
-            this.checkSecdataToolStripMenuItem,
             this.CustomXeBuildMenuItem,
-            this.enableDevGLToolStripMenuItem,
+            this.writeFusionToolStripMenuItem,
             this.toolStripMenuItem5,
-            this.hexEditorToolStripMenuItem,
-            this.kVViewerToolStripMenuItem,
-            this.generateCpuKeyToolStripMenuItem,
-            this.toolStripSeparator1,
-            this.experimentalToolStripMenuItem,
-            this.linuxFeaturesToolStripMenuItem});
+            this.toolStripHexEditor,
+            this.cPUKeyToolsToolStripMenuItem,
+            this.toolStripSeparator15,
+            this.checkSecdataToolStripMenuItem,
+            this.xValueToolStripMenuItem});
             this.advancedToolStripMenuItem.Name = "advancedToolStripMenuItem";
             this.advancedToolStripMenuItem.Size = new System.Drawing.Size(72, 20);
             this.advancedToolStripMenuItem.Text = "Advanced";
             // 
-            // nandTimingFunctionsToolStripMenuItem
+            // customNandProCommandToolStripMenuItem
             // 
-            this.nandTimingFunctionsToolStripMenuItem.ForeColor = System.Drawing.Color.Black;
-            this.nandTimingFunctionsToolStripMenuItem.Name = "nandTimingFunctionsToolStripMenuItem";
-            this.nandTimingFunctionsToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F4;
-            this.nandTimingFunctionsToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.nandTimingFunctionsToolStripMenuItem.Text = "Nand/Timing File Functions";
-            this.nandTimingFunctionsToolStripMenuItem.Click += new System.EventHandler(this.nandTimingFunctionsMenuItem_Click);
+            this.customNandProCommandToolStripMenuItem.ForeColor = System.Drawing.Color.Black;
+            this.customNandProCommandToolStripMenuItem.Name = "customNandProCommandToolStripMenuItem";
+            this.customNandProCommandToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F4;
+            this.customNandProCommandToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
+            this.customNandProCommandToolStripMenuItem.Text = "Nand/Timing File Functions";
+            this.customNandProCommandToolStripMenuItem.Click += new System.EventHandler(this.customNandProCommandToolStripMenuItem_Click);
             // 
             // corona4GBToolStripMenuItem
             // 
@@ -890,6 +778,13 @@ namespace JRunner
             this.corona4GBToolStripMenuItem.Text = "Corona 4GB Read/Write…";
             this.corona4GBToolStripMenuItem.Click += new System.EventHandler(this.corona4GBToolStripMenuItem_Click);
             // 
+            // CustomXeBuildMenuItem
+            // 
+            this.CustomXeBuildMenuItem.Name = "CustomXeBuildMenuItem";
+            this.CustomXeBuildMenuItem.Size = new System.Drawing.Size(241, 22);
+            this.CustomXeBuildMenuItem.Text = "XeBuild Command…";
+            this.CustomXeBuildMenuItem.Click += new System.EventHandler(this.CustomXeBuildMenuItem_Click);
+            // 
             // writeFusionToolStripMenuItem
             // 
             this.writeFusionToolStripMenuItem.Name = "writeFusionToolStripMenuItem";
@@ -897,17 +792,29 @@ namespace JRunner
             this.writeFusionToolStripMenuItem.Text = "Special/Fusion Write";
             this.writeFusionToolStripMenuItem.Click += new System.EventHandler(this.writeFusionToolStripMenuItem_Click);
             // 
-            // toolStripMenuItem1
+            // toolStripMenuItem5
             // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(238, 6);
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(238, 6);
             // 
-            // convertToRGH3ToolStripMenuItem
+            // toolStripHexEditor
             // 
-            this.convertToRGH3ToolStripMenuItem.Name = "convertToRGH3ToolStripMenuItem";
-            this.convertToRGH3ToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.convertToRGH3ToolStripMenuItem.Text = "Convert to RGH3";
-            this.convertToRGH3ToolStripMenuItem.Click += new System.EventHandler(this.convertToRGH3ToolStripMenuItem_Click);
+            this.toolStripHexEditor.Name = "toolStripHexEditor";
+            this.toolStripHexEditor.Size = new System.Drawing.Size(241, 22);
+            this.toolStripHexEditor.Text = "Hex Viewer";
+            this.toolStripHexEditor.Click += new System.EventHandler(this.toolStripHexEditor_Click);
+            // 
+            // cPUKeyToolsToolStripMenuItem
+            // 
+            this.cPUKeyToolsToolStripMenuItem.Name = "cPUKeyToolsToolStripMenuItem";
+            this.cPUKeyToolsToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
+            this.cPUKeyToolsToolStripMenuItem.Text = "CPU Key Tools";
+            this.cPUKeyToolsToolStripMenuItem.Click += new System.EventHandler(this.cPUKeyToolsToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator15
+            // 
+            this.toolStripSeparator15.Name = "toolStripSeparator15";
+            this.toolStripSeparator15.Size = new System.Drawing.Size(238, 6);
             // 
             // checkSecdataToolStripMenuItem
             // 
@@ -916,106 +823,12 @@ namespace JRunner
             this.checkSecdataToolStripMenuItem.Text = "Check SECDATA";
             this.checkSecdataToolStripMenuItem.Click += new System.EventHandler(this.checkSecdataToolStripMenuItem_Click);
             // 
-            // CustomXeBuildMenuItem
+            // xValueToolStripMenuItem
             // 
-            this.CustomXeBuildMenuItem.Name = "CustomXeBuildMenuItem";
-            this.CustomXeBuildMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.CustomXeBuildMenuItem.Text = "XeBuild Command…";
-            this.CustomXeBuildMenuItem.Click += new System.EventHandler(this.CustomXeBuildMenuItem_Click);
-            // 
-            // enableDevGLToolStripMenuItem
-            // 
-            this.enableDevGLToolStripMenuItem.Name = "enableDevGLToolStripMenuItem";
-            this.enableDevGLToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.enableDevGLToolStripMenuItem.Text = "Enable DevGL";
-            this.enableDevGLToolStripMenuItem.Click += new System.EventHandler(this.enableDevGLToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem5
-            // 
-            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(238, 6);
-            // 
-            // hexEditorToolStripMenuItem
-            // 
-            this.hexEditorToolStripMenuItem.Name = "hexEditorToolStripMenuItem";
-            this.hexEditorToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.hexEditorToolStripMenuItem.Text = "Hex Viewer";
-            this.hexEditorToolStripMenuItem.Click += new System.EventHandler(this.hexEditorToolStripMenuItem_Click);
-            // 
-            // kVViewerToolStripMenuItem
-            // 
-            this.kVViewerToolStripMenuItem.Name = "kVViewerToolStripMenuItem";
-            this.kVViewerToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.kVViewerToolStripMenuItem.Text = "KV Viewer";
-            this.kVViewerToolStripMenuItem.Click += new System.EventHandler(this.kVViewerToolStripMenuItem_Click);
-            // 
-            // generateCpuKeyToolStripMenuItem
-            // 
-            this.generateCpuKeyToolStripMenuItem.Name = "generateCpuKeyToolStripMenuItem";
-            this.generateCpuKeyToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.generateCpuKeyToolStripMenuItem.Text = "Generate CPU Key…";
-            this.generateCpuKeyToolStripMenuItem.ToolTipText = "Generates a valid CPU Key in the CPU Key box";
-            this.generateCpuKeyToolStripMenuItem.Click += new System.EventHandler(this.generateCpuKeyToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(238, 6);
-            // 
-            // experimentalToolStripMenuItem
-            // 
-            this.experimentalToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.g3fixToolStripMenuItem,
-            this.zeroPairSbToolStripMenuItem,
-            this.injectGlitch3ToolStripMenuItem,
-            this.injectRGH3CBXToolStripMenuItem});
-            this.experimentalToolStripMenuItem.Name = "experimentalToolStripMenuItem";
-            this.experimentalToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.experimentalToolStripMenuItem.Text = "Experimental Features";
-            // 
-            // g3fixToolStripMenuItem
-            // 
-            this.g3fixToolStripMenuItem.Name = "g3fixToolStripMenuItem";
-            this.g3fixToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            this.g3fixToolStripMenuItem.Text = "G3Fix Patch";
-            this.g3fixToolStripMenuItem.Click += new System.EventHandler(this.g3fixToolStripMenuItem_Click);
-            // 
-            // zeroPairSbToolStripMenuItem
-            // 
-            this.zeroPairSbToolStripMenuItem.Name = "zeroPairSbToolStripMenuItem";
-            this.zeroPairSbToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            this.zeroPairSbToolStripMenuItem.Text = "Zero Pair SB";
-            this.zeroPairSbToolStripMenuItem.Click += new System.EventHandler(this.zeroPairSbToolStripMenuItem_Click);
-            // 
-            // injectGlitch3ToolStripMenuItem
-            // 
-            this.injectGlitch3ToolStripMenuItem.Name = "injectGlitch3ToolStripMenuItem";
-            this.injectGlitch3ToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            this.injectGlitch3ToolStripMenuItem.Text = "Inject RGH3 ECC";
-            this.injectGlitch3ToolStripMenuItem.Click += new System.EventHandler(this.injectGlitch3ToolStripMenuItem_Click);
-            // 
-            // injectRGH3CBXToolStripMenuItem
-            // 
-            this.injectRGH3CBXToolStripMenuItem.Name = "injectRGH3CBXToolStripMenuItem";
-            this.injectRGH3CBXToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
-            this.injectRGH3CBXToolStripMenuItem.Text = "Inject RGH3 CB_X";
-            this.injectRGH3CBXToolStripMenuItem.Click += new System.EventHandler(this.injectRGH3CBXToolStripMenuItem_Click);
-            // 
-            // linuxFeaturesToolStripMenuItem
-            // 
-            this.linuxFeaturesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toggleDebugModeToolStripMenuItem});
-            this.linuxFeaturesToolStripMenuItem.Name = "linuxFeaturesToolStripMenuItem";
-            this.linuxFeaturesToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.linuxFeaturesToolStripMenuItem.Text = "Linux Features";
-            this.linuxFeaturesToolStripMenuItem.Visible = false;
-            // 
-            // toggleDebugModeToolStripMenuItem
-            // 
-            this.toggleDebugModeToolStripMenuItem.Name = "toggleDebugModeToolStripMenuItem";
-            this.toggleDebugModeToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
-            this.toggleDebugModeToolStripMenuItem.Text = "Toggle Debug Mode";
-            this.toggleDebugModeToolStripMenuItem.Click += new System.EventHandler(this.toggleDebugModeToolStripMenuItem_Click);
+            this.xValueToolStripMenuItem.Name = "xValueToolStripMenuItem";
+            this.xValueToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
+            this.xValueToolStripMenuItem.Text = "Decrypt X Value…";
+            this.xValueToolStripMenuItem.Click += new System.EventHandler(this.xValueToolStripMenuItem_Click);
             // 
             // jRPToolStripMenuItem
             // 
@@ -1082,52 +895,52 @@ namespace JRunner
             // powerOnToolStripMenuItem1
             // 
             this.powerOnToolStripMenuItem1.Name = "powerOnToolStripMenuItem1";
-            this.powerOnToolStripMenuItem1.Size = new System.Drawing.Size(167, 22);
+            this.powerOnToolStripMenuItem1.Size = new System.Drawing.Size(169, 22);
             this.powerOnToolStripMenuItem1.Text = "Power On";
             this.powerOnToolStripMenuItem1.Click += new System.EventHandler(this.powerOnToolStripMenuItem1_Click);
             // 
             // powerOffToolStripMenuItem
             // 
             this.powerOffToolStripMenuItem.Name = "powerOffToolStripMenuItem";
-            this.powerOffToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.powerOffToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.powerOffToolStripMenuItem.Text = "Shut Down";
             this.powerOffToolStripMenuItem.Click += new System.EventHandler(this.powerOffToolStripMenuItem_Click);
             // 
             // toggleNANDToolStripMenuItem
             // 
             this.toggleNANDToolStripMenuItem.Name = "toggleNANDToolStripMenuItem";
-            this.toggleNANDToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.toggleNANDToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.toggleNANDToolStripMenuItem.Text = "Toggle NAND";
             this.toggleNANDToolStripMenuItem.Click += new System.EventHandler(this.toggleNANDToolStripMenuItem_Click);
             // 
             // toolStripMenuItem7
             // 
             this.toolStripMenuItem7.Name = "toolStripMenuItem7";
-            this.toolStripMenuItem7.Size = new System.Drawing.Size(164, 6);
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(166, 6);
             // 
             // connectToUARTToolStripMenuItem
             // 
             this.connectToUARTToolStripMenuItem.Name = "connectToUARTToolStripMenuItem";
-            this.connectToUARTToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.connectToUARTToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.connectToUARTToolStripMenuItem.Text = "Connect To UART";
             this.connectToUARTToolStripMenuItem.Click += new System.EventHandler(this.connectToUARTToolStripMenuItem_Click);
             // 
             // getInvalidBlocksToolStripMenuItem
             // 
             this.getInvalidBlocksToolStripMenuItem.Name = "getInvalidBlocksToolStripMenuItem";
-            this.getInvalidBlocksToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.getInvalidBlocksToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.getInvalidBlocksToolStripMenuItem.Text = "Get Invalid Blocks";
             this.getInvalidBlocksToolStripMenuItem.Click += new System.EventHandler(this.getInvalidBlocksToolStripMenuItem_Click);
             // 
             // toolStripMenuItem6
             // 
             this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(164, 6);
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(166, 6);
             // 
             // updateFwToolStripMenuItem
             // 
             this.updateFwToolStripMenuItem.Name = "updateFwToolStripMenuItem";
-            this.updateFwToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.updateFwToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.updateFwToolStripMenuItem.Text = "Update DemoN…";
             this.updateFwToolStripMenuItem.Click += new System.EventHandler(this.updateFwToolStripMenuItem_Click);
             // 
@@ -1138,11 +951,11 @@ namespace JRunner
             this.updateAvailableToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("updateAvailableToolStripMenuItem.Image")));
             this.updateAvailableToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.updateAvailableToolStripMenuItem.Name = "updateAvailableToolStripMenuItem";
-            this.updateAvailableToolStripMenuItem.Size = new System.Drawing.Size(120, 20);
-            this.updateAvailableToolStripMenuItem.Text = "Update Available";
+            this.updateAvailableToolStripMenuItem.Size = new System.Drawing.Size(159, 20);
+            this.updateAvailableToolStripMenuItem.Text = "Update Ready to Install!";
             this.updateAvailableToolStripMenuItem.ToolTipText = "Click to install updates!";
             this.updateAvailableToolStripMenuItem.Visible = false;
-            this.updateAvailableToolStripMenuItem.Click += new System.EventHandler(this.btnRestart_Click);
+            this.updateAvailableToolStripMenuItem.Click += new System.EventHandler(this.updateAvailableToolStripMenuItem_Click);
             // 
             // menuStrip1
             // 
@@ -1153,13 +966,12 @@ namespace JRunner
             this.toolsToolStripMenuItem,
             this.nandToolStripMenuItem,
             this.advancedToolStripMenuItem,
-            this.settingsToolStripMenuItem,
             this.xFlasherToolStripMenuItem,
             this.nANDXToolStripMenuItem,
             this.jRPToolStripMenuItem,
             this.jRPBLToolStripMenuItem,
             this.demoNToolStripMenuItem,
-            this.keyDatabaseToolStripMenuItem,
+            this.versionToolStripMenuItem,
             this.updateAvailableToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -1173,11 +985,8 @@ namespace JRunner
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aboutToolStripMenuItem,
-            this.changelogToolStripMenuItem,
-            this.shortcutsToolStripMenuItem,
-            this.toolStripMenuItem10,
             this.reportIssueToolStripMenuItem,
-            this.restoreFilesToolStripMenuItem,
+            this.shortcutsToolStripMenuItem,
             this.toolStripMenuItem4,
             this.newSessionToolStripMenuItem,
             this.restartToolStripMenuItem,
@@ -1191,54 +1000,35 @@ namespace JRunner
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
-            // changelogToolStripMenuItem
+            // reportIssueToolStripMenuItem
             // 
-            this.changelogToolStripMenuItem.Name = "changelogToolStripMenuItem";
-            this.changelogToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.changelogToolStripMenuItem.Text = "Changelog";
-            this.changelogToolStripMenuItem.Click += new System.EventHandler(this.changelogToolStripMenuItem_Click_1);
+            this.reportIssueToolStripMenuItem.Name = "reportIssueToolStripMenuItem";
+            this.reportIssueToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.reportIssueToolStripMenuItem.Text = "Report Issue…";
+            this.reportIssueToolStripMenuItem.Click += new System.EventHandler(this.reportIssueToolStripMenuItem_Click);
             // 
             // shortcutsToolStripMenuItem
             // 
             this.shortcutsToolStripMenuItem.Name = "shortcutsToolStripMenuItem";
             this.shortcutsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.H)));
-            this.shortcutsToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.shortcutsToolStripMenuItem.Text = "Key Shortcuts";
+            this.shortcutsToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.shortcutsToolStripMenuItem.Text = "Shortcuts";
             this.shortcutsToolStripMenuItem.Click += new System.EventHandler(this.shortcutsToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem10
-            // 
-            this.toolStripMenuItem10.Name = "toolStripMenuItem10";
-            this.toolStripMenuItem10.Size = new System.Drawing.Size(186, 6);
-            // 
-            // reportIssueToolStripMenuItem
-            // 
-            this.reportIssueToolStripMenuItem.Name = "reportIssueToolStripMenuItem";
-            this.reportIssueToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.reportIssueToolStripMenuItem.Text = "Report Issue…";
-            this.reportIssueToolStripMenuItem.Click += new System.EventHandler(this.reportIssueToolStripMenuItem_Click);
-            // 
-            // restoreFilesToolStripMenuItem
-            // 
-            this.restoreFilesToolStripMenuItem.Name = "restoreFilesToolStripMenuItem";
-            this.restoreFilesToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
-            this.restoreFilesToolStripMenuItem.Text = "Restore Files…";
-            this.restoreFilesToolStripMenuItem.Click += new System.EventHandler(this.restoreFilesToolStripMenuItem_Click);
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(186, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(164, 6);
             // 
             // newSessionToolStripMenuItem
             // 
             this.newSessionToolStripMenuItem.Name = "newSessionToolStripMenuItem";
             this.newSessionToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.newSessionToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.newSessionToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.newSessionToolStripMenuItem.Text = "New Session";
             this.newSessionToolStripMenuItem.Click += new System.EventHandler(this.btnNewSession_Click);
             // 
@@ -1246,7 +1036,7 @@ namespace JRunner
             // 
             this.restartToolStripMenuItem.Name = "restartToolStripMenuItem";
             this.restartToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F1)));
-            this.restartToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.restartToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.restartToolStripMenuItem.Text = "Restart";
             this.restartToolStripMenuItem.Click += new System.EventHandler(this.btnRestart_Click);
             // 
@@ -1254,7 +1044,7 @@ namespace JRunner
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.btnExit_Click);
             // 
@@ -1262,16 +1052,12 @@ namespace JRunner
             // 
             this.nandToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.extractFilesToolStripMenuItem,
-            this.createDonorToolStripMenuItem,
-            this.createSafeDualImageToolStripMenuItem,
-            this.toolStripMenuItem11,
-            this.patchKVToolStripMenuItem,
-            this.smcConfigViewerToolStripMenuItem,
-            this.changeLDVToolStripMenuItem,
+            this.createDonorNandToolStripMenuItem,
+            this.decryptKeyvaultToolStripMenuItem,
             this.toolStripMenuItem9,
-            this.nANDAlignmentToolStripMenuItem,
-            this.keyvaultOptionsToolStripMenuItem,
-            this.xeLLToolStripMenuItem});
+            this.sMCConfigViewerToolStripMenuItem1,
+            this.patchNandToolStripMenuItem,
+            this.changeLDVToolStripMenuItem});
             this.nandToolStripMenuItem.Name = "nandToolStripMenuItem";
             this.nandToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.nandToolStripMenuItem.Text = "Nand";
@@ -1279,165 +1065,54 @@ namespace JRunner
             // extractFilesToolStripMenuItem
             // 
             this.extractFilesToolStripMenuItem.Name = "extractFilesToolStripMenuItem";
-            this.extractFilesToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.extractFilesToolStripMenuItem.Text = "Extract Files";
+            this.extractFilesToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+            this.extractFilesToolStripMenuItem.Text = "Extract Nand Files";
             this.extractFilesToolStripMenuItem.Click += new System.EventHandler(this.extractFilesToolStripMenuItem_Click);
             // 
-            // createDonorToolStripMenuItem
+            // createDonorNandToolStripMenuItem
             // 
-            this.createDonorToolStripMenuItem.Name = "createDonorToolStripMenuItem";
-            this.createDonorToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.createDonorToolStripMenuItem.Text = "Create Donor…";
-            this.createDonorToolStripMenuItem.Click += new System.EventHandler(this.createDonorToolStripMenuItem_Click);
-            // 
-            // createSafeDualImageToolStripMenuItem
-            // 
-            this.createSafeDualImageToolStripMenuItem.Name = "createSafeDualImageToolStripMenuItem";
-            this.createSafeDualImageToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.createSafeDualImageToolStripMenuItem.Text = "Create Safe Multinand";
-            this.createSafeDualImageToolStripMenuItem.Visible = false;
-            this.createSafeDualImageToolStripMenuItem.Click += new System.EventHandler(this.createSafeDualImageToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem11
-            // 
-            this.toolStripMenuItem11.Name = "toolStripMenuItem11";
-            this.toolStripMenuItem11.Size = new System.Drawing.Size(210, 6);
-            // 
-            // patchKVToolStripMenuItem
-            // 
-            this.patchKVToolStripMenuItem.Name = "patchKVToolStripMenuItem";
-            this.patchKVToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.patchKVToolStripMenuItem.Text = "Patch Keyvault…";
-            this.patchKVToolStripMenuItem.Click += new System.EventHandler(this.patchKVToolStripMenuItem_Click);
-            // 
-            // smcConfigViewerToolStripMenuItem
-            // 
-            this.smcConfigViewerToolStripMenuItem.Name = "smcConfigViewerToolStripMenuItem";
-            this.smcConfigViewerToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.smcConfigViewerToolStripMenuItem.Text = "Edit SMC Config…";
-            this.smcConfigViewerToolStripMenuItem.Click += new System.EventHandler(this.smcConfigViewerToolStripMenuItem_Click);
-            // 
-            // changeLDVToolStripMenuItem
-            // 
-            this.changeLDVToolStripMenuItem.Name = "changeLDVToolStripMenuItem";
-            this.changeLDVToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.changeLDVToolStripMenuItem.Text = "Change Lockdown Value…";
-            this.changeLDVToolStripMenuItem.Click += new System.EventHandler(this.changeLDVToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem9
-            // 
-            this.toolStripMenuItem9.Name = "toolStripMenuItem9";
-            this.toolStripMenuItem9.Size = new System.Drawing.Size(210, 6);
-            // 
-            // nANDAlignmentToolStripMenuItem
-            // 
-            this.nANDAlignmentToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.gB16MBToolStripMenuItem,
-            this.mB64MBToolStripMenuItem,
-            this.addressCalculatorToolStripMenuItem});
-            this.nANDAlignmentToolStripMenuItem.Name = "nANDAlignmentToolStripMenuItem";
-            this.nANDAlignmentToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.nANDAlignmentToolStripMenuItem.Text = "Nand Alignment";
-            // 
-            // gB16MBToolStripMenuItem
-            // 
-            this.gB16MBToolStripMenuItem.Name = "gB16MBToolStripMenuItem";
-            this.gB16MBToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
-            this.gB16MBToolStripMenuItem.Text = "4GB -> 16MB";
-            this.gB16MBToolStripMenuItem.Visible = false;
-            this.gB16MBToolStripMenuItem.Click += new System.EventHandler(this.gB16MBToolStripMenuItem_Click);
-            // 
-            // mB64MBToolStripMenuItem
-            // 
-            this.mB64MBToolStripMenuItem.Name = "mB64MBToolStripMenuItem";
-            this.mB64MBToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
-            this.mB64MBToolStripMenuItem.Text = "16MB -> 64MB";
-            this.mB64MBToolStripMenuItem.Click += new System.EventHandler(this.mB64MBToolStripMenuItem_Click);
-            // 
-            // addressCalculatorToolStripMenuItem
-            // 
-            this.addressCalculatorToolStripMenuItem.Name = "addressCalculatorToolStripMenuItem";
-            this.addressCalculatorToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
-            this.addressCalculatorToolStripMenuItem.Text = "Address Calculator";
-            this.addressCalculatorToolStripMenuItem.Click += new System.EventHandler(this.addressCalculatorToolStripMenuItem_Click);
-            // 
-            // keyvaultOptionsToolStripMenuItem
-            // 
-            this.keyvaultOptionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.decryptKeyvaultToolStripMenuItem,
-            this.injectKeyvaultToolStripMenuItem});
-            this.keyvaultOptionsToolStripMenuItem.Name = "keyvaultOptionsToolStripMenuItem";
-            this.keyvaultOptionsToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.keyvaultOptionsToolStripMenuItem.Text = "Keyvault Options";
+            this.createDonorNandToolStripMenuItem.Name = "createDonorNandToolStripMenuItem";
+            this.createDonorNandToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+            this.createDonorNandToolStripMenuItem.Text = "Create Donor Nand…";
+            this.createDonorNandToolStripMenuItem.Click += new System.EventHandler(this.createDonorNandToolStripMenuItem_Click);
             // 
             // decryptKeyvaultToolStripMenuItem
             // 
             this.decryptKeyvaultToolStripMenuItem.Name = "decryptKeyvaultToolStripMenuItem";
-            this.decryptKeyvaultToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
-            this.decryptKeyvaultToolStripMenuItem.Text = "Decrypt Keyvault";
+            this.decryptKeyvaultToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+            this.decryptKeyvaultToolStripMenuItem.Text = "Decrypt Keyvault...";
             this.decryptKeyvaultToolStripMenuItem.Click += new System.EventHandler(this.decryptKeyvaultToolStripMenuItem_Click);
             // 
-            // injectKeyvaultToolStripMenuItem
+            // toolStripMenuItem9
             // 
-            this.injectKeyvaultToolStripMenuItem.Name = "injectKeyvaultToolStripMenuItem";
-            this.injectKeyvaultToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
-            this.injectKeyvaultToolStripMenuItem.Text = "Inject Keyvault";
-            this.injectKeyvaultToolStripMenuItem.Click += new System.EventHandler(this.injectKeyvaultToolStripMenuItem_Click);
+            this.toolStripMenuItem9.Name = "toolStripMenuItem9";
+            this.toolStripMenuItem9.Size = new System.Drawing.Size(215, 6);
             // 
-            // xeLLToolStripMenuItem
+            // sMCConfigViewerToolStripMenuItem1
             // 
-            this.xeLLToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.loadGlitch2XeLLToolStripMenuItem,
-            this.loadJTAGXeLLToolStripMenuItem,
-            this.injectXeLLToolStripMenuItem,
-            this.customizeThemeToolStripMenuItem});
-            this.xeLLToolStripMenuItem.Name = "xeLLToolStripMenuItem";
-            this.xeLLToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.xeLLToolStripMenuItem.Text = "XeLL";
+            this.sMCConfigViewerToolStripMenuItem1.Name = "sMCConfigViewerToolStripMenuItem1";
+            this.sMCConfigViewerToolStripMenuItem1.Size = new System.Drawing.Size(218, 22);
+            this.sMCConfigViewerToolStripMenuItem1.Text = "SMC Config Editor";
+            this.sMCConfigViewerToolStripMenuItem1.Click += new System.EventHandler(this.sMCConfigViewerToolStripMenuItem1_Click);
             // 
-            // loadGlitch2XeLLToolStripMenuItem
+            // patchNandToolStripMenuItem
             // 
-            this.loadGlitch2XeLLToolStripMenuItem.Name = "loadGlitch2XeLLToolStripMenuItem";
-            this.loadGlitch2XeLLToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
-            this.loadGlitch2XeLLToolStripMenuItem.Text = "Load Glitch2 XeLL";
-            this.loadGlitch2XeLLToolStripMenuItem.Click += new System.EventHandler(this.loadGlitch2XeLLToolStripMenuItem_Click);
+            this.patchNandToolStripMenuItem.Name = "patchNandToolStripMenuItem";
+            this.patchNandToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+            this.patchNandToolStripMenuItem.Text = "Patch KV/Nand…";
+            this.patchNandToolStripMenuItem.Click += new System.EventHandler(this.patchNandToolStripMenuItem_Click);
             // 
-            // loadJTAGXeLLToolStripMenuItem
+            // changeLDVToolStripMenuItem
             // 
-            this.loadJTAGXeLLToolStripMenuItem.Name = "loadJTAGXeLLToolStripMenuItem";
-            this.loadJTAGXeLLToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
-            this.loadJTAGXeLLToolStripMenuItem.Text = "Load JTAG XeLL";
-            this.loadJTAGXeLLToolStripMenuItem.Click += new System.EventHandler(this.loadJTAGXeLLToolStripMenuItem_Click);
-            // 
-            // injectXeLLToolStripMenuItem
-            // 
-            this.injectXeLLToolStripMenuItem.Name = "injectXeLLToolStripMenuItem";
-            this.injectXeLLToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
-            this.injectXeLLToolStripMenuItem.Text = "Inject XeLL";
-            this.injectXeLLToolStripMenuItem.Click += new System.EventHandler(this.injectXeLLToolStripMenuItem_Click);
-            // 
-            // customizeThemeToolStripMenuItem
-            // 
-            this.customizeThemeToolStripMenuItem.Name = "customizeThemeToolStripMenuItem";
-            this.customizeThemeToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
-            this.customizeThemeToolStripMenuItem.Text = "Customize Theme";
-            this.customizeThemeToolStripMenuItem.Click += new System.EventHandler(this.customizeThemeToolStripMenuItem_Click);
-            // 
-            // settingsToolStripMenuItem
-            // 
-            this.settingsToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.settingsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("settingsToolStripMenuItem.Image")));
-            this.settingsToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(77, 20);
-            this.settingsToolStripMenuItem.Text = "Settings";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            this.changeLDVToolStripMenuItem.Name = "changeLDVToolStripMenuItem";
+            this.changeLDVToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
+            this.changeLDVToolStripMenuItem.Text = "Change Lock Down Value…";
+            this.changeLDVToolStripMenuItem.Click += new System.EventHandler(this.changeLDVToolStripMenuItem_Click);
             // 
             // xFlasherToolStripMenuItem
             // 
             this.xFlasherToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.installDriversToolStripMenuItem,
-            this.checkConsoleCBToolStripMenuItem,
             this.flashOpenXeniumToolStripMenuItem});
             this.xFlasherToolStripMenuItem.Name = "xFlasherToolStripMenuItem";
             this.xFlasherToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
@@ -1447,22 +1122,15 @@ namespace JRunner
             // installDriversToolStripMenuItem
             // 
             this.installDriversToolStripMenuItem.Name = "installDriversToolStripMenuItem";
-            this.installDriversToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.installDriversToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
             this.installDriversToolStripMenuItem.Text = "Install Drivers…";
             this.installDriversToolStripMenuItem.Click += new System.EventHandler(this.installDriversToolStripMenuItem_Click);
-            // 
-            // checkConsoleCBToolStripMenuItem
-            // 
-            this.checkConsoleCBToolStripMenuItem.Name = "checkConsoleCBToolStripMenuItem";
-            this.checkConsoleCBToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-            this.checkConsoleCBToolStripMenuItem.Text = "Check Console CB";
-            this.checkConsoleCBToolStripMenuItem.Click += new System.EventHandler(this.checkConsoleCBToolStripMenuItem_Click);
             // 
             // flashOpenXeniumToolStripMenuItem
             // 
             this.flashOpenXeniumToolStripMenuItem.Name = "flashOpenXeniumToolStripMenuItem";
-            this.flashOpenXeniumToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
-            this.flashOpenXeniumToolStripMenuItem.Text = "Program OpenXenium…";
+            this.flashOpenXeniumToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+            this.flashOpenXeniumToolStripMenuItem.Text = "Program OpenXenium";
             this.flashOpenXeniumToolStripMenuItem.Click += new System.EventHandler(this.flashOpenXeniumToolStripMenuItem_Click);
             // 
             // nANDXToolStripMenuItem
@@ -1484,29 +1152,27 @@ namespace JRunner
             // jRPBLToolStripMenuItem
             // 
             this.jRPBLToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.updateJRPToolStripMenuItem});
+            this.updateToolStripMenuItem});
             this.jRPBLToolStripMenuItem.Name = "jRPBLToolStripMenuItem";
             this.jRPBLToolStripMenuItem.Size = new System.Drawing.Size(42, 20);
             this.jRPBLToolStripMenuItem.Text = "JR-P";
             this.jRPBLToolStripMenuItem.Visible = false;
             // 
-            // updateJRPToolStripMenuItem
+            // updateToolStripMenuItem
             // 
-            this.updateJRPToolStripMenuItem.Name = "updateJRPToolStripMenuItem";
-            this.updateJRPToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
-            this.updateJRPToolStripMenuItem.Text = "Update JR-P Firmware…";
-            this.updateJRPToolStripMenuItem.Click += new System.EventHandler(this.updateJRPToolStripMenuItem_Click);
+            this.updateToolStripMenuItem.Name = "updateToolStripMenuItem";
+            this.updateToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.updateToolStripMenuItem.Text = "Update JR-P Firmware…";
+            this.updateToolStripMenuItem.Click += new System.EventHandler(this.updateToolStripMenuItem_Click);
             // 
-            // keyDatabaseToolStripMenuItem
+            // versionToolStripMenuItem
             // 
-            this.keyDatabaseToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.keyDatabaseToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("keyDatabaseToolStripMenuItem.Image")));
-            this.keyDatabaseToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.keyDatabaseToolStripMenuItem.Name = "keyDatabaseToolStripMenuItem";
-            this.keyDatabaseToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F7;
-            this.keyDatabaseToolStripMenuItem.Size = new System.Drawing.Size(105, 20);
-            this.keyDatabaseToolStripMenuItem.Text = "Key Database";
-            this.keyDatabaseToolStripMenuItem.Click += new System.EventHandler(this.keyDatabaseToolStripMenuItem_Click);
+            this.versionToolStripMenuItem.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.versionToolStripMenuItem.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.versionToolStripMenuItem.Name = "versionToolStripMenuItem";
+            this.versionToolStripMenuItem.Size = new System.Drawing.Size(58, 20);
+            this.versionToolStripMenuItem.Text = "Version";
+            this.versionToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -1514,8 +1180,7 @@ namespace JRunner
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
-            this.ClientSize = new System.Drawing.Size(832, 600);
-            this.Controls.Add(this.btnScanDevices);
+            this.ClientSize = new System.Drawing.Size(832, 603);
             this.Controls.Add(this.btnScanner);
             this.Controls.Add(this.btnNewSession);
             this.Controls.Add(this.btnRestart);
@@ -1524,30 +1189,33 @@ namespace JRunner
             this.Controls.Add(this.pnlTools);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.ProgressLabel);
+            this.Controls.Add(this.btnSettings);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.txtBlocks);
             this.Controls.Add(this.pnlInfo);
+            this.Controls.Add(this.splitter1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.txtConsole);
             this.Controls.Add(this.menuStrip1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(848, 639);
+            this.MinimumSize = new System.Drawing.Size(848, 639);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "J-Runner with Extras";
+            this.Text = "J-Runner Pro";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyUp);
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.groupBox8.ResumeLayout(false);
             this.groupBox8.PerformLayout();
-            this.getCpuKeyMenu.ResumeLayout(false);
+            this.getCpuKeyContextMenu.ResumeLayout(false);
             this.showWorkingFolderMenu.ResumeLayout(false);
-            this.backupContextMenu.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
@@ -1564,11 +1232,11 @@ namespace JRunner
         #endregion
 
         private Button btnExit;
-        private Button btnCompare;
-        private Button btnLoadExtra;
-        private Button btnLoadSource;
-        private TextBox txtFileExtra;
-        private TextBox txtFileSource;
+        private Button comparebutton;
+        private Button btnLoadFile2;
+        private Button btnLoadFile1;
+        private TextBox txtFilePath2;
+        private TextBox txtFilePath1;
         private TextBox txtCPUKey;
         private Label lblCpuKey;
         private TextBox txtConsole;
@@ -1579,32 +1247,38 @@ namespace JRunner
         private TextBox txtIP;
         private GroupBox groupBox4;
         private StatusStrip statusStrip1;
-        private ToolStripStatusLabel VersionLabel;
+        private ToolStripStatusLabel XeBuildVersion;
+        private ToolStripStatusLabel DashlaunchVersion;
         private ToolStripStatusLabel StatusBlank;
-        private Button btnReload;
+        private Button btnInit;
         private ToolStripMenuItem XeBuildOptionsToolStripMenuItem;
         private ToolStripStatusLabel ModeVersion;
         private ToolStripStatusLabel FWStatus;
         private ToolStripStatusLabel FWVersion;
         private ToolStripStatusLabel FlashStatus;
         private ToolStripStatusLabel FlashVersion;
+        private Splitter splitter1;
         private Button btnScanner;
         private Button btnCheckBadBlocks;
         private FolderBrowserDialog folderBrowserDialog1;
         private Panel pnlInfo;
         private TextBox txtBlocks;
+        private Button btnSettings;
         private Label ProgressLabel;
         private Panel pnlTools;
         private Panel pnlExtra;
         private ToolStripStatusLabel ModeStatus;
         private Button btnRestart;
-        private ToolStripStatusLabel BlankSpace1;
+        private ToolStripStatusLabel XeBuildLabel;
+        private ToolStripStatusLabel DashlaunchLabel;
+        private ToolStripStatusLabel BlankSpace;
         private ToolStripMenuItem toolsToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator11;
         private ToolStripMenuItem advancedToolStripMenuItem;
-        private ToolStripMenuItem nandTimingFunctionsToolStripMenuItem;
+        private ToolStripMenuItem customNandProCommandToolStripMenuItem;
         private ToolStripMenuItem CustomXeBuildMenuItem;
         private ToolStripMenuItem writeFusionToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator15;
         private ToolStripMenuItem jRPToolStripMenuItem;
         private ToolStripMenuItem powerOnToolStripMenuItem;
         private ToolStripMenuItem shutdownToolStripMenuItem;
@@ -1619,12 +1293,13 @@ namespace JRunner
         private ToolStripMenuItem updateAvailableToolStripMenuItem;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem xFlasherToolStripMenuItem;
-        private ToolStripMenuItem generateCpuKeyToolStripMenuItem;
+        private ToolStripMenuItem cPUKeyToolsToolStripMenuItem;
         private ToolStripMenuItem cBFuseToolStripMenuItem;
+        private ToolStripMenuItem flashOpenXeniumToolStripMenuItem;
         private ToolStripSeparator toolStripMenuItem2;
         private ToolStripMenuItem logPostToolStripMenuItem;
         private ToolStripMenuItem pOSTMonitorRATERToolStripMenuItem;
-        private ToolStripMenuItem soundEditorToolStripMenuItem;
+        private ToolStripMenuItem SoundEditorToolStripMenuItem;
         private ToolStripSeparator toolStripMenuItem3;
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
@@ -1635,82 +1310,40 @@ namespace JRunner
         private Button btnNewSession;
         private ToolStripMenuItem newSessionToolStripMenuItem;
         private ToolStripMenuItem shortcutsToolStripMenuItem;
-        private ToolStripMenuItem changelogToolStripMenuItem;
+        private ToolStripMenuItem versionToolStripMenuItem;
         private ToolStripMenuItem checkSecdataToolStripMenuItem;
+        private ToolStripMenuItem xValueToolStripMenuItem;
         private ToolStripSeparator toolStripMenuItem7;
         private ToolStripSeparator toolStripMenuItem6;
         private ToolStripMenuItem timingAssistantToolStripMenuItem;
         private ToolStripMenuItem installDriversToolStripMenuItem;
+        private ToolStripMenuItem rescanDevicesToolStripMenuItem;
         private ToolStripSeparator toolStripMenuItem8;
         private ToolStripSeparator toolStripMenuItem5;
-        private ToolStripMenuItem hexEditorToolStripMenuItem;
+        private ToolStripMenuItem toolStripHexEditor;
         private ToolStripMenuItem nandToolStripMenuItem;
         private ToolStripMenuItem extractFilesToolStripMenuItem;
-        private ToolStripMenuItem createDonorToolStripMenuItem;
+        private ToolStripMenuItem createDonorNandToolStripMenuItem;
+        private ToolStripMenuItem decryptKeyvaultToolStripMenuItem;
         private ToolStripSeparator toolStripMenuItem9;
-        private ToolStripMenuItem smcConfigViewerToolStripMenuItem;
+        private ToolStripMenuItem sMCConfigViewerToolStripMenuItem1;
+        private ToolStripMenuItem patchNandToolStripMenuItem;
         private ToolStripMenuItem changeLDVToolStripMenuItem;
         private ToolStripMenuItem mTXUSBFirmwareUtilityToolStripMenuItem;
         private ToolStripMenuItem corona4GBToolStripMenuItem;
         private ToolStripMenuItem jRPBLToolStripMenuItem;
-        private ToolStripMenuItem updateJRPToolStripMenuItem;
+        private ToolStripMenuItem updateToolStripMenuItem;
         private ToolStripMenuItem nANDXToolStripMenuItem;
         private ToolStripMenuItem mtxUsbModeToolStripMenuItem;
         private ToolStripMenuItem reportIssueToolStripMenuItem;
-        private UI.MenuButton btnIPGetCPU;
-        private ContextMenuStrip getCpuKeyMenu;
+        private UI.SplitButton btnIPGetCPU;
+        private ContextMenuStrip getCpuKeyContextMenu;
         private ToolStripMenuItem getAndSaveToWorkingFolderToolStripMenuItem;
         private ToolStripMenuItem saveToDesktopToolStripMenuItem;
         private ContextMenuStrip showWorkingFolderMenu;
         private ToolStripMenuItem showRootFolderToolStripMenuItem;
         private ToolStripMenuItem showOutputFolderToolStripMenuItem;
-        private UI.MenuButton btnShowWorkingFolder;
+        private UI.SplitButton btnShowWorkingFolder;
         private ToolStripMenuItem xboxOneHDDToolToolStripMenuItem;
-        private ToolStripMenuItem checkConsoleCBToolStripMenuItem;
-        private ToolStripSeparator toolStripMenuItem1;
-        private ToolStripMenuItem convertToRGH3ToolStripMenuItem;
-        private UI.MenuButton btnBackup;
-        private ContextMenuStrip backupContextMenu;
-        private ToolStripMenuItem backupToZIPToolStripMenuItem;
-        private ToolStripMenuItem configureBackupToolStripMenuItem;
-        private ToolStripStatusLabel BackupLabel;
-        private ToolStripMenuItem autoBackupNowToolStripMenuItem;
-        private ToolStripMenuItem showLastBackupToolStripMenuItem;
-        private ToolStripMenuItem kVViewerToolStripMenuItem;
-        private ToolStripMenuItem showDataFolderToolStripMenuItem;
-        private ToolStripSeparator toolStripMenuItem11;
-        private ToolStripSeparator toolStripMenuItem10;
-        private ToolStripMenuItem restoreFilesToolStripMenuItem;
-        private ToolStripMenuItem settingsToolStripMenuItem;
-        private ToolStripMenuItem keyDatabaseToolStripMenuItem;
-        private Button btnScanDevices;
-        private ToolStripMenuItem rescanDevicesToolStripMenuItem;
-        private ToolStripSeparator toolStripMenuItem12;
-        private ToolStripMenuItem flashOpenXeniumToolStripMenuItem;
-        private ToolStripStatusLabel BlankSpace2;
-        private ToolStripStatusLabel CopiedToClipboard;
-        private ToolStripMenuItem createSafeDualImageToolStripMenuItem;
-        private ToolStripMenuItem nANDAlignmentToolStripMenuItem;
-        private ToolStripMenuItem gB16MBToolStripMenuItem;
-        private ToolStripMenuItem mB64MBToolStripMenuItem;
-        private ToolStripMenuItem addressCalculatorToolStripMenuItem;
-        private ToolStripMenuItem keyvaultOptionsToolStripMenuItem;
-        private ToolStripMenuItem decryptKeyvaultToolStripMenuItem;
-        private ToolStripMenuItem injectKeyvaultToolStripMenuItem;
-        private ToolStripMenuItem xeLLToolStripMenuItem;
-        private ToolStripMenuItem loadGlitch2XeLLToolStripMenuItem;
-        private ToolStripMenuItem loadJTAGXeLLToolStripMenuItem;
-        private ToolStripMenuItem injectXeLLToolStripMenuItem;
-        private ToolStripSeparator toolStripSeparator1;
-        private ToolStripMenuItem experimentalToolStripMenuItem;
-        private ToolStripMenuItem g3fixToolStripMenuItem;
-        private ToolStripMenuItem zeroPairSbToolStripMenuItem;
-        private ToolStripMenuItem injectGlitch3ToolStripMenuItem;
-        private ToolStripMenuItem customizeThemeToolStripMenuItem;
-        private ToolStripMenuItem injectRGH3CBXToolStripMenuItem;
-        private ToolStripMenuItem linuxFeaturesToolStripMenuItem;
-        private ToolStripMenuItem toggleDebugModeToolStripMenuItem;
-        private ToolStripMenuItem enableDevGLToolStripMenuItem;
-        private ToolStripMenuItem patchKVToolStripMenuItem;
     }
 }

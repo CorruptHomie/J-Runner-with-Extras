@@ -35,16 +35,12 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CpuKeyDB));
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.iDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.serialDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cPUKeyDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.cRCKVDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Comment = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataTable1BindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.dataSet1 = new JRunner.DataSet1();
             this.lblSerial = new System.Windows.Forms.Label();
             this.lblCount = new System.Windows.Forms.Label();
             this.lblNumber = new System.Windows.Forms.Label();
+            this.btnAdd = new System.Windows.Forms.Button();
             this.btnExport = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -62,6 +58,11 @@
             this.txtosig = new System.Windows.Forms.TextBox();
             this.labelosig = new System.Windows.Forms.Label();
             this.labeldvdkey = new System.Windows.Forms.Label();
+            this.iDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.serialDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.cPUKeyDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.cRCKVDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Comment = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataTable1BindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataSet1)).BeginInit();
@@ -75,7 +76,7 @@
             this.txtSearch.MaxLength = 32;
             this.txtSearch.Name = "txtSearch";
             this.txtSearch.Size = new System.Drawing.Size(210, 20);
-            this.txtSearch.TabIndex = 5;
+            this.txtSearch.TabIndex = 1;
             this.txtSearch.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // dataGridView1
@@ -121,49 +122,6 @@
             this.dataGridView1.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dataGridView1_UserDeletingRow);
             this.dataGridView1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.dataGridView1_MouseUp);
             // 
-            // iDDataGridViewTextBoxColumn
-            // 
-            this.iDDataGridViewTextBoxColumn.DataPropertyName = "ID";
-            this.iDDataGridViewTextBoxColumn.FillWeight = 31.46342F;
-            this.iDDataGridViewTextBoxColumn.HeaderText = "ID";
-            this.iDDataGridViewTextBoxColumn.Name = "iDDataGridViewTextBoxColumn";
-            this.iDDataGridViewTextBoxColumn.ReadOnly = true;
-            this.iDDataGridViewTextBoxColumn.Width = 30;
-            // 
-            // serialDataGridViewTextBoxColumn
-            // 
-            this.serialDataGridViewTextBoxColumn.DataPropertyName = "Serial";
-            this.serialDataGridViewTextBoxColumn.FillWeight = 93.33911F;
-            this.serialDataGridViewTextBoxColumn.HeaderText = "Serial";
-            this.serialDataGridViewTextBoxColumn.Name = "serialDataGridViewTextBoxColumn";
-            this.serialDataGridViewTextBoxColumn.ReadOnly = true;
-            // 
-            // cPUKeyDataGridViewTextBoxColumn
-            // 
-            this.cPUKeyDataGridViewTextBoxColumn.DataPropertyName = "CPU Key";
-            this.cPUKeyDataGridViewTextBoxColumn.FillWeight = 175.1975F;
-            this.cPUKeyDataGridViewTextBoxColumn.HeaderText = "CPU Key";
-            this.cPUKeyDataGridViewTextBoxColumn.MaxInputLength = 32;
-            this.cPUKeyDataGridViewTextBoxColumn.Name = "cPUKeyDataGridViewTextBoxColumn";
-            this.cPUKeyDataGridViewTextBoxColumn.ReadOnly = true;
-            this.cPUKeyDataGridViewTextBoxColumn.Width = 250;
-            // 
-            // cRCKVDataGridViewTextBoxColumn
-            // 
-            this.cRCKVDataGridViewTextBoxColumn.DataPropertyName = "CRC KV";
-            this.cRCKVDataGridViewTextBoxColumn.HeaderText = "CRC KV";
-            this.cRCKVDataGridViewTextBoxColumn.Name = "cRCKVDataGridViewTextBoxColumn";
-            this.cRCKVDataGridViewTextBoxColumn.ReadOnly = true;
-            this.cRCKVDataGridViewTextBoxColumn.Visible = false;
-            // 
-            // Comment
-            // 
-            this.Comment.DataPropertyName = "Comment";
-            this.Comment.HeaderText = "Console Type";
-            this.Comment.Name = "Comment";
-            this.Comment.ReadOnly = true;
-            this.Comment.Width = 145;
-            // 
             // dataTable1BindingSource
             // 
             this.dataTable1BindingSource.DataMember = "DataTable1";
@@ -202,24 +160,32 @@
             this.lblNumber.TabIndex = 8;
             this.lblNumber.Text = "0";
             // 
+            // btnAdd
+            // 
+            this.btnAdd.Location = new System.Drawing.Point(611, 40);
+            this.btnAdd.Name = "btnAdd";
+            this.btnAdd.Size = new System.Drawing.Size(98, 23);
+            this.btnAdd.TabIndex = 9;
+            this.btnAdd.Text = "Add Value";
+            this.btnAdd.UseVisualStyleBackColor = true;
+            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
+            // 
             // btnExport
             // 
-            this.btnExport.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnExport.Location = new System.Drawing.Point(611, 126);
+            this.btnExport.Location = new System.Drawing.Point(611, 156);
             this.btnExport.Name = "btnExport";
             this.btnExport.Size = new System.Drawing.Size(98, 23);
-            this.btnExport.TabIndex = 13;
-            this.btnExport.Text = "Export Table";
+            this.btnExport.TabIndex = 11;
+            this.btnExport.Text = "Export DB";
             this.btnExport.UseVisualStyleBackColor = true;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
             // btnClose
             // 
-            this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnClose.Location = new System.Drawing.Point(611, 228);
+            this.btnClose.Location = new System.Drawing.Point(611, 227);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(98, 23);
-            this.btnClose.TabIndex = 15;
+            this.btnClose.TabIndex = 12;
             this.btnClose.Text = "Close";
             this.btnClose.UseVisualStyleBackColor = true;
             this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
@@ -228,39 +194,39 @@
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.copyToolStripMenuItem,
-            this.EditMobotoolStripMenuItem1,
-            this.deleteToolStripMenuItem});
+            this.deleteToolStripMenuItem,
+            this.EditMobotoolStripMenuItem1});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(108, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(172, 70);
             // 
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
-            this.copyToolStripMenuItem.Text = "Copy";
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+            this.copyToolStripMenuItem.Text = "Copy to Clipboard";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // EditMobotoolStripMenuItem1
             // 
             this.EditMobotoolStripMenuItem1.Name = "EditMobotoolStripMenuItem1";
-            this.EditMobotoolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
-            this.EditMobotoolStripMenuItem1.Text = "Edit";
+            this.EditMobotoolStripMenuItem1.Size = new System.Drawing.Size(171, 22);
+            this.EditMobotoolStripMenuItem1.Text = "Edit Mobo Entry";
             this.EditMobotoolStripMenuItem1.Click += new System.EventHandler(this.EditMobotoolStripMenuItem1_Click);
             // 
             // rbtnSerial
             // 
             this.rbtnSerial.AutoSize = true;
-            this.rbtnSerial.Location = new System.Drawing.Point(362, 13);
+            this.rbtnSerial.Location = new System.Drawing.Point(294, 13);
             this.rbtnSerial.Name = "rbtnSerial";
             this.rbtnSerial.Size = new System.Drawing.Size(51, 17);
-            this.rbtnSerial.TabIndex = 7;
+            this.rbtnSerial.TabIndex = 13;
             this.rbtnSerial.Text = "Serial";
             this.rbtnSerial.UseVisualStyleBackColor = true;
             this.rbtnSerial.CheckedChanged += new System.EventHandler(this.rbtnSerial_CheckedChanged);
@@ -269,10 +235,10 @@
             // 
             this.rbtnCPU.AutoSize = true;
             this.rbtnCPU.Checked = true;
-            this.rbtnCPU.Location = new System.Drawing.Point(294, 13);
+            this.rbtnCPU.Location = new System.Drawing.Point(345, 13);
             this.rbtnCPU.Name = "rbtnCPU";
             this.rbtnCPU.Size = new System.Drawing.Size(68, 17);
-            this.rbtnCPU.TabIndex = 6;
+            this.rbtnCPU.TabIndex = 14;
             this.rbtnCPU.TabStop = true;
             this.rbtnCPU.Text = "CPU Key";
             this.rbtnCPU.UseVisualStyleBackColor = true;
@@ -280,31 +246,31 @@
             // 
             // btnScan
             // 
-            this.btnScan.Location = new System.Drawing.Point(611, 39);
+            this.btnScan.Location = new System.Drawing.Point(611, 69);
             this.btnScan.Name = "btnScan";
             this.btnScan.Size = new System.Drawing.Size(98, 23);
-            this.btnScan.TabIndex = 10;
+            this.btnScan.TabIndex = 16;
             this.btnScan.Text = "Scan Folders";
             this.btnScan.UseVisualStyleBackColor = true;
             this.btnScan.Click += new System.EventHandler(this.btnScan_Click);
             // 
             // btnreverse
             // 
-            this.btnreverse.Location = new System.Drawing.Point(611, 68);
+            this.btnreverse.Location = new System.Drawing.Point(611, 98);
             this.btnreverse.Name = "btnreverse";
             this.btnreverse.Size = new System.Drawing.Size(98, 23);
-            this.btnreverse.TabIndex = 11;
+            this.btnreverse.TabIndex = 17;
             this.btnreverse.Text = "Reverse Scan";
             this.btnreverse.UseVisualStyleBackColor = true;
             this.btnreverse.Click += new System.EventHandler(this.btnreverse_Click);
             // 
             // btnImport
             // 
-            this.btnImport.Location = new System.Drawing.Point(611, 97);
+            this.btnImport.Location = new System.Drawing.Point(611, 127);
             this.btnImport.Name = "btnImport";
             this.btnImport.Size = new System.Drawing.Size(98, 23);
-            this.btnImport.TabIndex = 12;
-            this.btnImport.Text = "Import Table";
+            this.btnImport.TabIndex = 18;
+            this.btnImport.Text = "Import DB";
             this.btnImport.UseVisualStyleBackColor = true;
             this.btnImport.Click += new System.EventHandler(this.btnImport_Click);
             // 
@@ -368,11 +334,53 @@
             this.labeldvdkey.TabIndex = 42;
             this.labeldvdkey.Text = "DVD Key:";
             // 
+            // iDDataGridViewTextBoxColumn
+            // 
+            this.iDDataGridViewTextBoxColumn.DataPropertyName = "ID";
+            this.iDDataGridViewTextBoxColumn.FillWeight = 31.46342F;
+            this.iDDataGridViewTextBoxColumn.HeaderText = "ID";
+            this.iDDataGridViewTextBoxColumn.Name = "iDDataGridViewTextBoxColumn";
+            this.iDDataGridViewTextBoxColumn.ReadOnly = true;
+            this.iDDataGridViewTextBoxColumn.Width = 30;
+            // 
+            // serialDataGridViewTextBoxColumn
+            // 
+            this.serialDataGridViewTextBoxColumn.DataPropertyName = "Serial";
+            this.serialDataGridViewTextBoxColumn.FillWeight = 93.33911F;
+            this.serialDataGridViewTextBoxColumn.HeaderText = "Serial";
+            this.serialDataGridViewTextBoxColumn.Name = "serialDataGridViewTextBoxColumn";
+            this.serialDataGridViewTextBoxColumn.ReadOnly = true;
+            // 
+            // cPUKeyDataGridViewTextBoxColumn
+            // 
+            this.cPUKeyDataGridViewTextBoxColumn.DataPropertyName = "CPU Key";
+            this.cPUKeyDataGridViewTextBoxColumn.FillWeight = 175.1975F;
+            this.cPUKeyDataGridViewTextBoxColumn.HeaderText = "CPU Key";
+            this.cPUKeyDataGridViewTextBoxColumn.MaxInputLength = 32;
+            this.cPUKeyDataGridViewTextBoxColumn.Name = "cPUKeyDataGridViewTextBoxColumn";
+            this.cPUKeyDataGridViewTextBoxColumn.ReadOnly = true;
+            this.cPUKeyDataGridViewTextBoxColumn.Width = 250;
+            // 
+            // cRCKVDataGridViewTextBoxColumn
+            // 
+            this.cRCKVDataGridViewTextBoxColumn.DataPropertyName = "CRC KV";
+            this.cRCKVDataGridViewTextBoxColumn.HeaderText = "CRC KV";
+            this.cRCKVDataGridViewTextBoxColumn.Name = "cRCKVDataGridViewTextBoxColumn";
+            this.cRCKVDataGridViewTextBoxColumn.ReadOnly = true;
+            this.cRCKVDataGridViewTextBoxColumn.Visible = false;
+            // 
+            // Comment
+            // 
+            this.Comment.DataPropertyName = "Comment";
+            this.Comment.HeaderText = "Console Type";
+            this.Comment.Name = "Comment";
+            this.Comment.ReadOnly = true;
+            this.Comment.Width = 145;
+            // 
             // CpuKeyDB
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.btnClose;
             this.ClientSize = new System.Drawing.Size(724, 301);
             this.Controls.Add(this.txtregion);
             this.Controls.Add(this.labelregion);
@@ -387,6 +395,7 @@
             this.Controls.Add(this.rbtnSerial);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.btnExport);
+            this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.lblNumber);
             this.Controls.Add(this.lblCount);
             this.Controls.Add(this.lblSerial);
@@ -397,8 +406,9 @@
             this.MaximumSize = new System.Drawing.Size(740, 2160);
             this.MinimumSize = new System.Drawing.Size(740, 337);
             this.Name = "CpuKeyDB";
-            this.Text = "Key Database";
+            this.Text = "CPU Key Database";
             this.Load += new System.EventHandler(this.cpukeydb_Load);
+            this.Resize += new System.EventHandler(this.CpuKeyDB_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataTable1BindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataSet1)).EndInit();
@@ -417,6 +427,7 @@
         private System.Windows.Forms.Label lblSerial;
         private System.Windows.Forms.Label lblCount;
         private System.Windows.Forms.Label lblNumber;
+        private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.Button btnExport;
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;

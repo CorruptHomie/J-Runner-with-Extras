@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Costura.Fody.6.0.0\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.6.0.0\build\Costura.Fody.props')" />
+  <Import Project="..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -11,7 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>JRunner</RootNamespace>
     <AssemblyName>JRunner</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -112,27 +112,21 @@
   <PropertyGroup>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AeroWizard, Version=2.3.1.0, Culture=neutral, PublicKeyToken=915e74f5d64b8f37, processorArchitecture=MSIL">
-      <HintPath>..\packages\AeroWizard.2.3.1\lib\net40\AeroWizard.dll</HintPath>
+    <Reference Include="AeroWizard, Version=2.2.9.0, Culture=neutral, PublicKeyToken=915e74f5d64b8f37, processorArchitecture=MSIL">
+      <HintPath>..\packages\AeroWizard.2.2.9\lib\net40\AeroWizard.dll</HintPath>
+    </Reference>
+    <Reference Include="DiscordRPC, Version=1.0.175.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DiscordRichPresence.1.0.175\lib\net35\DiscordRPC.dll</HintPath>
     </Reference>
     <Reference Include="LibUsbDotNet">
       <HintPath>.\LibUsbDotNet.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\WindowsAPICodePack-Core.1.1.2\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data">
       <HintPath>.\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -142,9 +136,7 @@
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Web" />
@@ -158,9 +150,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\Backup.cs" />
-    <Compile Include="Classes\CpuKeyGen.cs" />
-    <Compile Include="Classes\EnableDevGL.cs" />
     <Compile Include="Classes\Mtx-Usb.cs" />
     <Compile Include="Classes\NativeMethods.cs" />
     <Compile Include="Classes\PicoFlasher.cs" />
@@ -182,54 +171,23 @@
     <Compile Include="CPUkeydb\EditMobo.Designer.cs">
       <DependentUpon>EditMobo.cs</DependentUpon>
     </Compile>
-    <Compile Include="Classes\DirtyPico.cs" />
+    <Compile Include="Dashes\addDash.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dashes\addDash.Designer.cs">
+      <DependentUpon>addDash.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dashes\delDash.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dashes\delDash.Designer.cs">
+      <DependentUpon>delDash.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\About.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\About.Designer.cs">
       <DependentUpon>About.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\AddressCalculator.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\AddressCalculator.Designer.cs">
-      <DependentUpon>AddressCalculator.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\CPUKeyGen.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\CPUKeyGen.designer.cs">
-      <DependentUpon>CPUKeyGen.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\EnterCPUKey.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\EnterCPUKey.Designer.cs">
-      <DependentUpon>EnterCPUKey.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\OpenXenium.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\OpenXenium.Designer.cs">
-      <DependentUpon>OpenXenium.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\RestoreFiles.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\RestoreFiles.Designer.cs">
-      <DependentUpon>RestoreFiles.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ProgressIndeterminate.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ProgressIndeterminate.Designer.cs">
-      <DependentUpon>ProgressIndeterminate.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ConsoleSelect.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ConsoleSelect.Designer.cs">
-      <DependentUpon>ConsoleSelect.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\CreateDonorNand.cs">
       <SubType>Form</SubType>
@@ -237,11 +195,23 @@
     <Compile Include="Forms\CreateDonorNand.Designer.cs">
       <DependentUpon>CreateDonorNand.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\CustomXeBuild.cs">
+    <Compile Include="Forms\customCB.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\CustomXeBuild.Designer.cs">
-      <DependentUpon>CustomXeBuild.cs</DependentUpon>
+    <Compile Include="Forms\customCB.Designer.cs">
+      <DependentUpon>customCB.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CustomXebuild.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CustomXebuild.Designer.cs">
+      <DependentUpon>CustomXebuild.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CustForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CustForm.Designer.cs">
+      <DependentUpon>CustForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\DemonCom.cs">
       <SubType>Form</SubType>
@@ -249,11 +219,17 @@
     <Compile Include="Forms\DemonCom.Designer.cs">
       <DependentUpon>DemonCom.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\DemoN_Uart.cs">
+    <Compile Include="Forms\demon_uart.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\DemoN_Uart.Designer.cs">
-      <DependentUpon>DemoN_Uart.cs</DependentUpon>
+    <Compile Include="Forms\demon_uart.Designer.cs">
+      <DependentUpon>demon_uart.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CPUKeyGen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CPUKeyGen.Designer.cs">
+      <DependentUpon>CPUKeyGen.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Issues.cs">
       <SubType>Form</SubType>
@@ -267,6 +243,12 @@
     <Compile Include="Forms\KeyvaultDecrypter.Designer.cs">
       <DependentUpon>KeyvaultDecrypter.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\ShowPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ShowPanel.Designer.cs">
+      <DependentUpon>ShowPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Splash.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -279,11 +261,17 @@
     <Compile Include="Forms\Timing.Designer.cs">
       <DependentUpon>Timing.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\UpdChangelog.cs">
+    <Compile Include="Forms\UpdateCheck.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\UpdChangelog.Designer.cs">
-      <DependentUpon>UpdChangelog.cs</DependentUpon>
+    <Compile Include="Forms\UpdateCheck.Designer.cs">
+      <DependentUpon>UpdateCheck.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\UpdateFailed.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdateFailed.Designer.cs">
+      <DependentUpon>UpdateFailed.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\XB1HDD.cs">
       <SubType>Form</SubType>
@@ -291,17 +279,17 @@
     <Compile Include="Forms\XB1HDD.designer.cs">
       <DependentUpon>XB1HDD.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\NandSel.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\NandSel.Designer.cs">
-      <DependentUpon>NandSel.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\xFlasherNandSel.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\xFlasherNandSel.Designer.cs">
       <DependentUpon>xFlasherNandSel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\XValue.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\XValue.Designer.cs">
+      <DependentUpon>XValue.cs</DependentUpon>
     </Compile>
     <Compile Include="Functions\Copy.cs">
       <SubType>Form</SubType>
@@ -426,11 +414,23 @@
     </Compile>
     <Compile Include="Nand\ECC.cs" />
     <Compile Include="DemoN\Nands.cs" />
+    <Compile Include="CPUkeydb\AddCpuKey.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CPUkeydb\AddCpuKey.Designer.cs">
+      <DependentUpon>AddCpuKey.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Comport.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\Comport.Designer.cs">
       <DependentUpon>Comport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\LDrives.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\LDrives.Designer.cs">
+      <DependentUpon>LDrives.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\LDV.cs">
       <SubType>Form</SubType>
@@ -444,11 +444,11 @@
     <Compile Include="Forms\Settings.Designer.cs">
       <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\SMCConfigEditor.cs">
+    <Compile Include="Forms\SMCConfig.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\SMCConfigEditor.Designer.cs">
-      <DependentUpon>SMCConfigEditor.cs</DependentUpon>
+    <Compile Include="Forms\SMCConfig.Designer.cs">
+      <DependentUpon>SMCConfig.cs</DependentUpon>
     </Compile>
     <Compile Include="ISD\SoundEditor.cs">
       <SubType>Form</SubType>
@@ -471,11 +471,11 @@
       <DependentUpon>CpuKeyDB.cs</DependentUpon>
     </Compile>
     <Compile Include="Functions\CRC32.cs" />
-    <Compile Include="Forms\NandTimingFunctions.cs">
+    <Compile Include="Forms\NandArg.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\NandTimingFunctions.Designer.cs">
-      <DependentUpon>NandTimingFunctions.cs</DependentUpon>
+    <Compile Include="Forms\NandArg.Designer.cs">
+      <DependentUpon>NandArg.cs</DependentUpon>
     </Compile>
     <Compile Include="DashLaunch\DashLaunch.cs">
       <SubType>Form</SubType>
@@ -513,24 +513,42 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\PatchKV.cs">
+    <Compile Include="Forms\ConsoleTypes.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\PatchKV.Designer.cs">
-      <DependentUpon>PatchKV.cs</DependentUpon>
+    <Compile Include="Forms\ConsoleTypes.Designer.cs">
+      <DependentUpon>ConsoleTypes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\patch.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\patch.Designer.cs">
+      <DependentUpon>patch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Images\PictureViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Images\PictureViewer.Designer.cs">
+      <DependentUpon>PictureViewer.cs</DependentUpon>
     </Compile>
     <Compile Include="Nand\BadBlock.cs" />
     <Compile Include="Nand\Nand.cs" />
     <Compile Include="Functions\parse_ini.cs" />
-    <Compile Include="Classes\Program.cs" />
+    <Compile Include="Functions\Program.cs" />
     <Compile Include="Forms\POST.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\POST.Designer.cs">
       <DependentUpon>POST.cs</DependentUpon>
     </Compile>
-    <Compile Include="Nand\PatchParser.cs" />
     <Compile Include="Nand\table.cs" />
+    <Compile Include="Nand\VNand.cs" />
+    <Compile Include="Nand\VNandForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Nand\VNandForm.Designer.cs">
+      <DependentUpon>VNandForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Panels\DiskManagement.cs" />
     <Compile Include="Panels\LDrivesInfo.cs">
       <SubType>UserControl</SubType>
@@ -562,6 +580,13 @@
     <Compile Include="Panels\XSVFChoice.designer.cs">
       <DependentUpon>XSVFChoice.cs</DependentUpon>
     </Compile>
+    <Compile Include="Pirs\Pirs.cs" />
+    <Compile Include="Pirs\STFS.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Pirs\STFS.Designer.cs">
+      <DependentUpon>STFS.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Functions\RegistryUtilities.cs" />
     <Compile Include="Classes\Nand-X.cs" />
@@ -570,27 +595,30 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Classes\StaticVersion.cs" />
     <Compile Include="Classes\variables.cs" />
-    <Compile Include="Forms\UpdUI.cs">
+    <Compile Include="Forms\UpdateSuccess.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\UpdUI.Designer.cs">
-      <DependentUpon>UpdUI.cs</DependentUpon>
+    <Compile Include="Forms\UpdateSuccess.Designer.cs">
+      <DependentUpon>UpdateSuccess.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\UpdateDownload.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdateDownload.Designer.cs">
+      <DependentUpon>UpdateDownload.cs</DependentUpon>
     </Compile>
     <Compile Include="WinUSB\DeviceManagement.cs" />
     <Compile Include="WinUSB\DeviceManagementApi.cs" />
     <Compile Include="WinUSB\FileIOApi.cs" />
     <Compile Include="WinUSB\WinUsbDevice.cs" />
     <Compile Include="WinUSB\WinUsbDeviceApi.cs" />
-    <Compile Include="Forms\XellCustomizer.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\XellCustomizer.Designer.cs">
-      <DependentUpon>XellCustomizer.cs</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="CPUkeydb\EditMobo.resx">
       <DependentUpon>EditMobo.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CPUkeydb\AddCpuKey.resx">
+      <DependentUpon>AddCpuKey.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="CPUkeydb\CpuKeyDB.resx">
@@ -599,45 +627,32 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\About.resx">
       <DependentUpon>About.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\AddressCalculator.resx">
-      <DependentUpon>AddressCalculator.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\CPUKeyGen.resx">
-      <DependentUpon>CPUKeyGen.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\EnterCPUKey.resx">
-      <DependentUpon>EnterCPUKey.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\OpenXenium.resx">
-      <DependentUpon>OpenXenium.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\RestoreFiles.resx">
-      <DependentUpon>RestoreFiles.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ProgressIndeterminate.resx">
-      <DependentUpon>ProgressIndeterminate.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Comport.resx">
       <DependentUpon>Comport.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ConsoleSelect.resx">
-      <DependentUpon>ConsoleSelect.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\CreateDonorNand.resx">
       <DependentUpon>CreateDonorNand.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\CustomXeBuild.resx">
-      <DependentUpon>CustomXeBuild.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\customCB.resx">
+      <DependentUpon>customCB.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CustomXebuild.resx">
+      <DependentUpon>CustomXebuild.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CustForm.resx">
+      <DependentUpon>CustForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\DemonCom.resx">
       <DependentUpon>DemonCom.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\DemoN_Uart.resx">
-      <DependentUpon>DemoN_Uart.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\demon_uart.resx">
+      <DependentUpon>demon_uart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CPUKeyGen.resx">
+      <DependentUpon>CPUKeyGen.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Issues.resx">
       <DependentUpon>Issues.cs</DependentUpon>
@@ -645,23 +660,29 @@
     <EmbeddedResource Include="Forms\KeyvaultDecrypter.resx">
       <DependentUpon>KeyvaultDecrypter.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ShowPanel.resx">
+      <DependentUpon>ShowPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Splash.resx">
       <DependentUpon>Splash.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Timing.resx">
       <DependentUpon>Timing.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\UpdChangelog.resx">
-      <DependentUpon>UpdChangelog.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\UpdateCheck.resx">
+      <DependentUpon>UpdateCheck.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\UpdateFailed.resx">
+      <DependentUpon>UpdateFailed.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\XB1HDD.resx">
       <DependentUpon>XB1HDD.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\NandSel.resx">
-      <DependentUpon>NandSel.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\xFlasherNandSel.resx">
       <DependentUpon>xFlasherNandSel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\XValue.resx">
+      <DependentUpon>XValue.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Functions\Copy.resx">
       <DependentUpon>Copy.cs</DependentUpon>
@@ -678,6 +699,9 @@
     <EmbeddedResource Include="HexEdit\HexViewer.resx">
       <DependentUpon>HexViewer.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\LDrives.resx">
+      <DependentUpon>LDrives.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\LDV.resx">
       <DependentUpon>LDV.cs</DependentUpon>
     </EmbeddedResource>
@@ -688,14 +712,14 @@
       <DependentUpon>Settings.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\SMCConfigEditor.resx">
-      <DependentUpon>SMCConfigEditor.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\SMCConfig.resx">
+      <DependentUpon>SMCConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ISD\SoundEditor.resx">
       <DependentUpon>SoundEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\NandTimingFunctions.resx">
-      <DependentUpon>NandTimingFunctions.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\NandArg.resx">
+      <DependentUpon>NandArg.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="DashLaunch\DashLaunch.resx">
@@ -718,13 +742,23 @@
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\PatchKV.resx">
-      <DependentUpon>PatchKV.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\ConsoleTypes.resx">
+      <DependentUpon>ConsoleTypes.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\patch.resx">
+      <DependentUpon>patch.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\PictureViewer.resx">
+      <DependentUpon>PictureViewer.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Nand\CB_Fuse.resx">
       <DependentUpon>CB_Fuse.cs</DependentUpon>
-      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Nand\VNandForm.resx">
+      <DependentUpon>VNandForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Panels\LDrivesInfo.resx">
       <DependentUpon>LDrivesInfo.cs</DependentUpon>
@@ -741,16 +775,19 @@
     <EmbeddedResource Include="Panels\XSVFChoice.resx">
       <DependentUpon>XSVFChoice.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Pirs\STFS.resx">
+      <DependentUpon>STFS.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\UpdUI.resx">
-      <DependentUpon>UpdUI.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\UpdateSuccess.resx">
+      <DependentUpon>UpdateSuccess.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\XellCustomizer.resx">
-      <DependentUpon>XellCustomizer.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\UpdateDownload.resx">
+      <DependentUpon>UpdateDownload.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config">
       <SubType>Designer</SubType>
@@ -834,15 +871,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Project3.ico" />
-    <None Include="Resources\openxenium.png" />
-    <None Include="Resources\key.png" />
-    <None Include="Resources\settings.png" />
-    <None Include="Resources\menu.png" />
-    <None Include="Resources\jrunner.png" />
-    <None Include="Resources\jrunner2.png" />
-    <None Include="Resources\update.png" />
-    <None Include="Resources\JR2.png" />
-    <None Include="Resources\rederror.png" />
     <None Include="Resources\picoflasher.png" />
     <None Include="Resources\key_U.png" />
     <None Include="Resources\key_R.png" />
@@ -884,10 +912,6 @@
     <None Include="Resources\greencheck.png" />
     <None Include="Resources\arrow_dn.png" />
     <None Include="Resources\arrow_dn_hot.png" />
-    <Content Include="Resources\Build.txt" />
-    <None Include="Resources\error.png" />
-    <None Include="Resources\greenchecksmall.png" />
-    <None Include="Resources\dirtypico.png" />
     <Content Include="Resources\hourglass_clock.png" />
     <None Include="Resources\sonuslogo.png" />
     <EmbeddedResource Include="Resources\LPT_XSVF_Player.exe" />
@@ -901,31 +925,20 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>"$(ProjectDir)UpdateBuildDatetime.exe" "$(ProjectDir)Resources\Build.txt"</PreBuildEvent>
-  </PropertyGroup>
-  <Import Project="..\packages\Fody.6.8.0\build\Fody.targets" Condition="Exists('..\packages\Fody.6.8.0\build\Fody.targets')" />
-  <Target Name="CheckFody" BeforeTargets="Build">
-    <ItemGroup>
-      <FodyPackage Include="$([System.IO.Directory]::GetDirectories('$(SolutionDir)packages', 'Fody.*'))" />
-      <CosturaFodyPackage Include="$([System.IO.Directory]::GetDirectories('$(SolutionDir)packages', 'Costura.Fody.*'))" />
-    </ItemGroup>
-    <Error Condition="@(FodyPackage-&gt;Count()) == '0'" Text="Fody is not installed — do not remove it. It is required to bundle dependencies into the EXE." />
-    <Error Condition="@(CosturaFodyPackage-&gt;Count()) == '0'" Text="Costura.Fody is not installed — do not remove it. It is required to bundle dependencies into the EXE." />
-  </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Costura.Fody.6.0.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.6.0.0\build\Costura.Fody.props'))" />
-    <Error Condition="!Exists('..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets'))" />
-    <Error Condition="!Exists('..\packages\Fody.6.9.3\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.9.3\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Fody.6.6.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.6.0\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props'))" />
+    <Error Condition="!Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets'))" />
   </Target>
+  <Import Project="..\packages\Fody.6.6.0\build\Fody.targets" Condition="Exists('..\packages\Fody.6.6.0\build\Fody.targets')" />
+  <Import Project="..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets')" />
   <PropertyGroup>
-    <PreBuildEvent>"$(ProjectDir)UpdateBuildDatetime.exe" "$(ProjectDir)Resources\Build.txt"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
-  <Import Project="..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.6.0.0\build\Costura.Fody.targets')" />
-  <Import Project="..\packages\Fody.6.9.3\build\Fody.targets" Condition="Exists('..\packages\Fody.6.9.3\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

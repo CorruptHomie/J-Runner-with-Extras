@@ -10,8 +10,7 @@ namespace JRunner.Panels
 {
     public partial class XeBuildPanel : UserControl
     {
-        List<CB> cbList;
-        List<string> patches = new List<string>(new string[9]);
+        List<String> patches = new List<string>(new string[8]);
         // -a nofcrt
         // -a noSShdd
         // -a nointmu
@@ -19,23 +18,38 @@ namespace JRunner.Panels
         // -a nohdmiwait
         // -a nolan
         // -r WB/WB4G/13182
-        // -r ELPIS
 
         public XeBuildPanel()
         {
             InitializeComponent();
-            checkDevGL();
+            checkDevGL("None");
         }
 
         #region delegates
+        public delegate void ClickedGetMB();
+        public event ClickedGetMB Getmb;
+        public delegate void ChangedHack();
+        public event ChangedHack HackChanged;
+        public delegate void DashAdded();
+        public event DashAdded AddedDash;
+        public delegate void DashDeleted();
+        public event DashDeleted DeletedDash;
+        public delegate void CallMotherboards();
+        public event CallMotherboards CallMB;
+        public delegate void loadFile(ref string filename, bool erase = false);
+        public event loadFile loadFil;
+        public delegate void updateProgress(int progress);
+        public event updateProgress UpdateProgres;
+        public delegate void updateSource(string filename);
+        public event updateSource updateSourc;
         public delegate void ModeDrive();
         public event ModeDrive DriveMode;
         #endregion
 
         #region getters/setters
-        public DataSet1 getDashDataSet()
+        public DataSet1 getDataSet()
         {
-            return dashDataSet;
+            return dataSet1;
         }
         public ComboBox getComboDash()
         {
@@ -82,7 +96,7 @@ namespace JRunner.Panels
             else return "";
         }
 
-        // Hack Setters - invoke is in references, so no cross thread
+        // Hack Setters
         public void setRbtnRetailChecked(bool check)
         {
             if (check && !rbtnRetail.Enabled) return;
@@ -113,11 +127,6 @@ namespace JRunner.Panels
             if (check && !rbtnDevGL.Enabled) return;
             rbtnDevGL.Checked = check;
         }
-        public void setXeSettingsChecked(bool check)
-        {
-            if (check && !chkXeSettings.Enabled) return;
-            chkXeSettings.Checked = check;
-        }
 
         // Checkbox Getters
         public bool getCleanSMCChecked()
@@ -136,9 +145,9 @@ namespace JRunner.Panels
         {
             return chkRgh3.Checked;
         }
-        public string getRgh3Mhz()
+        public int getRgh3Mhz()
         {
-            return Rgh3Mhz.Text;
+            return int.Parse(Rgh3Mhz.Text);
         }
         public bool getAudClampChecked()
         {
@@ -154,73 +163,16 @@ namespace JRunner.Panels
             else if (chkWB4G.Checked) return 2;
             else return 0;
         }
-        public bool getElpisChecked()
-        {
-            return chkElpis.Checked;
-        }
 
         // Checkbox Setters
-        public void setWBChecked(bool check)
-        {
-            if (check && (!chkWB.Enabled || !chkWB.Visible)) return;
-            chkWB.Checked = check;
-        }
-        public void setElpisChecked(bool check)
-        {
-            if (check && (!chkElpis.Enabled || !chkElpis.Visible)) return;
-            chkElpis.Checked = check;
-        }
         public void setCleanSMCChecked(bool check)
         {
-            if (check && (!chkCleanSMC.Enabled || !chkCleanSMC.Visible)) return;
+            if (check && !chkCleanSMC.Enabled) return;
             chkCleanSMC.Checked = check;
         }
-        public void setRgh3Checked(bool check)
-        {
-            if (check && (!chkRgh3.Enabled || !chkRgh3.Visible)) return;
-            chkRgh3.Checked = check;
-        }
-        public void setXLUSBChecked(bool check)
-        {
-            if (check && !chkXLUsb.Enabled) return;
-            chkXLUsb.Checked = check;
-        }
-        public void setXLHDDChecked(bool check)
-        {
-            if (check && !chkXLHdd.Enabled) return;
-            chkXLHdd.Checked = check;
-        }
-        public void setXLBothChecked(bool check)
-        {
-            if (check && !chkXLBoth.Enabled) return;
-            chkXLBoth.Checked = check;
-        }
-        public void setUsbdSecChecked(bool check)
-        {
-            if (check && !chkUsbdSec.Enabled) return;
-            chkUsbdSec.Checked = check;
-        }
-        public void setCoronaKeyFixChecked(bool check)
-        {
-            if (check && !chkCoronaKeyFix.Enabled) return;
-            chkCoronaKeyFix.Checked = check;
-        }
-        public void setNoFcrtChecked(bool check)
+        public void setNoFcrt(bool check)
         {
             chkListBoxPatches.SetItemChecked(0, check);
-        }
-
-        public void initTabs() // Only call once after settings load
-        {
-            if (variables.showAdvancedTabs)
-            {
-                btnShowAdvanced.Text = "Hide Advanced Tabs";
-            }
-            else
-            {
-                MainTabs.TabPages.Remove(tabClient);
-                MainTabs.TabPages.Remove(tabUpdate);
-            }
         }
 
         public void clear()
@@ -233,58 +185,40 @@ namespace JRunner.Panels
             else if (rbtnJtag.Checked) rbtnJtag.Checked = false;
             else if (rbtnDevGL.Checked) rbtnDevGL.Checked = false;
             checkAvailableHackTypes();
-            MainTabs.SelectedTab = tabXeBuild;
+            tabControl1.SelectedTab = Xebuild;
             for (int i = 0; i < chkListBoxPatches.Items.Count; i++)
             {
                 chkListBoxPatches.SetItemChecked(i, false);
             }
-            chkXeSettings.Checked = false;
+            chkxesettings.Checked = false;
         }
 
         public void setMBname(string txt)
         {
-            txtMBname.BeginInvoke(new Action(() => {
-                txtMBname.Text = txt;
-                variables.boardtype = txt;
-                checkAvailableHackTypes();
-                checkWB(txt);
-                checkBigffs(txt);
-                checkDashAndConsoleSpecificPatches(txt);
+            txtMBname.Text = txt;
+            variables.boardtype = txt;
+            checkAvailableHackTypes();
+            checkWB(txt);
+            checkBigffs(txt);
+            checkDashAndConsoleSpecificPatches(txt);
 
-                if (txt.Contains("Winchester"))
-                {
-                    chkCR4.Checked = false;
-                    chkCR4.Enabled = false;
-                    chkSMCP.Checked = false;
-                    chkSMCP.Enabled = false;
-                }
-                else if (txt.Contains("Xenon"))
-                {
-                    chkCR4.Checked = false;
-                    chkCR4.Enabled = false;
-                    chkSMCP.Enabled = true;
-                }
-                else
-                {
-                    chkCR4.Enabled = true;
-                    chkSMCP.Enabled = true;
-                }
+            if (txt.Contains("Xenon"))
+            {
+                chkCR4.Checked = false;
+                chkCR4.Enabled = false;
+                chkSMCP.Checked = false;
+                chkSMCP.Enabled = false;
+                chkAudClamp.Checked = false;
+                chkAudClamp.Enabled = false;
+            }
+            else
+            {
+                chkCR4.Enabled = true;
+                chkSMCP.Enabled = true;
+                chkAudClamp.Enabled = true;
+            }
 
-                if (txt.Contains("Xenon"))
-                {
-                    chkElpis.Enabled = true;
-                    chkAudClamp.Checked = false;
-                    chkAudClamp.Enabled = false;
-                }
-                else
-                {
-                    chkElpis.Enabled = false;
-                    chkElpis.Checked = false;
-                    chkAudClamp.Enabled = true;
-                }
-
-                checkRgh3(txt);
-            }));
+            checkRgh3(txt);
         }
         #endregion
 
@@ -294,30 +228,30 @@ namespace JRunner.Panels
         {
             if (rbtnRetail.Checked)
             {
-                if (checkDLPatches.Checked) variables.DashlaunchE = checkDLPatches.Checked;
-                checkDLPatches.Enabled = chkLaunch.Enabled = false;
-                if (sender.Equals(rbtnRetail)) Console.WriteLine("Retail selected");
+                if (checkDLPatches.Checked) variables.DashLaunchE = checkDLPatches.Checked;
+                checkDLPatches.Enabled = chkLaunch.Visible = false;
+                if (sender.Equals(rbtnRetail)) Console.WriteLine("Retail Selected");
             }
             else if (rbtnJtag.Checked)
             {
                 checkDLPatches.Enabled = true;
-                checkDLPatches.Checked = chkLaunch.Enabled = variables.DashlaunchE;
-                if (sender.Equals(rbtnJtag)) Console.WriteLine("JTAG selected");
+                checkDLPatches.Checked = chkLaunch.Visible = variables.DashLaunchE;
+                if (sender.Equals(rbtnJtag)) Console.WriteLine("JTAG Selected");
 
             }
             else if (rbtnGlitch.Checked || rbtnGlitch2.Checked || rbtnGlitch2m.Checked)
             {
                 checkDLPatches.Enabled = true;
-                checkDLPatches.Checked = chkLaunch.Enabled = variables.DashlaunchE;
-                if (rbtnGlitch.Checked && sender.Equals(rbtnGlitch)) Console.WriteLine("Glitch selected");
-                else if (rbtnGlitch2.Checked && sender.Equals(rbtnGlitch2)) Console.WriteLine("Glitch2 selected");
-                else if (rbtnGlitch2m.Checked && sender.Equals(rbtnGlitch2m)) Console.WriteLine("Glitch2m selected");
+                checkDLPatches.Checked = chkLaunch.Visible = variables.DashLaunchE;
+                if (rbtnGlitch.Checked && sender.Equals(rbtnGlitch)) Console.WriteLine("Glitch Selected");
+                else if (rbtnGlitch2.Checked && sender.Equals(rbtnGlitch2)) Console.WriteLine("Glitch2 Selected");
+                else if (rbtnGlitch2m.Checked && sender.Equals(rbtnGlitch2m)) Console.WriteLine("Glitch2m Selected");
             }
             else if (rbtnDevGL.Checked)
             {
                 checkDLPatches.Enabled = true;
-                checkDLPatches.Checked = chkLaunch.Enabled = variables.DashlaunchE;
-                if (sender.Equals(rbtnDevGL)) Console.WriteLine("DEVGL selected");
+                checkDLPatches.Checked = chkLaunch.Visible = variables.DashLaunchE;
+                if (sender.Equals(rbtnDevGL)) Console.WriteLine("DEVGL Selected");
             }
 
             labelCB.Visible = comboCB.Visible = rbtnRetail.Checked;
@@ -328,18 +262,12 @@ namespace JRunner.Panels
             chkAudClamp.Visible = rbtnJtag.Checked;
             chkRJtag.Visible = rbtnJtag.Checked;
             chk0Fuse.Visible = rbtnDevGL.Checked;
-            chkElpis.Visible = rbtnGlitch2.Checked || rbtnGlitch2m.Checked;
 
             checkWBXdkBuild();
             checkBigffs(variables.boardtype);
             checkDashSpecificPatches();
 
             if (!rbtnRetail.Checked && !rbtnGlitch.Checked && !rbtnGlitch2.Checked && !rbtnGlitch2m.Checked && !rbtnDevGL.Checked) chkCleanSMC.Checked = false;
-
-            if(!rbtnGlitch2.Checked && !rbtnGlitch2m.Checked)
-            {
-                chkElpis.Checked = false;
-            }
 
             if (!rbtnGlitch2.Checked && !rbtnGlitch2m.Checked)
             {
@@ -364,7 +292,7 @@ namespace JRunner.Panels
 
             try
             {
-                MainForm.mainForm.xPanel_HackChanged();
+                HackChanged();
             }
             catch (Exception) { }
 
@@ -376,6 +304,7 @@ namespace JRunner.Panels
         {
             XBOptions xb = new XBOptions();
             xb.ShowDialog();
+            chkxesettings.Checked = true;
         }
 
         private void btnLaunch_Click(object sender, EventArgs e)
@@ -386,19 +315,37 @@ namespace JRunner.Panels
 
         private void txtMBname_Click(object sender, EventArgs e)
         {
-            variables.ctype = MainForm.mainForm.callConsoleSelect(ConsoleSelect.Selected.All);
+            CallMB();
         }
 
         private void comboDash_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboDash.SelectedIndex > 0)
+            if (comboDash.SelectedIndex == comboDash.Items.Count - 2)
+            {
+                add_dash();
+            }
+            else if (comboDash.SelectedIndex == comboDash.Items.Count - 1)
+            {
+                del_dash();
+            }
+            else if (comboDash.SelectedIndex == comboDash.Items.Count - 3)
+            {
+                checkAvailableHackTypes(); // will set all false
+            }
+            else if (comboDash.SelectedIndex >= 0)
             {
                 variables.preferredDash = comboDash.Text;
-                variables.dashversion = comboDash.Text;
+
+                variables.dashversion = Convert.ToInt32(comboDash.Text);
                 lblDash.Text = comboDash.Text;
+
             }
 
-            checkAvailableHackTypes();
+            if (comboDash.SelectedIndex < comboDash.Items.Count - 3)
+            {
+                checkAvailableHackTypes();
+            }
+
             checkWBXdkBuild();
             checkDashSpecificPatches();
             updateCommand();
@@ -418,8 +365,8 @@ namespace JRunner.Panels
                 return;
             }
 
-            if (variables.debugMode) Console.WriteLine(Path.Combine(variables.updatepath, comboDash.SelectedValue + "\\_file.ini"));
-            if (!File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + "\\_glitch2.ini")))
+            if (variables.debugme) Console.WriteLine(Path.Combine(variables.update_path, comboDash.SelectedValue + "\\_file.ini"));
+            if (!File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + "\\_glitch2.ini")))
             {
                 rbtnGlitch2.Enabled = rbtnGlitch2.Checked = false;
             }
@@ -428,7 +375,7 @@ namespace JRunner.Panels
                 checkGlitch2(variables.boardtype);
             }
 
-            if (!File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + "\\_glitch2m.ini")))
+            if (!File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + "\\_glitch2m.ini")))
             {
                 rbtnGlitch2m.Enabled = rbtnGlitch2m.Checked = false;
             }
@@ -437,7 +384,7 @@ namespace JRunner.Panels
                 checkGlitch2m(variables.boardtype);
             }
 
-            if (!File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + "\\_glitch.ini")))
+            if (!File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + "/_glitch.ini")))
             {
                 rbtnGlitch.Enabled = rbtnGlitch.Checked = false;
             }
@@ -446,7 +393,7 @@ namespace JRunner.Panels
                 checkGlitch(variables.boardtype);
             }
 
-            if (!File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + "\\_jtag.ini")))
+            if (!File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + "/_jtag.ini")))
             {
                 rbtnJtag.Enabled = rbtnJtag.Checked = false;
             }
@@ -455,7 +402,7 @@ namespace JRunner.Panels
                 checkJtag(variables.boardtype);
             }
 
-            if (!File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + "\\_retail.ini")))
+            if (!File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + "/_retail.ini")))
             {
                 rbtnRetail.Checked = rbtnRetail.Enabled = false;
             }
@@ -463,20 +410,20 @@ namespace JRunner.Panels
             {
                 rbtnRetail.Enabled = true;
             }
-            if (!File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + "\\_devgl.ini")))
+            if (!File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + "/_devgl.ini")))
             {
                 rbtnDevGL.Enabled = rbtnDevGL.Checked = false;
             }
             else
             {
-                checkDevGL();
+                checkDevGL(variables.boardtype);
             }
         }
 
         private void checkJtag(string board)
         {
             if (board == null) board = "None";
-            if (board.Contains("Winchester") || board.Contains("Corona") || board.Contains("Trinity")) rbtnJtag.Enabled = rbtnJtag.Checked = false;
+            if (board.Contains("Corona") || board.Contains("Trinity")) rbtnJtag.Enabled = rbtnJtag.Checked = false;
             else rbtnJtag.Enabled = true;
         }
 
@@ -485,7 +432,7 @@ namespace JRunner.Panels
             if (board == null) board = "None";
             if (variables.rghable)
             {
-                if (board.Contains("Winchester") || board.Contains("Corona") || board.Contains("Trinity") || board.Contains("Xenon")) rbtnGlitch.Enabled = rbtnGlitch.Checked = false;
+                if (board.Contains("Corona") || board.Contains("Trinity")) rbtnGlitch.Enabled = rbtnGlitch.Checked = false;
                 else if (!variables.rgh1able) rbtnGlitch.Enabled = rbtnGlitch.Checked = false;
                 else rbtnGlitch.Enabled = true;
             }
@@ -503,18 +450,31 @@ namespace JRunner.Panels
         private void checkGlitch2m(string board)
         {
             if (board == null) board = "None";
-            rbtnGlitch2m.Enabled = true;
+            if (variables.dashversion == 17489)
+            {
+                rbtnGlitch2m.Enabled = true;
+            }
+            else
+            {
+                if (board.Contains("Corona") || board.Contains("Trinity") || board.Contains("None")) rbtnGlitch2m.Enabled = true;
+                else rbtnGlitch2m.Enabled = rbtnGlitch2m.Checked = false;
+            }
         }
 
-        private void checkDevGL()
+        private void checkDevGL(string board)
         {
-            if (canDevGL()) rbtnDevGL.Enabled = true;
+            if (canDevGL(board)) rbtnDevGL.Enabled = true;
             else rbtnDevGL.Enabled = rbtnDevGL.Checked = false;
         }
 
-        public bool canDevGL()
+        public bool canDevGL(string board)
         {
-            if (File.Exists(Path.Combine(variables.rootfolder, @"xebuild\common\" + "sb_priv.bin"))) return true;
+            if (board == null) board = "None";
+            if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\common\" + "sb_priv.bin")))
+            {
+                if (board.Contains("Jasper") || board.Contains("Corona") || board.Contains("Trinity") || board.Contains("None")) return true;
+                else return false;
+            }
             else return false;
         }
 
@@ -523,9 +483,8 @@ namespace JRunner.Panels
             if ((rbtnGlitch.Checked || rbtnGlitch2.Checked || rbtnGlitch2m.Checked || rbtnJtag.Checked || rbtnDevGL.Checked) && !chkXdkBuild.Checked)
             {
                 if (board == null) board = "None";
-                else if (board.Contains("Xenon") || board.Contains("Zephyr") || board.Contains("Falcon") || board.Contains("Jasper 16MB") || board.Contains("Jasper SB") ||
-                    board.Contains("Trinity 16MB") || board.Contains("Corona 16MB") || board.Contains("Corona 4GB") || board.Contains("Winchester 16MB") ||
-                    board.Contains("Winchester 4GB"))
+                if (board.Contains("Trinity BB")) chkBigffs.Enabled = true;
+                else if (board.Contains("Xenon") || board.Contains("Zephyr") || board.Contains("Falcon") || board.Contains("Jasper 16MB") || board.Contains("Jasper SB") || board.Contains("Trinity") || board.Contains("Corona"))
                 {
                     chkBigffs.Checked = false;
                     chkBigffs.Enabled = false;
@@ -544,35 +503,35 @@ namespace JRunner.Panels
 
         private void checkDashSpecificPatches()
         {
-            if (File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\bin\xl_usb.bin")))
+            if (File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + @"\bin\xl_usb.bin")))
             {
                 if (rbtnRetail.Checked) chkXLUsb.Checked = chkXLUsb.Enabled = false;
                 else chkXLUsb.Enabled = true;
             }
             else chkXLUsb.Checked = chkXLUsb.Enabled = false;
 
-            if (File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\bin\xl_hdd.bin")))
+            if (File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + @"\bin\xl_hdd.bin")))
             {
                 if (rbtnRetail.Checked) chkXLHdd.Checked = chkXLHdd.Enabled = false;
                 else chkXLHdd.Enabled = true;
             }
             else chkXLHdd.Checked = chkXLHdd.Enabled = false;
 
-            if (File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\bin\xl_both.bin")))
+            if (File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + @"\bin\xl_both.bin")))
             {
                 if (rbtnRetail.Checked) chkXLBoth.Checked = chkXLBoth.Enabled = false;
                 else chkXLBoth.Enabled = true;
             }
             else chkXLBoth.Checked = chkXLBoth.Enabled = false;
 
-            if (File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\bin\usbdsec.bin")))
+            if (File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + @"\bin\usbdsec.bin")))
             {
                 if (rbtnRetail.Checked) chkUsbdSec.Checked = chkUsbdSec.Enabled = false;
                 else chkUsbdSec.Enabled = true;
             }
             else chkUsbdSec.Checked = chkUsbdSec.Enabled = false;
 
-            if (File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\bin\hddssauth.bin")))
+            if (File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + @"\bin\hddssauth.bin")))
             {
                 if (rbtnRetail.Checked) chkHddSsAuth.Checked = chkHddSsAuth.Enabled = false;
                 else chkHddSsAuth.Enabled = true;
@@ -591,7 +550,7 @@ namespace JRunner.Panels
         private void checkDashAndConsoleSpecificPatches(string board)
         {
             if (board == null) board = "None";
-            if (File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\bin\corona_key_fix.bin")))
+            if (File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + @"\bin\corona_key_fix.bin")))
             {
                 if (rbtnRetail.Checked) chkCoronaKeyFix.Checked = chkCoronaKeyFix.Enabled = false;
                 else
@@ -607,7 +566,7 @@ namespace JRunner.Panels
         bool chkWB4GEn = true;
         public void checkWBXdkBuild()
         {
-            if ( (rbtnGlitch2m.Checked || rbtnDevGL.Checked) && File.Exists(variables.rootfolder + @"\xeBuild\" + variables.dashversion + @"\!XDKbuild Only!.txt"))
+            if (rbtnGlitch2m.Checked && variables.dashversion == 17489 && File.Exists(variables.pathforit + @"\xeBuild\17489\!XDKbuild Only!.txt"))
             {
                 chkWB.Visible = false;
                 chkWB.Checked = false;
@@ -671,9 +630,9 @@ namespace JRunner.Panels
 
         private void checkDLPatches_CheckedChanged(object sender, EventArgs e)
         {
-            variables.DashlaunchE = checkDLPatches.Checked;
-            if (!checkDLPatches.Checked || !checkDLPatches.Enabled) { chkLaunch.Enabled = false; chkLaunch.Checked = false; }
-            else if (checkDLPatches.Checked && checkDLPatches.Enabled) chkLaunch.Enabled = true;
+            variables.DashLaunchE = checkDLPatches.Checked;
+            if (!checkDLPatches.Checked || !checkDLPatches.Enabled) { chkLaunch.Visible = false; chkLaunch.Checked = false; }
+            else if (checkDLPatches.Checked && checkDLPatches.Enabled) chkLaunch.Visible = true;
         }
 
         public void setDLPatches(bool checkd)
@@ -692,8 +651,8 @@ namespace JRunner.Panels
 
         private void checkDLPatches_EnabledChanged(object sender, EventArgs e)
         {
-            if (!checkDLPatches.Enabled) chkLaunch.Enabled = false;
-            else if (checkDLPatches.Checked) chkLaunch.Enabled = true;
+            if (!checkDLPatches.Enabled) chkLaunch.Visible = false;
+            else if (checkDLPatches.Checked) chkLaunch.Visible = true;
         }
 
         private void chkListBoxPatches_SelectedIndexChanged(object sender, EventArgs e)
@@ -703,7 +662,7 @@ namespace JRunner.Panels
             {
                 if (chkListBoxPatches.GetItemChecked(selected))
                 {
-                    Console.WriteLine(chkListBoxPatches.Items[selected].ToString() + " selected");
+                    Console.WriteLine(chkListBoxPatches.Items[selected].ToString() + " Enabled");
                     if (selected == 0) patches[selected + 1] = "-a nofcrt";
                     else if (selected == 1) patches[selected + 1] = "-a noSShdd";
                     else if (selected == 2) patches[selected + 1] = "-a nointmu";
@@ -713,7 +672,7 @@ namespace JRunner.Panels
                 }
                 else
                 {
-                    Console.WriteLine(chkListBoxPatches.Items[selected].ToString() + " deselected");
+                    Console.WriteLine(chkListBoxPatches.Items[selected].ToString() + " Disabled");
                     patches[selected + 1] = "";
                 }
             }
@@ -723,8 +682,8 @@ namespace JRunner.Panels
 
         private void chkRJtag_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkRJtag.Checked) Console.WriteLine("R-JTAG selected");
-            else Console.WriteLine("R-JTAG deselected");
+            if (chkRJtag.Checked) Console.WriteLine("R-JTAG Selected");
+            else Console.WriteLine("R-JTAG Deselected");
         }
 
         // Handling checkboxes allows us to only have one selected at time without extra stuff happening
@@ -732,23 +691,23 @@ namespace JRunner.Panels
         {
             if (chkCleanSMC.Checked)
             {
-                Console.WriteLine("Clean SMC selected");
+                Console.WriteLine("Clean SMC Selected");
                 chkCR4.Checked = false;
                 chkSMCP.Checked = false;
                 chkRgh3.Checked = false;
             }
             else if (!chkCR4.Checked && !chkSMCP.Checked && !chkRgh3.Checked) // Don't uselessly spam the console
             {
-                Console.WriteLine("Clean SMC deselected");
+                Console.WriteLine("Clean SMC Deselected");
             }
 
             if (chkCleanSMC.Checked)
             {
-                if (File.Exists(Path.Combine(variables.rootfolder, @"xebuild\data\" + "smc.bin")))
+                if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin")))
                 {
                     if (MessageBox.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     {
-                        File.Delete(Path.Combine(variables.rootfolder, @"xebuild\data\" + "smc.bin"));
+                        File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin"));
                     }
                 }
             }
@@ -758,23 +717,23 @@ namespace JRunner.Panels
         {
             if (chkCR4.Checked)
             {
-                Console.WriteLine("CR4 selected");
+                Console.WriteLine("CR4 Selected");
                 chkCleanSMC.Checked = false;
                 chkSMCP.Checked = false;
                 chkRgh3.Checked = false;
             }
             else if (!chkCleanSMC.Checked && !chkSMCP.Checked && !chkRgh3.Checked) // Don't uselessly spam the console
             {
-                Console.WriteLine("CR4 deselected");
+                Console.WriteLine("CR4 Deselected");
             }
 
             if (chkCR4.Checked)
             {
-                if (File.Exists(Path.Combine(variables.rootfolder, @"xebuild\data\" + "smc.bin")))
+                if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin")))
                 {
                     if (MessageBox.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     {
-                        File.Delete(Path.Combine(variables.rootfolder, @"xebuild\data\" + "smc.bin"));
+                        File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin"));
                     }
                 }
             }
@@ -784,23 +743,23 @@ namespace JRunner.Panels
         {
             if (chkSMCP.Checked)
             {
-                Console.WriteLine("SMC+ selected");
+                Console.WriteLine("SMC+ Selected");
                 chkCleanSMC.Checked = false;
                 chkCR4.Checked = false;
                 chkRgh3.Checked = false;
             }
             else if (!chkCleanSMC.Checked && !chkCR4.Checked && !chkRgh3.Checked) // Don't uselessly spam the console
             {
-                Console.WriteLine("SMC+ deselected");
+                Console.WriteLine("SMC+ Deselected");
             }
 
             if (chkSMCP.Checked)
             {
-                if (File.Exists(Path.Combine(variables.rootfolder, @"xebuild\data\" + "smc.bin")))
+                if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin")))
                 {
                     if (MessageBox.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     {
-                        File.Delete(Path.Combine(variables.rootfolder, @"xebuild\data\" + "smc.bin"));
+                        File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin"));
                     }
                 }
             }
@@ -810,23 +769,23 @@ namespace JRunner.Panels
         {
             if (chkRgh3.Checked)
             {
-                Console.WriteLine("RGH3 selected");
+                Console.WriteLine("RGH3 Selected");
                 chkCleanSMC.Checked = false;
                 chkCR4.Checked = false;
                 chkSMCP.Checked = false;
             }
             else if (!chkCleanSMC.Checked && !chkCR4.Checked && !chkSMCP.Checked) // Don't uselessly spam the console
             {
-                Console.WriteLine("RGH3 deselected");
+                Console.WriteLine("RGH3 Deselected");
             }
 
             if (chkRgh3.Checked)
             {
-                if (File.Exists(Path.Combine(variables.rootfolder, @"xebuild\data\" + "smc.bin")))
+                if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin")))
                 {
                     if (MessageBox.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     {
-                        File.Delete(Path.Combine(variables.rootfolder, @"xebuild\data\" + "smc.bin"));
+                        File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin"));
                     }
                 }
             }
@@ -860,7 +819,7 @@ namespace JRunner.Panels
                 Rgh3Label.Visible = Rgh3Label2.Visible = Rgh3Mhz.Visible = false;
             }
 
-            if (board.Contains("Xenon") || board.Contains("Zephyr") || board.Contains("Winchester"))
+            if (board.Contains("Xenon") || board.Contains("Zephyr") || board.Contains("Jasper SB") || board.Contains("Trinity BB") || chkXdkBuild.Checked)
             {
                 chkRgh3.Checked = false;
                 chkRgh3.Enabled = false;
@@ -872,12 +831,12 @@ namespace JRunner.Panels
         {
             if (chkWB.Checked)
             {
-                Console.WriteLine("Winbond 2K selected");
+                Console.WriteLine("Winbond 2K Selected");
                 chkWB4G.Checked = false;
             }
             else if (!chkWB4G.Checked) // Don't uselessly spam the console
             {
-                Console.WriteLine("Winbond 2K deselected");
+                Console.WriteLine("Winbond 2K Deselected");
             }
 
             // Don't do it twice
@@ -891,31 +850,17 @@ namespace JRunner.Panels
             }
         }
 
-        private void chkElpis_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chkElpis.Checked)
-            {
-                Console.WriteLine("Elpis/Rhea selected");
-            }
-            else if (!chkElpis.Checked) // Don't uselessly spam the console
-            {
-                Console.WriteLine("Elpis/Rhea deselected");
-            }
-
-            updateElpis();
-        }
-
         private void chkWB4G_CheckedChanged(object sender, EventArgs e)
         {
             if (chkWB4G.Checked)
             {
-                MessageBox.Show("Warning: This function is for advanced users only.\n\nIf you don't understand what this is for, use WB 2K on the XeBuild tab instead.", "Steep Hill Ahead", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                Console.WriteLine("Winbond 2K Buffer selected");
+                MessageBox.Show("Warning: This function is for advanced users only\n\nIf you don't understand what this is for, use WB 2K on the XeBuild tab instead", "Steep Hill Ahead", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Console.WriteLine("Winbond 2K Buffer Selected");
                 chkWB.Checked = false;
             }
             else if (!chkWB.Checked) // Don't uselessly spam the console
             {
-                Console.WriteLine("Winbond 2K Buffer deselected");
+                Console.WriteLine("Winbond 2K Buffer Deselected");
             }
 
             // Don't do it twice
@@ -938,52 +883,38 @@ namespace JRunner.Panels
             updateCommand();
         }
 
-        private void updateElpis()
-        {
-            if (chkElpis.Checked) patches[8] = "-r ELPIS";
-            else patches[8] = "";
-
-            updateCommand();
-        }
-
         private void chkBigffs_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkBigffs.Checked) Console.WriteLine("bigffs selected");
-            else Console.WriteLine("bigffs deselected");
+            if (chkBigffs.Checked) Console.WriteLine("bigffs Selected");
+            else Console.WriteLine("bigffs Deselected");
         }
 
         private void chkXdkBuild_CheckedChanged(object sender, EventArgs e)
         {
             checkWB(variables.boardtype);
             checkBigffs(variables.boardtype);
-            if (chkXdkBuild.Checked) Console.WriteLine("XDKbuild selected");
-            else Console.WriteLine("XDKbuild deselected");
+            if (chkXdkBuild.Checked) Console.WriteLine("XDKbuild Selected");
+            else Console.WriteLine("XDKbuild Deselected");
             checkRgh3(variables.boardtype);
         }
 
         private void chkAudClamp_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkAudClamp.Checked) Console.WriteLine("Aud_Clamp selected");
-            else Console.WriteLine("Aud_Clamp deselected");
-        }
-
-        private void chk0Fuse_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chk0Fuse.Checked) Console.WriteLine("0 Fuse selected");
-            else Console.WriteLine("0 Fuse deselected");
+            if (chkAudClamp.Checked) Console.WriteLine("Aud_Clamp Selected");
+            else Console.WriteLine("Aud_Clamp Deselected");
         }
 
         private void chkXLUsb_CheckedChanged(object sender, EventArgs e)
         {
             if (chkXLUsb.Checked)
             {
-                Console.WriteLine("XL USB selected");
+                Console.WriteLine("XL USB Selected");
                 chkXLHdd.Checked = false;
                 chkXLBoth.Checked = false;
             }
             else if (!chkXLHdd.Checked && !chkXLBoth.Checked) // Don't uselessly spam the console
             {
-                Console.WriteLine("XL USB deselected");
+                Console.WriteLine("XL USB Deselected");
             }
         }
 
@@ -991,13 +922,13 @@ namespace JRunner.Panels
         {
             if (chkXLHdd.Checked)
             {
-                Console.WriteLine("XL HDD selected");
+                Console.WriteLine("XL HDD Selected");
                 chkXLUsb.Checked = false;
                 chkXLBoth.Checked = false;
             }
             else if (!chkXLUsb.Checked && !chkXLBoth.Checked) // Don't uselessly spam the console
             {
-                Console.WriteLine("XL HDD deselected");
+                Console.WriteLine("XL HDD Deselected");
             }
         }
 
@@ -1005,44 +936,43 @@ namespace JRunner.Panels
         {
             if (chkXLBoth.Checked)
             {
-                Console.WriteLine("Both XL selected");
+                Console.WriteLine("Both XL Selected");
                 chkXLUsb.Checked = false;
                 chkXLHdd.Checked = false;
             }
             else if (!chkXLUsb.Checked && !chkXLHdd.Checked) // Don't uselessly spam the console
             {
-                Console.WriteLine("Both XL deselected");
+                Console.WriteLine("Both XL Deselected");
             }
         }
 
         private void chkUsbdSec_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkUsbdSec.Checked) Console.WriteLine("UsbdSec selected");
-            else Console.WriteLine("UsbdSec deselected");
+            if (chkUsbdSec.Checked) Console.WriteLine("UsbdSec Selected");
+            else Console.WriteLine("UsbdSec Deselected");
         }
 
         private void chkCoronaKeyFix_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkCoronaKeyFix.Checked) Console.WriteLine("Corona Key Fix selected");
-            else Console.WriteLine("Corona Key Fix deselected");
+            if (chkCoronaKeyFix.Checked) Console.WriteLine("Corona Key Fix Selected");
+            else Console.WriteLine("Corona Key Fix Deselected");
         }
 
         private void chkHddSsAuth_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkHddSsAuth.Checked) Console.WriteLine("HddSsAuth selected");
-            else Console.WriteLine("HddSsAuth deselected");
+            if (chkHddSsAuth.Checked) Console.WriteLine("HddSsAuth Selected");
+            else Console.WriteLine("HddSsAuth Deselected");
         }
 
         private void chkBootAnimRemap_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkBootAnimRemap.Checked) Console.WriteLine("BootAnim Remap (remap_bootanim_17559) selected");
-            else Console.WriteLine("BootAnim Remap (remap_bootanim_17559) deselected");
+            if (chkBootAnimRemap.Checked) Console.WriteLine("BootAnim Remap (remap_bootanim_17559) Selected");
+            else Console.WriteLine("BootAnim Remap (remap_bootanim_17559) Deselected");
         }
 
         private void btnGetMB_Click(object sender, EventArgs e)
         {
-            if ((ModifierKeys & Keys.Shift) == Keys.Shift && MainForm.mainForm.device == MainForm.DEVICE.XFLASHER_SPI) MainForm.mainForm.xflasher.getConsoleCb();
-            else MainForm.mainForm.xPanel_getmb();
+            Getmb();
         }
 
         private void btnXEUpdate_Click(object sender, EventArgs e)
@@ -1059,11 +989,11 @@ namespace JRunner.Panels
                 return;
             }
             string arguments;
-            if (!string.IsNullOrWhiteSpace(txtOffset.Text))
+            if (!String.IsNullOrWhiteSpace(txtOffset.Text))
             {
                 arguments = "-rb " + "\"" + Path.Combine(variables.outfolder, "consoleDump.bin") + "\"";
                 arguments += " " + txtOffset.Text;
-                if (!string.IsNullOrWhiteSpace(txtLength.Text))
+                if (!String.IsNullOrWhiteSpace(txtLength.Text))
                 {
                     arguments += " " + txtLength.Text;
                 }
@@ -1085,11 +1015,11 @@ namespace JRunner.Panels
         private void btnWrite_Click(object sender, EventArgs e)
         {
             string arguments;
-            if (!string.IsNullOrWhiteSpace(txtOffset.Text))
+            if (!String.IsNullOrWhiteSpace(txtOffset.Text))
             {
                 arguments = "-wb " + "\"" + variables.filename1 + "\"";
                 arguments += " " + txtOffset.Text;
-                if (!string.IsNullOrWhiteSpace(txtLength.Text))
+                if (!String.IsNullOrWhiteSpace(txtLength.Text))
                 {
                     arguments += " " + txtLength.Text;
                 }
@@ -1121,7 +1051,7 @@ namespace JRunner.Panels
         private void btnPatches_Click(object sender, EventArgs e)
         {
             string arguments = "-p";
-            if (!string.IsNullOrWhiteSpace(variables.filename1))
+            if (!String.IsNullOrWhiteSpace(variables.filename1))
             {
                 if (MessageBox.Show("Make sure that source file is a patch file.", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel) return;
                 arguments += " \"" + variables.filename1 + "\"";
@@ -1136,14 +1066,15 @@ namespace JRunner.Panels
 
         private void btnAvatar_Click(object sender, EventArgs e)
         {
-            if (variables.debugMode) Console.WriteLine(Path.Combine(variables.updatepath, comboDash.Text + @"\$systemupdate"));
-            if (Directory.Exists(Path.Combine(variables.updatepath, comboDash.Text + @"\$systemupdate")))
+
+            if (variables.debugme) Console.WriteLine(Path.Combine(variables.update_path, comboDash.Text + @"\$systemupdate"));
+            if (Directory.Exists(Path.Combine(variables.update_path, comboDash.Text + @"\$systemupdate")))
             {
                 Console.WriteLine("Starting, please wait!");
-                string upPath = Path.Combine(variables.updatepath, comboDash.Text, @"\$systemupdate");
+                string upPath = Path.Combine(variables.update_path, comboDash.Text, @"\$systemupdate");
                 //Path.Combine(upPath, @"\$systemupdate");
                 // Console.WriteLine(Path.Combine(variables.update_path, comboDash.Text + @"\$systemupdate"));
-                ThreadStart starter = delegate { xe_compatibilityAvatar(Path.Combine(variables.updatepath, (comboDash.Text)), "-e "); };
+                ThreadStart starter = delegate { xe_compatibilityAvatar(Path.Combine(variables.update_path, (comboDash.Text)), "-e "); };
                 new Thread(starter).Start();
             }
             else
@@ -1172,14 +1103,14 @@ namespace JRunner.Panels
             {
                 txtIP.Enabled = txtIP2.Enabled = chkForceIP2.Checked = true;
                 txtIP.Text = txtIP2.Text = "";
-                Console.WriteLine("ForceIP selected");
+                Console.WriteLine("ForceIP Selected");
 
             }
             else
             {
                 txtIP.Enabled = txtIP2.Enabled = chkForceIP2.Checked = false;
                 txtIP.Text = txtIP2.Text = "Autoscan LAN";
-                Console.WriteLine("ForceIP deselected");
+                Console.WriteLine("ForceIP Deselected");
             }
         }
 
@@ -1217,72 +1148,55 @@ namespace JRunner.Panels
             Rgh3Mhz.Visible = false;
             chkWB.Visible = false;
             chkWB4G.Enabled = false;
-            chkElpis.Visible = false;
             chkXdkBuild.Visible = false;
             chkRJtag.Visible = false;
             chkAudClamp.Visible = false;
             chkBigffs.Enabled = false;
             chk0Fuse.Visible = false;
+
+            setComboCB();
         }
 
         private void chkNoWrite_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkNoWrite.Checked) Console.WriteLine("nowrite selected");
-            else Console.WriteLine("nowrite deselected");
+            if (chkNoWrite.Checked) Console.WriteLine("nowrite Selected");
+            else Console.WriteLine("nowrite Deselected");
         }
 
         private void chkNoAva_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkNoAva.Checked) Console.WriteLine("noava selected");
-            else Console.WriteLine("noava deselected");
+            if (chkNoAva.Checked) Console.WriteLine("noava Selected");
+            else Console.WriteLine("noava Deselected");
         }
 
         private void chkClean_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkClean.Checked) Console.WriteLine("clean selected");
-            else Console.WriteLine("clean deselected");
+            if (chkClean.Checked) Console.WriteLine("clean Selected");
+            else Console.WriteLine("clean Deselected");
         }
 
         private void chkNoReeb_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkNoReeb.Checked) Console.WriteLine("noreeb selected");
-            else Console.WriteLine("noreeb deselected");
+            if (chkNoReeb.Checked) Console.WriteLine("noreeb Selected");
+            else Console.WriteLine("noreeb Deselected");
         }
 
         private void chkShutdown_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkShutdown.Checked) Console.WriteLine("shutdown selected");
-            else Console.WriteLine("shutdown deselected");
+            if (chkShutdown.Checked) Console.WriteLine("shutdown Selected");
+            else Console.WriteLine("shutdown Deselected");
         }
 
         private void chkReboot_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkReboot.Checked) Console.WriteLine("reboot selected");
-            else Console.WriteLine("reboot deselected");
+            if (chkReboot.Checked) Console.WriteLine("reboot Selected");
+            else Console.WriteLine("reboot Deselected");
         }
 
         private void chkxesettings_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkXeSettings.Checked) Console.WriteLine("Use Edited Options selected");
-            else Console.WriteLine("Use Edited Options deselected");
-        }
-
-        private void btnShowAdvanced_Click(object sender, EventArgs e)
-        {
-            if (btnShowAdvanced.Text == "Show Advanced Tabs")
-            {
-                MainTabs.TabPages.Add(tabClient);
-                MainTabs.TabPages.Add(tabUpdate);
-                btnShowAdvanced.Text = "Hide Advanced Tabs";
-                variables.showAdvancedTabs = true;
-            }
-            else
-            {
-                MainTabs.TabPages.Remove(tabClient);
-                MainTabs.TabPages.Remove(tabUpdate);
-                btnShowAdvanced.Text = "Show Advanced Tabs";
-                variables.showAdvancedTabs = false;
-            }
+            if (chkxesettings.Checked) Console.WriteLine("Use Edited Options Selected");
+            else Console.WriteLine("Use Edited Options Deselected");
         }
 
         #endregion
@@ -1292,24 +1206,24 @@ namespace JRunner.Panels
         void xe_update()
         {
             Classes.xebuild xe = new Classes.xebuild();
-            xe.Uloadvariables(variables.dashversion, (variables.hacktypes)variables.ttyp, patches, chkXeSettings.Checked, chkNoWrite.Checked, chkNoAva.Checked, chkClean.Checked,chkNoReeb.Checked, checkDLPatches.Checked,
+            xe.Uloadvariables(variables.dashversion, (variables.hacktypes)variables.ttyp, patches, chkxesettings.Checked, chkNoWrite.Checked, chkNoAva.Checked, chkClean.Checked, chkNoReeb.Checked, checkDLPatches.Checked,
                 chkLaunch.Checked);
-            File.Delete(Path.Combine(variables.rootfolder, @"xebuild\data\" + "smc.bin"));
+            File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin"));
             try
             {
                 string[] files = { "kv.bin", "smc.bin", "smc_config.bin", "fcrt.bin" };
                 foreach (string file in files)
                 {
-                    if (File.Exists(Path.Combine(variables.rootfolder, @"xebuild\data\" + file)))
+                    if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + file)))
                     {
                         if (MessageBox.Show(file + " found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                         {
-                            File.Delete(Path.Combine(variables.rootfolder, @"xebuild\data\" + file));
+                            File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + file));
                         }
                     }
                 }
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
 
             Classes.xebuild.XebuildError er = xe.createxebuild();
             if (er == Classes.xebuild.XebuildError.none)
@@ -1319,7 +1233,7 @@ namespace JRunner.Panels
             }
             else if (er == Classes.xebuild.XebuildError.nodash)
             {
-                MessageBox.Show("No Kernel selected");
+                MessageBox.Show("No Dash Selected");
                 return;
             }
             else
@@ -1346,70 +1260,73 @@ namespace JRunner.Panels
             xe.client(arguments);
         }
 
-        public void createxebuild_v2(bool custom, Nand.PrivateN nand, bool fullDataClean, bool silent = false)
+        void add_dash()
+        {
+            addDash newdash = new addDash();
+            if (newdash.ShowDialog() == DialogResult.Cancel) return;
+            try
+            {
+                AddedDash();
+            }
+            catch (Exception) { }
+        }
+        void del_dash()
+        {
+            Dashes.delDash deldash = new Dashes.delDash();
+            deldash.ShowDialog();
+            try
+            {
+                DeletedDash();
+            }
+            catch (Exception) { }
+        }
+
+        public void createxebuild_v2(bool custom, Nand.PrivateN nand, bool fullDataClean)
         {
             Classes.xebuild xe = new Classes.xebuild();
             xe.loadvariables(nand._cpukey, (variables.hacktypes)variables.ttyp, variables.dashversion,
-                             variables.ctype, patches, nand, chkXeSettings.Checked, checkDLPatches.Checked,
-                             chkLaunch.Checked, chkAudClamp.Checked, chkRJtag.Checked, chkCleanSMC.Checked, chkCR4.Checked, chkSMCP.Checked, chkRgh3.Checked, chkBigffs.Checked,
-                             chk0Fuse.Checked, chkXdkBuild.Checked, chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, chkUsbdSec.Checked, chkCoronaKeyFix.Checked, chkHddSsAuth.Checked, chkBootAnimRemap.Checked, fullDataClean);
+                             variables.ctyp, patches, nand, chkxesettings.Checked, checkDLPatches.Checked,
+                             chkLaunch.Checked, chkAudClamp.Checked, chkRJtag.Checked, chkCleanSMC.Checked, chkCR4.Checked, chkSMCP.Checked, chkRgh3.Checked, chkBigffs.Checked, chk0Fuse.Checked, chkXdkBuild.Checked,
+                             chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, chkUsbdSec.Checked, chkCoronaKeyFix.Checked, chkHddSsAuth.Checked, chkBootAnimRemap.Checked, fullDataClean);
 
             string ini = (variables.launchpath + @"\" + variables.dashversion + @"\_" + variables.ttyp + ".ini");
 
-            // xeBuild does not officially support creating images for 64mb xenon, zephyr, or falcon
-            // in retail/glitch/glitch2/devGL modes. HOWEVER, it does support devkit images, so if the
-            // selected hack type is DevGL, we can create and patch a devkit image with pre and post
-            // xeBuild patching steps
-            if( (variables.ctype.ID == 7 || variables.ctype.ID == 13 || variables.ctype.ID == 14) &&
-                 variables.ttyp != variables.hacktypes.devgl )
-            {
-                if (MessageBox.Show("XeBuild does not support building 64MB images for Xenon, Zephyr, or Falcon.\n\nContinuing will cause a 16MB image to be built.\n\nDo you want to continue?", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
-                {
-                    return;
-                }
-            }
-
             if (!custom)
             {
-                if (string.IsNullOrWhiteSpace(variables.filename1))
+                if (String.IsNullOrWhiteSpace(variables.filename1))
                 {
-                    MainForm.mainForm.xPanel_loadFile(ref variables.filename1, true);
-                    if (string.IsNullOrWhiteSpace(variables.filename1))
+                    loadFil(ref variables.filename1, true);
+                    if (String.IsNullOrWhiteSpace(variables.filename1))
                     {
-                        MessageBox.Show("No file was selected", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("No file was selected!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                 }
                 if (!File.Exists(variables.filename1))
                 {
-                    MessageBox.Show("File is missing\n\nEnsure that it was not moved and the program can access it", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("File is missing. Ensure it wasn't moved and app can access it.", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 if (Path.GetExtension(variables.filename1) != ".bin")
                 {
-                    MessageBox.Show("You must select a .bin file", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    MessageBox.Show("You must select a .bin file", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                     return;
                 }
-
-                if (!silent)
+                try
                 {
-                    try
+                    string[] files = { "kv.bin", "smc.bin", "smc_config.bin", "fcrt.bin" };
+                    foreach (string file in files)
                     {
-                        string[] files = { "kv.bin", "smc.bin", "smc_config.bin", "fcrt.bin" };
-                        foreach (string file in files)
+                        if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + file)))
                         {
-                            if (File.Exists(Path.Combine(variables.rootfolder, @"xebuild\data\" + file)))
+                            if (MessageBox.Show(file + " found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                             {
-                                if (MessageBox.Show(file + " found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                                {
-                                    File.Delete(Path.Combine(variables.rootfolder, @"xebuild\data\" + file));
-                                }
+                                File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + file));
                             }
                         }
                     }
-                    catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
                 }
-
+                catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
                 if (!nand.cpukeyverification(nand._cpukey))
                 {
                     Console.WriteLine("Wrong CPU Key");
@@ -1427,7 +1344,7 @@ namespace JRunner.Panels
                     }
                     else
                     {
-                        if (!File.Exists(Path.Combine(variables.rootfolder, @"xebuild\data\" + file)))
+                        if (!File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + file)))
                         {
                             MessageBox.Show(file + " is missing", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
@@ -1436,20 +1353,20 @@ namespace JRunner.Panels
                 }
 
                 Regex objAlphaPattern = new Regex("[a-fA-F0-9]{32}$");
-                bool sts = objAlphaPattern.IsMatch(variables.cpukey);
-                if ((variables.cpukey.Length == 32 && sts))
+                bool sts = objAlphaPattern.IsMatch(variables.cpkey);
+                if ((variables.cpkey.Length == 32 && sts))
                 {
-                    if (variables.debugMode) Console.WriteLine("Key verification");
+                    if (variables.debugme) Console.WriteLine("Key verification");
                     long size = 0;
-                    if (Nand.Nand.cpukeyverification(Oper.openfile(Path.Combine(variables.rootfolder, @"xebuild\data\kv.bin"), ref size, 0), variables.cpukey))
+                    if (Nand.Nand.cpukeyverification(Oper.openfile(Path.Combine(variables.pathforit, @"xebuild\data\kv.bin"), ref size, 0), variables.cpkey))
                     {
-                        if (variables.debugMode) Console.WriteLine("CPU Key is correct");
-                        if (Nand.Nand.getfcrtflag(File.ReadAllBytes(Path.Combine(variables.rootfolder, @"xebuild\data\kv.bin")), variables.cpukey))
+                        if (variables.debugme) Console.WriteLine("CPU Key is Correct");
+                        if (Nand.Nand.getfcrtflag(File.ReadAllBytes(Path.Combine(variables.pathforit, @"xebuild\data\kv.bin")), variables.cpkey))
                         {
-                            if (!File.Exists(Path.Combine(variables.rootfolder, @"xebuild\data\fcrt.bin")))
+                            if (!File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\fcrt.bin")))
                             {
                                 MessageBox.Show("fcrt.bin is missing");
-                                Process.Start(Path.Combine(variables.rootfolder, @"xebuild\data"));
+                                Process.Start(Path.Combine(variables.pathforit, @"xebuild\data"));
                                 return;
                             }
                         }
@@ -1458,7 +1375,7 @@ namespace JRunner.Panels
                 }
 
                 string cba = "", cbb = "";
-                string[] files = parse_ini.parselabel(ini, variables.ctype.Ini + "bl");
+                string[] files = parse_ini.parselabel(ini, variables.ctyp.Ini + "bl");
                 if (files.Length >= 2)
                 {
                     if (files[0].Contains("cb")) cba = files[0].Substring(files[0].IndexOf("_") + 1, files[0].IndexOf(".bin") - 4);
@@ -1477,34 +1394,32 @@ namespace JRunner.Panels
             switch (xe.createxebuild(custom))
             {
                 case Classes.xebuild.XebuildError.nocpukey:
-                    MessageBox.Show("CPU Key is missing");
+                    MessageBox.Show("CPU Key is Missing");
                     return;
                 case Classes.xebuild.XebuildError.nodash:
-                    MessageBox.Show("No kernel selected");
+                    MessageBox.Show("No Dash Selected");
                     return;
                 case Classes.xebuild.XebuildError.noinis:
-                    MessageBox.Show("Ini's are missing");
+                    MessageBox.Show("Ini's are Missing");
                     return;
                 case Classes.xebuild.XebuildError.nobootloaders:
-                    Console.WriteLine("The specified console bootloader list ({0}) is missing from the ini ({1})", variables.ctype.Ini + "bl", ini);
+                    Console.WriteLine("The specified console bootloader list ({0}) is missing from the ini ({1})", variables.ctyp.Ini + "bl", ini);
                     Console.WriteLine("You can either add it manually or ask for it get added if its possible");
-                    xe.xeExit += xe_xeExit;
                     return;
                 case Classes.xebuild.XebuildError.wrongcpukey:
                     MessageBox.Show("Wrong CPU Key");
                     return;
                 case Classes.xebuild.XebuildError.noconsole:
-                    variables.ctype = MainForm.mainForm.callConsoleSelect(ConsoleSelect.Selected.All);
-                    if (variables.ctype.ID == -1) return;
+                    variables.ctyp = callconsoletypes(ConsoleTypes.Selected.All);
+                    if (variables.ctyp.ID == -1) return;
                     else
                     {
                         Console.WriteLine((variables.hacktypes)variables.ttyp);
                         xe.loadvariables(nand._cpukey, (variables.hacktypes)variables.ttyp, variables.dashversion,
-                            variables.ctype, patches, nand, chkXeSettings.Checked, checkDLPatches.Checked,
+                            variables.ctyp, patches, nand, chkxesettings.Checked, checkDLPatches.Checked,
                             chkLaunch.Checked, chkAudClamp.Checked, chkRJtag.Checked, chkCleanSMC.Checked,
-                            chkCR4.Checked, chkSMCP.Checked, chkRgh3.Checked, chkBigffs.Checked, chk0Fuse.Checked,
-                            chkXdkBuild.Checked, chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, chkUsbdSec.Checked,
-                            chkCoronaKeyFix.Checked, chkHddSsAuth.Checked, chkBootAnimRemap.Checked, fullDataClean);
+                            chkCR4.Checked, chkSMCP.Checked, chkRgh3.Checked, chkBigffs.Checked, chk0Fuse.Checked, chkXdkBuild.Checked,
+                            chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, chkUsbdSec.Checked, chkCoronaKeyFix.Checked, chkHddSsAuth.Checked, chkBootAnimRemap.Checked, fullDataClean);
                         goto Start;
                     }
                 case Classes.xebuild.XebuildError.none:
@@ -1520,38 +1435,34 @@ namespace JRunner.Panels
 
         public void xe_xeExit(object sender, EventArgs e)
         {
-            xeExitActual(variables.xefinished);
+            xeExitActual();
         }
 
-        public void xeExitActual(bool success = true)
+        public void xeExitActual()
         {
-            if (variables.debugMode) Console.WriteLine("XeBuild Success: " + success.ToString());
             variables.changeldv = 0;
-            MainForm.mainForm.updateProgress(100);
-
-            if (success)
-            {
-                try
-                {
-                    File.Copy(Path.Combine(variables.rootfolder, @"xebuild\options.ini"), Path.Combine(variables.rootfolder, @"xebuild\data\options.ini"), true);
-                    chkXeSettings.Checked = false;
-                    File.Move(Path.Combine(variables.xefolder, variables.updflash + ".log"), Path.Combine(variables.xefolder, variables.updflash.Substring(0, variables.updflash.IndexOf(".")) + "(" + DateTime.Now.ToString("ddMMyyyyHHmmss") + ").bin.log"));
-                }
-                catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
-            }
+            UpdateProgres(100);
 
             try
             {
-                if (File.Exists(Path.Combine(variables.rootfolder, @"build.log"))) File.Delete(Path.Combine(variables.rootfolder, @"build.log"));
+                File.Copy(Path.Combine(variables.pathforit, @"xebuild\options.ini"), Path.Combine(variables.pathforit, @"xebuild\data\options.ini"), true);
+                chkxesettings.Checked = false;
+                File.Move(Path.Combine(variables.xefolder, variables.nandflash + ".log"), Path.Combine(variables.xefolder, variables.nandflash.Substring(0, variables.nandflash.IndexOf(".")) + "(" + DateTime.Now.ToString("ddMMyyyyHHmm") + ").bin.log"));
+            }
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
+
+            try
+            {
+                if (File.Exists(Path.Combine(variables.pathforit, @"build.log"))) File.Delete(Path.Combine(variables.pathforit, @"build.log"));
             }
             catch { }
 
-            if (variables.xefinished && success)
+            if (variables.xefinished)
             {
                 Console.WriteLine("Saved to {0}", variables.xefolder);
                 Console.WriteLine("Image is Ready");
-                variables.filename1 = Path.Combine(variables.xefolder, variables.updflash);
-                MainForm.mainForm.xPanel_updateSource(variables.filename1);
+                variables.filename1 = Path.Combine(variables.xefolder, variables.nandflash);
+                updateSourc(variables.filename1);
                 //Process.Start(variables.xefolder);
             }
             else
@@ -1563,17 +1474,17 @@ namespace JRunner.Panels
             {
                 delfiles();
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
-            if (variables.debugMode) Console.WriteLine("Deleted Files Successfully");
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
+            if (variables.debugme) Console.WriteLine("Deleted Files Successfully");
             variables.xefinished = false;
         }
 
-        public void copyfiles(string cpukey = "")
+        private void copyfiles(string cpukey)
         {
-            string targetkey = System.IO.Path.Combine(variables.xepath, variables.cpukeypath);
-            string targetnand = System.IO.Path.Combine(variables.xepath, variables.nanddump);
-            if (cpukey.Length > 0) File.WriteAllText(targetkey, cpukey);
-            if (string.IsNullOrEmpty(variables.filename1)) return;
+            string targetkey = System.IO.Path.Combine(variables.xePath, variables.cpukeypath);
+            string targetnand = System.IO.Path.Combine(variables.xePath, variables.nanddump);
+            File.WriteAllText(targetkey, cpukey);
+            if (String.IsNullOrEmpty(variables.filename1)) return;
             //
             FileInfo fi = new FileInfo(variables.filename1);
             if (fi.Length == 0xE0400000)
@@ -1600,7 +1511,7 @@ namespace JRunner.Panels
                         fr.Close();
                         fw.Close();
                     }
-                    catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+                    catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
 
                 }
             }
@@ -1609,20 +1520,20 @@ namespace JRunner.Panels
         }
         private void delfiles()
         {
-            if (File.Exists(variables.xepath + variables.nanddump))
+            if (File.Exists(variables.xePath + variables.nanddump))
             {
                 try
                 {
-                    File.Delete(variables.xepath + variables.nanddump);
-                    if (variables.debugMode) Console.WriteLine("Deleted {0}", variables.xepath + variables.nanddump);
+                    File.Delete(variables.xePath + variables.nanddump);
+                    if (variables.debugme) Console.WriteLine("Deleted {0}", variables.xePath + variables.nanddump);
                 }
                 catch (System.IO.IOException e)
                 { MessageBox.Show(e.Message); return; }
             }
-            if (File.Exists(variables.xepath + variables.cpukeypath))
+            if (File.Exists(variables.xePath + variables.cpukeypath))
             {
                 try
-                { File.Delete(variables.xepath + variables.cpukeypath); if (variables.debugMode) Console.WriteLine("Deleted {0}", variables.xepath + variables.cpukeypath); }
+                { File.Delete(variables.xePath + variables.cpukeypath); if (variables.debugme) Console.WriteLine("Deleted {0}", variables.xePath + variables.cpukeypath); }
                 catch (System.IO.IOException e)
                 { MessageBox.Show(e.Message); return; }
             }
@@ -1631,87 +1542,81 @@ namespace JRunner.Panels
                 try
                 {
                     File.Delete(variables.launchpath + @"\" + variables.dashversion + @"\launch.ini");
-                    if (variables.debugMode) Console.WriteLine("Deleted launch.ini");
+                    if (variables.debugme) Console.WriteLine("Deleted launch.ini");
                 }
                 catch (System.IO.IOException e)
                 { MessageBox.Show(e.Message); return; }
             }
-            if (File.Exists(Path.Combine(variables.xepath, "SMC.bin")) && (variables.copiedSMC || variables.fullDataClean)) // Only Delete SMCs it puts there
+            if (File.Exists(Path.Combine(variables.xePath, "SMC.bin")) && (variables.copiedSMC || variables.fullDataClean)) // Only Delete SMCs it puts there
             {
                 try
                 {
-                    File.Delete(Path.Combine(variables.xepath, "SMC.bin"));
-                    if (variables.debugMode) Console.WriteLine("Deleted SMC.bin");
+                    File.Delete(Path.Combine(variables.xePath, "SMC.bin"));
+                    if (variables.debugme) Console.WriteLine("Deleted SMC.bin");
                 }
                 catch (System.IO.IOException e)
                 { MessageBox.Show(e.Message); return; }
             }
-            if (File.Exists(Path.Combine(variables.xepath, "KV.bin")) && variables.fullDataClean)
+            if (File.Exists(Path.Combine(variables.xePath, "KV.bin")) && variables.fullDataClean)
             {
                 try
                 {
-                    File.Delete(Path.Combine(variables.xepath, "KV.bin"));
-                    if (variables.debugMode) Console.WriteLine("Deleted KV.bin");
+                    File.Delete(Path.Combine(variables.xePath, "KV.bin"));
+                    if (variables.debugme) Console.WriteLine("Deleted KV.bin");
                 }
                 catch (System.IO.IOException e)
                 { MessageBox.Show(e.Message); return; }
             }
-            if (File.Exists(Path.Combine(variables.xepath, "fcrt.bin")) && variables.fullDataClean)
+            if (File.Exists(Path.Combine(variables.xePath, "fcrt.bin")) && variables.fullDataClean)
             {
                 try
                 {
-                    File.Delete(Path.Combine(variables.xepath, "fcrt.bin"));
-                    if (variables.debugMode) Console.WriteLine("Deleted fcrt.bin");
+                    File.Delete(Path.Combine(variables.xePath, "fcrt.bin"));
+                    if (variables.debugme) Console.WriteLine("Deleted fcrt.bin");
                 }
                 catch (System.IO.IOException e)
                 { MessageBox.Show(e.Message); return; }
             }
-            if (File.Exists(Path.Combine(variables.xepath, "smc_config.bin")) && variables.fullDataClean)
+            if (File.Exists(Path.Combine(variables.xePath, "smc_config.bin")) && variables.fullDataClean)
             {
                 try
                 {
-                    File.Delete(Path.Combine(variables.xepath, "smc_config.bin"));
-                    if (variables.debugMode) Console.WriteLine("Deleted KV.bin");
-                }
-                catch (System.IO.IOException e)
-                { MessageBox.Show(e.Message); return; }
-            }
-            if (File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\xam.xex")) && variables.copiedXLDrive)
-            {
-                try
-                {
-                    File.Delete(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\xam.xex"));
-                    if (variables.debugMode) Console.WriteLine("Deleted XL Drive xam.xex");
-                    if (File.Exists(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\xam.xex.tmp")))
-                    {
-                        File.Move(Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\xam.xex.tmp"), Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\xam.xex"));
-                    }
-                    if (variables.debugMode) Console.WriteLine("Restored non XL Drive xam.xex");
-
-                    string buildIni = Path.Combine(variables.updatepath, comboDash.SelectedValue + @"\_" + variables.ttyp.ToString() + ".ini");
-                    if (File.Exists(buildIni + ".tmp"))
-                    {
-                        File.Delete(buildIni);
-                        File.Move(buildIni + ".tmp", buildIni);
-                    }
-                    if (variables.debugMode) Console.WriteLine("Restored non XL Drive ini");
+                    File.Delete(Path.Combine(variables.xePath, "smc_config.bin"));
+                    if (variables.debugme) Console.WriteLine("Deleted KV.bin");
                 }
                 catch (System.IO.IOException e)
                 { MessageBox.Show(e.Message); return; }
             }
         }
 
+        consoles callconsoletypes(ConsoleTypes.Selected selec, bool twomb = false, bool full = false)
+        {
+            ConsoleTypes myNewForm = new ConsoleTypes();
+            myNewForm.sel = selec;
+            myNewForm.twombread = twomb;
+            myNewForm.sfulldump = full;
+            myNewForm.ShowDialog();
+            if (myNewForm.DialogResult == DialogResult.Cancel) return (variables.cunts[0]);
+            if (myNewForm.heResult().ID == -1) return variables.cunts[0];
+            variables.fulldump = myNewForm.fulldump();
+            variables.twombread = myNewForm.twombdump();
+            if (variables.debugme) Console.WriteLine("fulldump variable = {0}", variables.fulldump);
+            setMBname(myNewForm.heResult().Text);
+            return (myNewForm.heResult());
+        }
+
         public void xe_xeUExit(object sender, EventArgs e)
         {
             variables.changeldv = 0;
-            MainForm.mainForm.updateProgress(100);
+            UpdateProgres(100);
 
             if (variables.xefinished)
             {
                 Console.WriteLine("Saved to {0}", variables.xefolder);
                 Console.WriteLine("Image is Ready");
-                variables.filename1 = Path.Combine(variables.xefolder, variables.updflash);
-                MainForm.mainForm.xPanel_updateSource(variables.filename1);
+                variables.filename1 = Path.Combine(variables.xefolder, variables.nandflash);
+                updateSourc(variables.filename1);
+                //Process.Start(variables.xefolder);
             }
             else
             {
@@ -1733,18 +1638,24 @@ namespace JRunner.Panels
             if (wait) Thread.Sleep(100);
             string c = "";
             c = "-t " + variables.ttyp;
-            c += " -c " + variables.ctype.XeBuild;
+            c += " -c " + variables.ctyp.XeBuild;
             foreach (String patch in patches)
             {
                 c += " " + patch;
             }
             c += " -f " + variables.dashversion;
             c += " -d data";
-            c += " \"" + variables.xefolder + "\\" + variables.updflash + "\" ";
+            c += " \"" + variables.xefolder + "\\" + variables.nandflash + "\" ";
 
             RegexOptions options = RegexOptions.None;
             Regex regex = new Regex(@"[ ]{2,}", options);
             c = regex.Replace(c, @" ");
+
+            try
+            {
+                txtCommand.Text = c;
+            }
+            catch (Exception) { }
         }
 
         private void txtMBname_TextChanged(object sender, EventArgs e)
@@ -1753,7 +1664,7 @@ namespace JRunner.Panels
             new Thread(new ThreadStart(delegate { setComboCB(false, true); })).Start();
         }
 
-        public void setComboCB(bool erase = false, bool wait = false)
+        private void setComboCB(bool erase = false, bool wait = false)
         {
             if (erase)
             {
@@ -1764,65 +1675,36 @@ namespace JRunner.Panels
             try
             {
                 comboCB.Items.Clear();
-                cbList = new List<CB>();
-                if (!variables.dashversion.Equals(""))
+                if (variables.dashversion != 0)
                 {
                     string ini = (variables.launchpath + @"\" + variables.dashversion + @"\_retail.ini");
-                    List<string> labels = new List<string>();
-                    List<string> cbs = new List<string>();
-                    parse_ini.getLabelsandCBs(ini, ref labels, ref cbs);
-                    string defaultCB = null;
+                    List<string> labels = parse_ini.getlabels(ini);
 
                     foreach (string s in labels)
                     {
                         if (!s.Contains("bl")) continue;
-                        if (variables.ctype.ID == -1)
+                        if (variables.ctyp.ID == -1)
                         {
-                            if (s.Contains("_"))
-                            {
-                                cbList.Add(new CB(s.Substring(s.IndexOf("_") + 1), true));
-                            }
+                            if (s.Contains("_")) comboCB.Items.Add(new CB(s.Substring(s.IndexOf("_") + 1), true));
                             else
                             {
-                                string cb = cbs[labels.IndexOf(s)];
-                                cbList.Add(new CB(cb, false));
-                                if (defaultCB == null) defaultCB = cb; // Only once
+                                comboCB.Items.Add(new CB(Nand.ntable.getCBFromDash(getConsoleFromIni(s.Substring(0, s.IndexOf("bl"))), variables.dashversion), false));
                             }
                         }
                         else
                         {
-                            if (s.Contains(variables.ctype.Ini))
+                            if (s.Contains(variables.ctyp.Ini))
                             {
-                                if (s.Contains("_"))
-                                {
-                                    cbList.Add(new CB(s.Substring(s.IndexOf("_") + 1), true));
-                                }
-                                else
-                                {
-                                    string cb = cbs[labels.IndexOf(s)];
-                                    cbList.Add(new CB(cb, false));
-                                    if (defaultCB == null) defaultCB = cb; // Only once
-                                }
+                                if (s.Contains("_")) comboCB.Items.Add(new CB(s.Substring(s.IndexOf("_") + 1), true));
+                                else comboCB.Items.Add(new CB(Nand.ntable.getCBFromDash(getConsoleFromIni(variables.ctyp.Ini), variables.dashversion), false));
                             }
                         }
                     }
 
-                    cbList.Sort((a, b) => Convert.ToInt32(a.Version) - Convert.ToInt32(b.Version));
-
-                    int defaultIndex = 0; // Fallback
-                    foreach (CB cb in cbList)
-                    {
-                        if (cb.Version == defaultCB) defaultIndex = comboCB.Items.Count; // Before adding!
-                        comboCB.Items.Add(cb);
-                    }
-                
-                    if (comboCB.Items.Count > 0)
-                    {
-                        comboCB.SelectedIndex = defaultIndex; // Important, the combo becomes buggy if the default selection is not the basic (ex: xenonbl, not xenonbl_1928)
-                    }
+                    if (comboCB.Items.Count > 0) comboCB.SelectedIndex = 0;
                 }
             }
-            catch { }
+            catch (Exception) { }
         }
 
         private void comboCB_SelectedIndexChanged(object sender, EventArgs e)
@@ -1838,12 +1720,12 @@ namespace JRunner.Panels
 
         private consoles getConsoleFromIni(string ini)
         {
-            foreach (consoles c in variables.ctypes)
+            foreach (consoles c in variables.cunts)
             {
                 if (c.ID == -1) continue;
                 if (ini == c.Ini) return c;
             }
-            return variables.ctypes[0];
+            return variables.cunts[0];
         }
 
         class CB

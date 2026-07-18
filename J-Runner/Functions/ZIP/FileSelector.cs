@@ -644,7 +644,7 @@ namespace Ionic
         /// </param>
         public FileSelector(String selectionCriteria, bool traverseDirectoryReparsePoints)
         {
-            if (!string.IsNullOrEmpty(selectionCriteria))
+            if (!String.IsNullOrEmpty(selectionCriteria))
                 _Criterion = _ParseCriterion(selectionCriteria);
             TraverseReparsePoints = traverseDirectoryReparsePoints;
         }
@@ -1336,7 +1336,7 @@ namespace Ionic
             if (_Criterion == null)
                 throw new ArgumentException("SelectionCriteria has not been set");
 
-            var list = new List<string>();
+            var list = new List<String>();
             try
             {
                 if (Directory.Exists(directory))

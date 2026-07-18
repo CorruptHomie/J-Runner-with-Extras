@@ -83,7 +83,7 @@ namespace JRunner.Forms
                 if (dev_id == 0)
                 {
                     log("SPI ID Failed !\n");
-                    log("No ISD chip detected\n");
+                    log("no ISD chip detected\n");
                     return;
                 }
                 
@@ -180,16 +180,15 @@ namespace JRunner.Forms
 
                 log("Sending Flash de-Init...\n");
                 isd.PowerDown();
-                log("Setting ISD to normal mode...\n");
+                log("Setting ISD to normal mode..\n");
                 isd.Reset();
-                log("Done!\n");
                 enable(true);
             }
             catch (Exception ex)
             {
                 Console.WriteLine();
                 Console.WriteLine(ex.Message);
-                if (variables.debugMode) Console.WriteLine(ex.ToString());
+                if (variables.debugme) Console.WriteLine(ex.ToString());
             }
             finally
             {
@@ -199,15 +198,15 @@ namespace JRunner.Forms
 
         private void btnRead_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtFile.Text)) loadfile();
-            if (string.IsNullOrEmpty(txtFile.Text)) return;
+            if (String.IsNullOrEmpty(txtFile.Text)) loadfile();
+            if (String.IsNullOrEmpty(txtFile.Text)) return;
             ThreadStart starter = delegate { do_stuff(ISD_Function.read, txtFile.Text); };
             new Thread(starter).Start();
         }
         private void btnVerify_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtFile.Text)) loadfile();
-            if (string.IsNullOrEmpty(txtFile.Text)) return;
+            if (String.IsNullOrEmpty(txtFile.Text)) loadfile();
+            if (String.IsNullOrEmpty(txtFile.Text)) return;
             ThreadStart starter = delegate { do_stuff(ISD_Function.verify, txtFile.Text); };
             new Thread(starter).Start();
         }
@@ -338,7 +337,7 @@ namespace JRunner.Forms
                 btnRead.Enabled = false;
             }
 
-            txtFile.Text = Path.Combine(variables.rootfolder, "common", "sounds", filename);
+            txtFile.Text = Path.Combine(variables.pathforit, "common", "sounds", filename);
             txtFile.SelectionStart = txtFile.Text.Length;
             txtFile.ScrollToCaret();
         }
@@ -382,7 +381,7 @@ namespace JRunner.Forms
                 isd = _isd;
                 enable(true);
             }
-            else if (MainForm.mainForm.IsUsbDeviceConnected("11D4", "8338")) // JR Programmer
+            if (MainForm.mainForm.IsUsbDeviceConnected("11D4", "8338")) // xFlasher SPI
             {
                 pictureBox1.Image = Properties.Resources.sonuslogo;
                 Sonus360 _isd = new Sonus360();
@@ -391,14 +390,15 @@ namespace JRunner.Forms
                 isd = _isd;
                 enable(true);
             }
+
         }
         private void onDevNotify(object sender, DeviceNotifyEventArgs e)
         {
             try
             {
-                if (variables.debugMode) Console.WriteLine("DevNotify - {0}", e.Device.Name);
-                if (variables.debugMode) Console.WriteLine("EventType - {0}", e.EventType);
-                if (e.EventType == EventType.DeviceArrival)
+                if (variables.debugme) Console.WriteLine("DevNotify - {0}", e.Device.Name);
+                if (variables.debugme) Console.WriteLine("EventType - {0}", e.EventType);
+                if (e.EventType == LibUsbDotNet.DeviceNotify.EventType.DeviceArrival)
                 {
                     if (e.Device.IdVendor == 0x600D && e.Device.IdProduct == 0x7001) // PicoFlasher
                     {
@@ -419,23 +419,23 @@ namespace JRunner.Forms
                         enable(true);
                     }
                 }
-                else if (e.EventType == EventType.DeviceRemoveComplete)
+                else if (e.EventType == LibUsbDotNet.DeviceNotify.EventType.DeviceRemoveComplete)
                 {
                     if (e.Device.IdVendor == 0x600D && e.Device.IdProduct == 0x7001)
                     {
-                        pictureBox1.Image = Properties.Resources.sonuslogo;
+                        pictureBox1.Image = null;
                         enable(false);
                         isd = null;
                     }
                     else if(e.Device.IdVendor == 0x11d4 && e.Device.IdProduct == 0x8338)
                     {
-                        pictureBox1.Image = Properties.Resources.sonuslogo;
+                        pictureBox1.Image = null;
                         enable(false);
                         isd = null;
                     }
                 }
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
         }
         private void btnStart_Click(object sender, EventArgs e)
         {
@@ -1377,7 +1377,7 @@ namespace JRunner.Forms
                     SoundPlayer success = new SoundPlayer(txtStart.Text);
                     success.Play();
                 }
-                catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); };
+                catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); };
             }
         }
 
@@ -1390,7 +1390,7 @@ namespace JRunner.Forms
                     SoundPlayer success = new SoundPlayer(txtPower.Text);
                     success.Play();
                 }
-                catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); };
+                catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); };
             }
         }
 
@@ -1403,7 +1403,7 @@ namespace JRunner.Forms
                     SoundPlayer success = new SoundPlayer(txtEject.Text);
                     success.Play();
                 }
-                catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); };
+                catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); };
             }
         }
 

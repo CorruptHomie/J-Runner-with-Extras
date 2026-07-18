@@ -32,8 +32,8 @@ namespace JRunner
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Issues));
             this.IssueWizard = new AeroWizard.WizardControl();
             this.wizardPage1 = new AeroWizard.WizardPage();
-            this.CreateButton = new UI.CommandLink();
-            this.ViewButton = new UI.CommandLink();
+            this.CreateButton = new System.Windows.Forms.Button();
+            this.ViewButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.IssueWizard)).BeginInit();
             this.wizardPage1.SuspendLayout();
@@ -41,12 +41,16 @@ namespace JRunner
             // 
             // IssueWizard
             // 
+            this.IssueWizard.BackColor = System.Drawing.Color.White;
+            this.IssueWizard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.IssueWizard.FinishButtonText = "&Close";
+            this.IssueWizard.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.IssueWizard.Location = new System.Drawing.Point(0, 0);
             this.IssueWizard.Name = "IssueWizard";
             this.IssueWizard.Pages.Add(this.wizardPage1);
             this.IssueWizard.Size = new System.Drawing.Size(554, 401);
             this.IssueWizard.TabIndex = 0;
+            this.IssueWizard.Text = "Report Issue";
             this.IssueWizard.Title = "Report Issue";
             this.IssueWizard.TitleIcon = ((System.Drawing.Icon)(resources.GetObject("IssueWizard.TitleIcon")));
             // 
@@ -64,10 +68,9 @@ namespace JRunner
             // 
             // CreateButton
             // 
-            this.CreateButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.CreateButton.Location = new System.Drawing.Point(2, 132);
+            this.CreateButton.Location = new System.Drawing.Point(4, 121);
             this.CreateButton.Name = "CreateButton";
-            this.CreateButton.Size = new System.Drawing.Size(232, 45);
+            this.CreateButton.Size = new System.Drawing.Size(232, 23);
             this.CreateButton.TabIndex = 3;
             this.CreateButton.Text = "Create New Issue";
             this.CreateButton.UseVisualStyleBackColor = true;
@@ -75,10 +78,9 @@ namespace JRunner
             // 
             // ViewButton
             // 
-            this.ViewButton.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.ViewButton.Location = new System.Drawing.Point(2, 79);
+            this.ViewButton.Location = new System.Drawing.Point(4, 79);
             this.ViewButton.Name = "ViewButton";
-            this.ViewButton.Size = new System.Drawing.Size(232, 45);
+            this.ViewButton.Size = new System.Drawing.Size(232, 23);
             this.ViewButton.TabIndex = 2;
             this.ViewButton.Text = "View Open Issues";
             this.ViewButton.UseVisualStyleBackColor = true;
@@ -90,7 +92,7 @@ namespace JRunner
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(478, 65);
             this.label1.TabIndex = 0;
-            this.label1.Text = "We\'d love to hear from you in order to make J-Runner with Extras better!\r\n\r\nPleas" +
+            this.label1.Text = "We\'d love to hear from you in order to make J-Runner Pro better!\r\n\r\nPleas" +
     "e make sure you check open issues first before creating an issue, as duplicates " +
     "will be closed.";
             // 
@@ -118,7 +120,7 @@ namespace JRunner
         private AeroWizard.WizardControl IssueWizard;
         private AeroWizard.WizardPage wizardPage1;
         private System.Windows.Forms.Label label1;
-        private UI.CommandLink ViewButton;
-        private UI.CommandLink CreateButton;
+        private System.Windows.Forms.Button ViewButton;
+        private System.Windows.Forms.Button CreateButton;
     }
 }

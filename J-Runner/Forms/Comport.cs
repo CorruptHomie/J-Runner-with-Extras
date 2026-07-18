@@ -31,7 +31,7 @@ namespace JRunner.Forms
                 cboBaud.Items.Add("115200");
                 cboBaud.SelectedText = "115200";
                 cboParity.SelectedIndex = 0;
-                cboStop.SelectedIndex = 0;
+                cboStop.SelectedIndex = 1;
                 cboData.SelectedIndex = 1;
             }
             catch (System.ArgumentOutOfRangeException) { MessageBox.Show("No COM ports were found"); }
@@ -85,8 +85,6 @@ namespace JRunner.Forms
         private void cmdRefresh_Click(object sender, EventArgs e)
         {
             cboPort.Items.Clear();
-            cboStop.Items.Clear();
-            cboParity.Items.Clear();
             LoadValues();
         }
 
@@ -113,10 +111,7 @@ namespace JRunner.Forms
             if (cboPort.Text == "") return;
             try
             {
-                if (!comm.OpenPort())
-                {
-                    return;
-                }
+                comm.OpenPort();
             }
             catch (Exception ex) { Console.WriteLine(ex.ToString()); }
 

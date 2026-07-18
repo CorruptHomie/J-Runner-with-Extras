@@ -39,7 +39,6 @@ namespace JRunner.Forms
             this.DonorKvText = new System.Windows.Forms.Label();
             this.RetailKvWarn = new System.Windows.Forms.Label();
             this.CpuKeyGroup = new System.Windows.Forms.GroupBox();
-            this.GenerateKey = new System.Windows.Forms.Button();
             this.label13 = new System.Windows.Forms.Label();
             this.CpuKeyBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -98,6 +97,9 @@ namespace JRunner.Forms
             // 
             // DonorWizard
             // 
+            this.DonorWizard.BackColor = System.Drawing.Color.White;
+            this.DonorWizard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.DonorWizard.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.DonorWizard.Location = new System.Drawing.Point(0, 0);
             this.DonorWizard.Name = "DonorWizard";
             this.DonorWizard.Pages.Add(this.PrereqPage);
@@ -107,6 +109,7 @@ namespace JRunner.Forms
             this.DonorWizard.Pages.Add(this.FinishPage);
             this.DonorWizard.Size = new System.Drawing.Size(554, 401);
             this.DonorWizard.TabIndex = 0;
+            this.DonorWizard.Text = "Create Donor Nand";
             this.DonorWizard.Title = "Create Donor Nand";
             this.DonorWizard.TitleIcon = ((System.Drawing.Icon)(resources.GetObject("DonorWizard.TitleIcon")));
             // 
@@ -115,18 +118,18 @@ namespace JRunner.Forms
             this.PrereqPage.Controls.Add(this.label1);
             this.PrereqPage.Controls.Add(this.label8);
             this.PrereqPage.Name = "PrereqPage";
-            this.PrereqPage.Size = new System.Drawing.Size(507, 247);
+            this.PrereqPage.Size = new System.Drawing.Size(507, 250);
             this.PrereqPage.TabIndex = 4;
             this.PrereqPage.Text = "Prerequisites";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(2, 227);
+            this.label1.Location = new System.Drawing.Point(2, 226);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(234, 15);
+            this.label1.Size = new System.Drawing.Size(230, 15);
             this.label1.TabIndex = 6;
-            this.label1.Text = "Click Next when you are ready to continue.";
+            this.label1.Text = "Click Next when you are ready to continue";
             // 
             // label8
             // 
@@ -147,24 +150,24 @@ namespace JRunner.Forms
             this.CpuKvPage.Controls.Add(this.DonorKv);
             this.CpuKvPage.Name = "CpuKvPage";
             this.CpuKvPage.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.CpuKvPage.Size = new System.Drawing.Size(507, 247);
+            this.CpuKvPage.Size = new System.Drawing.Size(507, 250);
             this.CpuKvPage.TabIndex = 1;
             this.CpuKvPage.Text = "CPU Key and Keyvault";
             // 
             // DonorKvText
             // 
             this.DonorKvText.AutoSize = true;
-            this.DonorKvText.Location = new System.Drawing.Point(0, 212);
+            this.DonorKvText.Location = new System.Drawing.Point(0, 213);
             this.DonorKvText.Name = "DonorKvText";
-            this.DonorKvText.Size = new System.Drawing.Size(311, 15);
+            this.DonorKvText.Size = new System.Drawing.Size(308, 15);
             this.DonorKvText.TabIndex = 1;
-            this.DonorKvText.Text = "If you don\'t have a keyvault to use, check Donor Keyvault.";
+            this.DonorKvText.Text = "If you don\'t have a keyvault to use, check Donor Keyvault";
             // 
             // RetailKvWarn
             // 
             this.RetailKvWarn.AutoSize = true;
             this.RetailKvWarn.ForeColor = System.Drawing.Color.Firebrick;
-            this.RetailKvWarn.Location = new System.Drawing.Point(207, 49);
+            this.RetailKvWarn.Location = new System.Drawing.Point(207, 48);
             this.RetailKvWarn.Name = "RetailKvWarn";
             this.RetailKvWarn.Size = new System.Drawing.Size(271, 15);
             this.RetailKvWarn.TabIndex = 4;
@@ -172,29 +175,18 @@ namespace JRunner.Forms
             // 
             // CpuKeyGroup
             // 
-            this.CpuKeyGroup.Controls.Add(this.GenerateKey);
             this.CpuKeyGroup.Controls.Add(this.label13);
             this.CpuKeyGroup.Controls.Add(this.CpuKeyBox);
             this.CpuKeyGroup.Location = new System.Drawing.Point(4, -5);
             this.CpuKeyGroup.Name = "CpuKeyGroup";
-            this.CpuKeyGroup.Size = new System.Drawing.Size(470, 46);
+            this.CpuKeyGroup.Size = new System.Drawing.Size(470, 45);
             this.CpuKeyGroup.TabIndex = 3;
             this.CpuKeyGroup.TabStop = false;
-            // 
-            // GenerateKey
-            // 
-            this.GenerateKey.Location = new System.Drawing.Point(396, 14);
-            this.GenerateKey.Name = "GenerateKey";
-            this.GenerateKey.Size = new System.Drawing.Size(68, 25);
-            this.GenerateKey.TabIndex = 3;
-            this.GenerateKey.Text = "Generate";
-            this.GenerateKey.UseVisualStyleBackColor = true;
-            this.GenerateKey.Click += new System.EventHandler(this.GenerateKey_Click);
             // 
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(6, 19);
+            this.label13.Location = new System.Drawing.Point(6, 18);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(55, 15);
             this.label13.TabIndex = 2;
@@ -203,11 +195,10 @@ namespace JRunner.Forms
             // CpuKeyBox
             // 
             this.CpuKeyBox.AllowDrop = true;
-            this.CpuKeyBox.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.CpuKeyBox.Location = new System.Drawing.Point(67, 15);
             this.CpuKeyBox.MaxLength = 32;
             this.CpuKeyBox.Name = "CpuKeyBox";
-            this.CpuKeyBox.Size = new System.Drawing.Size(323, 23);
+            this.CpuKeyBox.Size = new System.Drawing.Size(397, 23);
             this.CpuKeyBox.TabIndex = 0;
             this.CpuKeyBox.TextChanged += new System.EventHandler(this.CpuKeyBox_TextChanged);
             this.CpuKeyBox.DragDrop += new System.Windows.Forms.DragEventHandler(this.CpuKeyBox_DragDrop);
@@ -216,27 +207,27 @@ namespace JRunner.Forms
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(0, 227);
+            this.label3.Location = new System.Drawing.Point(0, 228);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(392, 15);
+            this.label3.Size = new System.Drawing.Size(390, 15);
             this.label3.TabIndex = 2;
-            this.label3.Text = "If your keyvault requires an FCRT, you will be prompted on the next page.";
+            this.label3.Text = "If your keyvault requires an FCRT, you will be prompted on the next page";
             // 
             // KvGroup
             // 
             this.KvGroup.Controls.Add(this.label2);
             this.KvGroup.Controls.Add(this.KvEllipse);
             this.KvGroup.Controls.Add(this.KvBox);
-            this.KvGroup.Location = new System.Drawing.Point(4, 65);
+            this.KvGroup.Location = new System.Drawing.Point(4, 64);
             this.KvGroup.Name = "KvGroup";
-            this.KvGroup.Size = new System.Drawing.Size(470, 46);
+            this.KvGroup.Size = new System.Drawing.Size(470, 45);
             this.KvGroup.TabIndex = 1;
             this.KvGroup.TabStop = false;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(37, 19);
+            this.label2.Location = new System.Drawing.Point(37, 18);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(24, 15);
             this.label2.TabIndex = 2;
@@ -266,7 +257,7 @@ namespace JRunner.Forms
             // DonorKv
             // 
             this.DonorKv.AutoSize = true;
-            this.DonorKv.Location = new System.Drawing.Point(4, 48);
+            this.DonorKv.Location = new System.Drawing.Point(4, 47);
             this.DonorKv.Name = "DonorKv";
             this.DonorKv.Size = new System.Drawing.Size(107, 19);
             this.DonorKv.TabIndex = 0;
@@ -285,7 +276,7 @@ namespace JRunner.Forms
             this.FcrtPage.Controls.Add(this.FcrtGroup);
             this.FcrtPage.Controls.Add(this.DonorFcrtText);
             this.FcrtPage.Name = "FcrtPage";
-            this.FcrtPage.Size = new System.Drawing.Size(507, 247);
+            this.FcrtPage.Size = new System.Drawing.Size(507, 250);
             this.FcrtPage.TabIndex = 2;
             this.FcrtPage.Text = "FCRT";
             // 
@@ -303,7 +294,7 @@ namespace JRunner.Forms
             this.RetailFcrtWarn.ForeColor = System.Drawing.Color.Firebrick;
             this.RetailFcrtWarn.Location = new System.Drawing.Point(225, 5);
             this.RetailFcrtWarn.Name = "RetailFcrtWarn";
-            this.RetailFcrtWarn.Size = new System.Drawing.Size(253, 15);
+            this.RetailFcrtWarn.Size = new System.Drawing.Size(255, 15);
             this.RetailFcrtWarn.TabIndex = 8;
             this.RetailFcrtWarn.Text = "Retail Nands require the FCRT to match the KV!";
             // 
@@ -325,15 +316,15 @@ namespace JRunner.Forms
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(476, 33);
             this.label7.TabIndex = 6;
-            this.label7.Text = "It is not possible for this tool to check your supplied FCRT for validity, please" +
-    " ensure you provide a valid decrypted FCRT.";
+            this.label7.Text = "It is not possible for this tool to check your supplied fcrt for validity, please" +
+    " ensure you provide a valid decrypted FCRT";
             // 
             // DonorFcrt
             // 
             this.DonorFcrt.AutoSize = true;
             this.DonorFcrt.Location = new System.Drawing.Point(4, 4);
             this.DonorFcrt.Name = "DonorFcrt";
-            this.DonorFcrt.Size = new System.Drawing.Size(88, 19);
+            this.DonorFcrt.Size = new System.Drawing.Size(90, 19);
             this.DonorFcrt.TabIndex = 3;
             this.DonorFcrt.Text = "Donor FCRT";
             this.DonorFcrt.UseVisualStyleBackColor = true;
@@ -353,9 +344,9 @@ namespace JRunner.Forms
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 19);
+            this.label4.Location = new System.Drawing.Point(6, 18);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(36, 15);
+            this.label4.Size = new System.Drawing.Size(38, 15);
             this.label4.TabIndex = 2;
             this.label4.Text = "FCRT:";
             // 
@@ -383,11 +374,11 @@ namespace JRunner.Forms
             // DonorFcrtText
             // 
             this.DonorFcrtText.AutoSize = true;
-            this.DonorFcrtText.Location = new System.Drawing.Point(2, 227);
+            this.DonorFcrtText.Location = new System.Drawing.Point(2, 228);
             this.DonorFcrtText.Name = "DonorFcrtText";
-            this.DonorFcrtText.Size = new System.Drawing.Size(281, 15);
+            this.DonorFcrtText.Size = new System.Drawing.Size(282, 15);
             this.DonorFcrtText.TabIndex = 5;
-            this.DonorFcrtText.Text = "If you don\'t have an FCRT to use, check Donor FCRT.";
+            this.DonorFcrtText.Text = "If you don\'t have an FCRT to use, check Donor FCRT";
             // 
             // LdvSmcConfPage
             // 
@@ -396,9 +387,9 @@ namespace JRunner.Forms
             this.LdvSmcConfPage.Controls.Add(this.label14);
             this.LdvSmcConfPage.Controls.Add(this.LdvGroup);
             this.LdvSmcConfPage.Name = "LdvSmcConfPage";
-            this.LdvSmcConfPage.Size = new System.Drawing.Size(507, 247);
+            this.LdvSmcConfPage.Size = new System.Drawing.Size(507, 250);
             this.LdvSmcConfPage.TabIndex = 5;
-            this.LdvSmcConfPage.Text = "Lockdown Value and SMC Config";
+            this.LdvSmcConfPage.Text = "Lock Down Value and SMC Config";
             // 
             // SmcConfigGroup
             // 
@@ -406,16 +397,16 @@ namespace JRunner.Forms
             this.SmcConfigGroup.Controls.Add(this.SmcConfigEllipse);
             this.SmcConfigGroup.Controls.Add(this.SmcConfigBox);
             this.SmcConfigGroup.Enabled = false;
-            this.SmcConfigGroup.Location = new System.Drawing.Point(4, 200);
+            this.SmcConfigGroup.Location = new System.Drawing.Point(4, 202);
             this.SmcConfigGroup.Name = "SmcConfigGroup";
-            this.SmcConfigGroup.Size = new System.Drawing.Size(470, 46);
+            this.SmcConfigGroup.Size = new System.Drawing.Size(470, 45);
             this.SmcConfigGroup.TabIndex = 7;
             this.SmcConfigGroup.TabStop = false;
             // 
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(6, 19);
+            this.label16.Location = new System.Drawing.Point(6, 18);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(74, 15);
             this.label16.TabIndex = 2;
@@ -447,7 +438,7 @@ namespace JRunner.Forms
             this.DonorSmcConfig.AutoSize = true;
             this.DonorSmcConfig.Checked = true;
             this.DonorSmcConfig.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.DonorSmcConfig.Location = new System.Drawing.Point(4, 184);
+            this.DonorSmcConfig.Location = new System.Drawing.Point(4, 185);
             this.DonorSmcConfig.Name = "DonorSmcConfig";
             this.DonorSmcConfig.Size = new System.Drawing.Size(126, 19);
             this.DonorSmcConfig.TabIndex = 6;
@@ -515,7 +506,7 @@ namespace JRunner.Forms
             this.FinishPage.Controls.Add(this.label6);
             this.FinishPage.IsFinishPage = true;
             this.FinishPage.Name = "FinishPage";
-            this.FinishPage.Size = new System.Drawing.Size(507, 247);
+            this.FinishPage.Size = new System.Drawing.Size(507, 250);
             this.FinishPage.TabIndex = 3;
             this.FinishPage.Text = "All Set?";
             // 
@@ -524,7 +515,7 @@ namespace JRunner.Forms
             this.RevLdv.Location = new System.Drawing.Point(70, 183);
             this.RevLdv.Name = "RevLdv";
             this.RevLdv.ReadOnly = true;
-            this.RevLdv.Size = new System.Drawing.Size(96, 23);
+            this.RevLdv.Size = new System.Drawing.Size(80, 23);
             this.RevLdv.TabIndex = 10;
             // 
             // label15
@@ -541,7 +532,7 @@ namespace JRunner.Forms
             this.RevKernel.Location = new System.Drawing.Point(70, 154);
             this.RevKernel.Name = "RevKernel";
             this.RevKernel.ReadOnly = true;
-            this.RevKernel.Size = new System.Drawing.Size(96, 23);
+            this.RevKernel.Size = new System.Drawing.Size(80, 23);
             this.RevKernel.TabIndex = 8;
             // 
             // label12
@@ -558,7 +549,7 @@ namespace JRunner.Forms
             this.RevSmc.Location = new System.Drawing.Point(70, 125);
             this.RevSmc.Name = "RevSmc";
             this.RevSmc.ReadOnly = true;
-            this.RevSmc.Size = new System.Drawing.Size(96, 23);
+            this.RevSmc.Size = new System.Drawing.Size(80, 23);
             this.RevSmc.TabIndex = 6;
             // 
             // label11
@@ -575,7 +566,7 @@ namespace JRunner.Forms
             this.RevHack.Location = new System.Drawing.Point(70, 96);
             this.RevHack.Name = "RevHack";
             this.RevHack.ReadOnly = true;
-            this.RevHack.Size = new System.Drawing.Size(96, 23);
+            this.RevHack.Size = new System.Drawing.Size(80, 23);
             this.RevHack.TabIndex = 4;
             // 
             // label10
@@ -583,7 +574,7 @@ namespace JRunner.Forms
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(2, 99);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(67, 15);
+            this.label10.Size = new System.Drawing.Size(69, 15);
             this.label10.TabIndex = 3;
             this.label10.Text = "Hack Type: ";
             // 
@@ -592,7 +583,7 @@ namespace JRunner.Forms
             this.RevConsole.Location = new System.Drawing.Point(70, 67);
             this.RevConsole.Name = "RevConsole";
             this.RevConsole.ReadOnly = true;
-            this.RevConsole.Size = new System.Drawing.Size(96, 23);
+            this.RevConsole.Size = new System.Drawing.Size(80, 23);
             this.RevConsole.TabIndex = 2;
             // 
             // label9
@@ -611,7 +602,7 @@ namespace JRunner.Forms
             this.label6.Size = new System.Drawing.Size(476, 33);
             this.label6.TabIndex = 0;
             this.label6.Text = "The wizard is ready to create your Donor Nand. Please review the information belo" +
-    "w to ensure everything is correct, then click Finish to build the image.";
+    "w to ensure everything is correct, then click Finish to build the image";
             // 
             // CreateDonorNand
             // 
@@ -626,6 +617,7 @@ namespace JRunner.Forms
             this.Name = "CreateDonorNand";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Create Donor Nand";
+            this.TopMost = true;
             ((System.ComponentModel.ISupportInitialize)(this.DonorWizard)).EndInit();
             this.PrereqPage.ResumeLayout(false);
             this.PrereqPage.PerformLayout();
@@ -704,6 +696,5 @@ namespace JRunner.Forms
         private System.Windows.Forms.Button SmcConfigEllipse;
         private System.Windows.Forms.TextBox SmcConfigBox;
         private System.Windows.Forms.CheckBox DonorSmcConfig;
-        private System.Windows.Forms.Button GenerateKey;
     }
 }

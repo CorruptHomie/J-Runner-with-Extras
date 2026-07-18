@@ -8,19 +8,15 @@ namespace JRunner.Forms
     public partial class About : Form
     {
         static string[] contrib = { "15432: RGH3 Exploit",
-                                    "Balika011: PicoFlasher Support",
-                                    "Cheez: DirtyPico Support",
+                                    "Balika011: PicoFlasher support",
                                     "DaCukiMonsta: Nand Info Improvements/Bugfixes",
-                                    "DrSchottky, Visual Studio, proferabg: RGH2 to 3",
-                                    "Eaton: XL USB and XL HDD Patches",
+                                    "DrSchottky, Visual Studio: RGH2 to 3",
                                     "Element18592: xFlasher Hardware",
-                                    "Harley David-San:\n64MB DevGL Support, Bugfixes,\nQoL",
                                     "Josh/Octal450: J-Runner with Extras \nMain Development",
                                     "Mena:\nGeneral Dev, xFlasher Speedup,\nMatrix Hex Flashing, CPU Key Gen",
                                     "Nick Stefanou: Original J-Runner \nDevelopment and Software",
                                     "Orpheus: Updates to KV Info/Bugfixes",
                                     "SGCSam: 6717/9199 XeBuild Patches",
-                                    "Wurthless-elektroniks: Hacked 7378 CB_B for Elpis+Samsung",
                                     "Xvistaman2005: XDKbuild",
         };
         static int contribloc = 0;
@@ -45,7 +41,7 @@ namespace JRunner.Forms
 
         private void About_Load(object sender, EventArgs e)
         {
-            ver.Text = "V" + variables.version;
+            ver.Text = "v" + variables.version;
             build.Text = variables.build;
             lblCredits.Text = "";
             contribloc = 0;
@@ -55,12 +51,6 @@ namespace JRunner.Forms
             timer1.Interval = 25;
             timer2.Interval = 25;
             timer1.Start();
-        }
-
-        private void close_Click(object sender, EventArgs e)
-        {
-            MainForm.mainForm.killShade();
-            this.Close();
         }
 
         private void timer1_Tick(object sender, EventArgs e)

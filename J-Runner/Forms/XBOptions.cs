@@ -9,8 +9,8 @@ namespace JRunner
 {
     public partial class XBOptions : Form
     {
-        string filename = Path.Combine(variables.rootfolder, @"xebuild\options_edited.ini");
-        string file = Path.Combine(variables.rootfolder, @"xebuild\options.ini");
+        string filename = Path.Combine(variables.pathforit, @"xebuild\options_edited.ini");
+        string file = Path.Combine(variables.pathforit, @"xebuild\options.ini");
         string[] delete = { };
 
         public XBOptions()
@@ -41,7 +41,7 @@ namespace JRunner
                 {
                     foreach (CheckBox col in c)
                     {
-                        if (option.Substring(0, option.IndexOf('=')) == (string)col.Tag)
+                        if (option.Substring(0, option.IndexOf('=')) == (col.Text))
                         {
                             if (option.Contains("true")) col.Checked = true;
                             else if (option.Contains("false")) col.Checked = false;
@@ -130,6 +130,22 @@ namespace JRunner
                                     rbtnBlank2.Checked = true;
                                 }
                             }
+                            else if (option.Substring(0, option.IndexOf('=')) == "cpufan")
+                            {
+                                try
+                                {
+                                    trackBar1.Value = Convert.ToInt32(option.Substring(option.IndexOf("=") + 1));
+                                }
+                                catch (Exception) { }
+                            }
+                            else if (option.Substring(0, option.IndexOf('=')) == "gpufan")
+                            {
+                                try
+                                {
+                                    trackBar2.Value = Convert.ToInt32(option.Substring(option.IndexOf("=") + 1));
+                                }
+                                catch (Exception) { }
+                            }
                         }
                     }
                 }
@@ -138,7 +154,7 @@ namespace JRunner
 
         private void btnaccept_Click(object sender, EventArgs e)
         {
-            if (!chkResetSettings.Checked)
+            if (!chksettings.Checked)
             {
                 List<string> options = new List<string>();
 
@@ -152,26 +168,23 @@ namespace JRunner
                 c.Reverse();
                 foreach (CheckBox col in c)
                 {
-                    if (col != chkResetSettings)
+                    if (col != chksettings)
                     {
                         if (col != null)
                             if (col.Checked)
-                                options.Add(col.Tag + " = true");
+                                options.Add(col.Text + " = true");
                             else
-                                options.Add(col.Tag + " = false");
+                                options.Add(col.Text + " = false");
                     }
                 }
                 File.Copy(file, filename, true);
                 parse_ini.edit_ini(filename, options.ToArray(), delete);
-                Console.WriteLine("Advanced XeBuild Options Applied");
-                MainForm.mainForm.xPanel.setXeSettingsChecked(true);
             }
             else
             {
                 File.Copy(file, filename, true);
-                Console.WriteLine("Advanced XeBuild Options Reset");
-                MainForm.mainForm.xPanel.setXeSettingsChecked(false);
             }
+            Console.WriteLine("Options.ini saved successfully");
             this.Close();
         }
 
@@ -196,8 +209,7 @@ namespace JRunner
         };
 
 
-        #region UI
-
+        #region shit
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
             xellbutton.Text = buttons.power.ToString();
@@ -287,22 +299,18 @@ namespace JRunner
         {
             xellbutton2.Text = "";
         }
-
-        private void noremap_CheckedChanged(object sender, EventArgs e)
-        {
-            noecdremap.Enabled = noremap.Checked;
-        }
-
-        private void olddvd_CheckedChanged(object sender, EventArgs e)
-        {
-            if (olddvd.Checked && nodvd.Checked) nodvd.Checked = false;
-        }
-
-        private void nodvd_CheckedChanged(object sender, EventArgs e)
-        {
-            if (nodvd.Checked && olddvd.Checked) olddvd.Checked = false;
-        }
-
         #endregion
+
+        private void trackBar1_ValueChanged(object sender, EventArgs e)
+        {
+            cpufan.Text = trackBar1.Value.ToString();
+        }
+
+        private void trackBar2_ValueChanged(object sender, EventArgs e)
+        {
+            gpufan.Text = trackBar2.Value.ToString();
+        }
+
+
     }
 }

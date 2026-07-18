@@ -1,176 +1,187 @@
 ﻿using Ionic.Zip;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
-using System.Net.Http;
-using Newtonsoft.Json.Linq;
+using System.Xml;
 
 namespace JRunner
 {
     public static class Upd
     {
-        public static int checkStatus = 0; // Default success
+        public static bool checkSuccess = true; // Default true
         public static bool upToDate = true; // Default true
         public static string failedReason = "Unknown";
-        public static string changelog = "Could not retrieve changelog for some reason!"; // Overwritten if successful
-
-        private static string fullUrl;
-        private static string expectedFullDigest = "";
-
-        private static int serverVersion = 0;
-        private static int serverRelease = 0;
-        private static int serverModpack = 0;
-        private static int serverFixpack = 0;
-
-        public static bool deleteFolders = false;
-        public static bool noUpdateChk = false;
-        public static bool runFullUpdate = false;
-
-        private static WebClient wc = null;
-        private static UpdUI updUI = null;
-        private static HttpClient jsonclient = null;
+        static string expectedMd5;
+        static WebClient wc = null;
+        static UpdateDownload updateDownload = null;
 
         public static void check()
         {
-            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; // Enable TLS1.2 to connect to GitHub
+            if (variables.version.Contains("Pre-Release"))
+            {
+                Application.Run(new MainForm());
+                return;
+            }
 
+            UpdateCheck updateCheck = new UpdateCheck();
+            updateCheck.Show();
+
+            string tagName = null;
+            string updateUrl = null;
+            string changelog = null;
+
+            JsonTextReader reader = null;
             try
             {
-                jsonclient = new HttpClient();
-                jsonclient.DefaultRequestHeaders.Add("User-Agent", "J-Runner-With-Extras/" + variables.staticversion);
-
-                string jsondatastring = jsonclient.GetStringAsync("https://api.github.com/repos/J-Runner-With-Extras/J-Runner-with-Extras/releases/latest").Result;
-                JObject releaseData = JObject.Parse(jsondatastring);
-
-                changelog = releaseData["body"].ToString();
-
-                foreach (JObject j in releaseData["assets"])
+                using (WebClient client = new WebClient())
                 {
-                    string assetName = j["name"].ToString();
+                    client.Headers.Add("User-Agent", "J-Runner");
+                    client.Headers.Add("Accept", "application/vnd.github.v3+json");
+                    reader = new JsonTextReader(new StringReader(client.DownloadString("https://api.github.com/repos/X360Tools/J-Runner-Pro/releases")));
 
-                    if (assetName == "J-Runner-with-Extras.zip" ||
-                        assetName == "J-Runner.with.Extras.zip")
+                    string name = "";
+                    int deep = 0;
+                    bool isAssets = false;
+                    int assetsDeep = 0;
+                    string assetName = "";
+                    string assetUrl = "";
+                    bool prerelease = false;
+                    while (reader.Read())
                     {
-                        fullUrl = j["browser_download_url"].ToString();
-                        expectedFullDigest = j["digest"].ToString();
+                        if (reader.TokenType == JsonToken.StartObject)
+                        {
+                            deep++;
+                        }
+                        else if (reader.TokenType == JsonToken.EndObject)
+                        {
+                            deep--;
+
+                            if (deep == 0)
+                            {
+                                if (prerelease)
+                                {
+                                    tagName = null;
+                                    updateUrl = null;
+                                    changelog = null;
+                                }
+                                else
+                                    break;
+                            }
+
+                            if (isAssets && assetsDeep == deep)
+                            {
+                                if (assetName == "J-Runner.Pro.zip")
+                                {
+                                    updateUrl = assetUrl;
+                                }
+                            }
+                        }
+                        else if (reader.TokenType == JsonToken.StartArray)
+                        {
+                            if (name == "assets")
+                            {
+                                isAssets = true;
+                                assetsDeep = deep;
+                            }
+                        }
+                        else if (reader.TokenType == JsonToken.EndArray)
+                        {
+                            if (isAssets && assetsDeep == deep)
+                            {
+                                isAssets = false;
+                            }
+                        }
+                        else if (reader.TokenType == JsonToken.PropertyName)
+                        {
+                            name = (string)reader.Value;
+                            continue;
+                        }
+                        else
+                        {
+                            if (!isAssets)
+                            {
+                                if (name == "tag_name")
+                                    tagName = (string)reader.Value;
+                                else if (name == "body")
+                                    changelog = (string)reader.Value;
+                                else if (name == "prerelease")
+                                    prerelease = (bool)reader.Value;
+                            }
+                            else
+                            {
+                                if (name == "name")
+                                    assetName = (string)reader.Value;
+                                else if (name == "browser_download_url")
+                                    assetUrl = (string)reader.Value;
+                            }
+
+                            name = "";
+                        }
                     }
-                }
-
-                // Parse the version string woohoo
-                string[] releaseTagStringArr = releaseData["tag_name"].ToString().Split('.');
-
-                if (releaseTagStringArr.Length == 3)
-                {
-                    // Tag is in format V3.4.0-r3 or V3.4.0
-                    serverVersion = int.Parse(releaseTagStringArr[0].Substring(1));
-                    serverRelease = int.Parse(releaseTagStringArr[1]);
-
-                    string[] mfStringArr = releaseTagStringArr[2].Split('-');
-
-                    serverModpack = int.Parse(mfStringArr[0]);
-
-                    if (mfStringArr.Length > 1)
-                    {
-                        serverFixpack = int.Parse(mfStringArr[1].Substring(1));
-                    }
-                }
-                else if (releaseTagStringArr.Length == 4)
-                {
-                    // Tag is in format 3.4.0.3
-                    serverVersion = int.Parse(releaseTagStringArr[0]);
-                    serverRelease = int.Parse(releaseTagStringArr[1]);
-                    serverModpack = int.Parse(releaseTagStringArr[2]);
-                    serverFixpack = int.Parse(releaseTagStringArr[3]);
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                if (ex.Message.Contains("SSL/TLS")) checkStatus = 2;
-                else checkStatus = 1;
+                Upd.checkSuccess = false; // Defaults true
+            }
+            finally
+            {
+                if (reader != null)
+                {
+                    reader.Close();
+                }
             }
 
             Thread.Sleep(100);
-            MainForm.mainForm.splash.BeginInvoke(new Action(() =>
-            {
-                MainForm.mainForm.splash.Hide();
-            }));
-            updUI = new UpdUI();
+            updateCheck.Dispose();
 
-            if (checkStatus == 0)
+            if (tagName == null || updateUrl == null || changelog == null)
+                Upd.checkSuccess = false;
+
+            if (Upd.checkSuccess)
             {
-                if (runFullUpdate)
+                if (variables.version == tagName) // Up to Date
                 {
-                    startFull();
-                }
-                else if ( variables.jrVersion >= serverVersion &&
-                          variables.jrRelease >= serverRelease &&
-                          variables.jrModpack >= serverModpack &&
-                          variables.jrFixpack >= serverFixpack ) // Up to Date
-                {
-                    upToDate = true;
-                    MainForm.mainForm.startMainForm(true);
+                    Upd.upToDate = true;
+                    Application.Run(new MainForm());
                 }
                 else
                 {
-                    upToDate = false;
+                    Upd.upToDate = false;
 
-                    MainForm.mainForm.splash.BeginInvoke(new Action(() =>
+                    if (MessageBox.Show("Updates are available for J-Runner Pro\n\n" + changelog + "\n\nWould you like to download and install the update?", "J-Runner Pro", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.No)
                     {
-                        UpdChangelog updChg = new UpdChangelog();
-                        updChg.Show();
-                        updChg.showChangelog(changelog);
-                    }));
+                        // Do nothing and launch as normal
+                        Application.Run(new MainForm());
+                    }
+                    else // Full
+                    {
+                        updateDownload = new UpdateDownload();
+
+                        Thread updateFull = new Thread(() =>
+                        {
+                            if (File.Exists(@"full.zip"))
+                                File.Delete(@"full.zip");
+
+                            wc = new WebClient();
+                            wc.DownloadProgressChanged += updateDownload.updateProgress;
+                            wc.DownloadFileCompleted += full;
+                            wc.DownloadFileAsync(new System.Uri(updateUrl), "full.zip");
+                        });
+                        updateFull.Start();
+                        Application.Run(updateDownload);
+                    }
                 }
             }
             else
             {
-                if (runFullUpdate)
-                {
-                    if (checkStatus == 2) failedReason = "Could not connect to the update server because TLS1.2 is not enabled.";
-                    else failedReason = "Could not connect to the update server.";
-                    showUpdUI(1);
-                }
-                else
-                {
-                    MainForm.mainForm.startMainForm(true);
-                }
+                Application.Run(new MainForm());
             }
-        }
-
-        public static void startFull()
-        {
-            Thread updateFull = new Thread(() =>
-            {
-                if (File.Exists(@"full.zip")) File.Delete(@"full.zip");
-
-                if (deleteFolders)
-                {
-                    Thread.Sleep(500); // Make sure all files are released
-
-                    try
-                    {
-                        if (Directory.Exists("common")) Directory.Delete("common", true);
-                        if (Directory.Exists("xeBuild")) Directory.Delete("xeBuild", true);
-                    }
-                    catch
-                    {
-                        failedReason = "Failed to cleanup the filesystem.";
-                        setUpdUIPage(1);
-                    }
-                }
-
-                wc = new WebClient();
-                wc.DownloadProgressChanged += updUI.updateProgress;
-                wc.DownloadFileCompleted += full;
-                wc.DownloadFileAsync(new Uri(fullUrl), "full.zip");
-            });
-            showUpdUI();
-            updateFull.Start();
         }
 
         private static void full(object sender, AsyncCompletedEventArgs e)
@@ -183,56 +194,58 @@ namespace JRunner
             }
             else if (e.Error != null)
             {
-                if (File.Exists(@"full.zip")) File.Delete(@"full.zip");
-                if (e.Error.ToString().Contains("SSL/TLS")) failedReason = "Could not connect to the update server because TLS1.2 is not enabled.";
-                else failedReason = "Failed to download the package.";
-                setUpdUIPage(1);
+                if (File.Exists(@"full.zip"))
+                    File.Delete(@"full.zip");
+                updateDownload.BeginInvoke(new Action(() => updateDownload.Dispose()));
+                failedReason = "Failed to download the package";
+                Application.Run(new UpdateFailed());
             }
             else
             {
+                var headers = (sender as WebClient)?.ResponseHeaders;
+
+                expectedMd5 = simpleByteArrayToString(Convert.FromBase64String(headers["Content-MD5"]));
+
                 install();
             }
         }
 
         private static void install()
         {
-            string filename = @"full.zip";
-
             try
             {
-                setUpdUiInstallMode();
+                updateDownload.BeginInvoke(new Action(() => updateDownload.installMode()));
 
-                if (true != simpleCheckDigest(filename, expectedFullDigest))
+                if (simpleCheckMD5(@"full.zip") != expectedMd5)
                 {
-                    if (File.Exists(filename)) File.Delete(filename);
-                    failedReason = "Package checksum is invalid.";
-                    setUpdUIPage(1);
+                    if (File.Exists(@"full.zip"))
+                        File.Delete(@"full.zip");
+                    updateDownload.BeginInvoke(new Action(() => updateDownload.Dispose()));
+                    failedReason = "Package checksum is invalid";
+                    Application.Run(new UpdateFailed());
                     return;
                 }
 
-                // Install Package
-                File.Move(AppDomain.CurrentDomain.FriendlyName, @"JRunner.exe.old");
+                File.Move(@"JRunner.exe", @"JRunner.exe.old");
 
-                using (ZipFile zip = ZipFile.Read(filename))
+                // Unzip
+                using (ZipFile zip = ZipFile.Read(@"full.zip"))
                 {
                     zip.ExtractAll(Environment.CurrentDirectory, ExtractExistingFileAction.OverwriteSilently);
                 }
-                File.Delete(filename);
-
-                if (AppDomain.CurrentDomain.FriendlyName != "JRunner.exe")
-                {
-                    if (File.Exists("JRunner.exe")) File.Move("JRunner.exe", AppDomain.CurrentDomain.FriendlyName);
-                }
-
-                setUpdUIPage(0);
+                File.Delete(@"full.zip");
             }
-            catch (Exception ex)
+            catch
             {
-                if (File.Exists(filename)) File.Delete(filename);
-                File.AppendAllText("Error.log", ex.ToString() + Environment.NewLine);
-                failedReason = "Failed to extract and install the package.";
-                setUpdUIPage(1);
+                if (File.Exists(@"full.zip"))
+                    File.Delete(@"full.zip");
+                updateDownload.BeginInvoke(new Action(() => updateDownload.Dispose()));
+                failedReason = "Failed to extract and install the package";
+                Application.Run(new UpdateFailed());
             }
+
+            updateDownload.BeginInvoke(new Action(() => updateDownload.Dispose()));
+            Application.Run(new UpdateSuccess());
         }
 
         private static string simpleByteArrayToString(byte[] ba)
@@ -240,110 +253,28 @@ namespace JRunner
             return BitConverter.ToString(ba).Replace("-", "");
         }
 
-        private static bool simpleCheckDigest(string filename, string expectedDigest)
+        private static string simpleCheckMD5(string filename)
         {
-            // Expected digest is in the format <algorithm>:<digest>
-            string[] expectedDigestArr = expectedDigest.Split(':');
-
-            if (expectedDigestArr[0].ToString() != "sha256")
-            {
-                return false;
-            }
-
-            using (var sha256 = SHA256.Create())
+            using (var md5 = MD5.Create())
             {
                 using (var stream = File.OpenRead(filename))
                 {
-                    string shastr;
-                    shastr = simpleByteArrayToString(sha256.ComputeHash(stream));
+                    string md5str;
+                    md5str = simpleByteArrayToString(md5.ComputeHash(stream));
                     stream.Dispose();
-
-                    if (shastr.ToLower() == expectedDigestArr[1].ToLower())
-                    {
-                        return true;
-                    }
+                    return md5str;
                 }
             }
-
-            return false;
         }
 
         public static void cancel()
         {
-            try
-            {
-                wc.CancelAsync();
-            }
-            catch { }
-
+            wc.CancelAsync();
             Thread.Sleep(100);
-
-            try
-            {
-                if (File.Exists(@"full.zip")) File.Delete(@"full.zip");
-            }
-            catch { }
-
+            if (File.Exists(@"full.zip"))
+                File.Delete(@"full.zip");
             Application.ExitThread();
             Application.Exit();
-        }
-
-        public static void restoreFiles()
-        {
-            Thread worker = new Thread(() =>
-            {
-                try
-                {
-                    ProcessStartInfo jr = new ProcessStartInfo();
-                    jr.FileName = "JRunner.exe";
-                    jr.Arguments = "/restorefiles";
-                    jr.UseShellExecute = true;
-
-                    Process.Start(jr);
-                    Environment.Exit(0);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Could not restore files due to the following error:");
-                    Console.WriteLine(ex.ToString());
-                }
-            });
-            worker.Start();
-        }
-
-        private static void showUpdUI(int type = 0)
-        {
-            MainForm.mainForm.splash.BeginInvoke(new Action(() =>
-            {
-                updUI.Show();
-                if (type == 1) updUI.showFailed();
-                MainForm.mainForm.splash.Dispose();
-            }));
-        }
-
-        private static void setUpdUiInstallMode()
-        {
-            updUI.BeginInvoke(new Action(() =>
-            {
-                updUI.installMode();
-            }));
-        }
-
-        private static void setUpdUIPage(int type)
-        {
-            updUI.BeginInvoke(new Action(() =>
-            {
-                try
-                {
-                    if (type == 0) updUI.showSuccess();
-                    else if (type == 1) updUI.showFailed();
-                }
-                catch
-                {
-                    MessageBox.Show("A critical error has occurred!\n\nUpdate UI operation out of sequence\n\nPlease report this to the developers", "Something happened!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    cancel();
-                }
-            }));
         }
     }
 }

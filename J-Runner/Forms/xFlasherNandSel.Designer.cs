@@ -42,7 +42,7 @@ namespace JRunner.Forms
             // 
             // btn16
             // 
-            this.btn16.Location = new System.Drawing.Point(6, 16);
+            this.btn16.Location = new System.Drawing.Point(6, 19);
             this.btn16.Name = "btn16";
             this.btn16.Size = new System.Drawing.Size(75, 23);
             this.btn16.TabIndex = 0;
@@ -52,7 +52,7 @@ namespace JRunner.Forms
             // 
             // btn64
             // 
-            this.btn64.Location = new System.Drawing.Point(6, 16);
+            this.btn64.Location = new System.Drawing.Point(6, 19);
             this.btn64.Name = "btn64";
             this.btn64.Size = new System.Drawing.Size(110, 23);
             this.btn64.TabIndex = 1;
@@ -63,9 +63,9 @@ namespace JRunner.Forms
             // SmallBlockGroup
             // 
             this.SmallBlockGroup.Controls.Add(this.btn16);
-            this.SmallBlockGroup.Location = new System.Drawing.Point(13, 11);
+            this.SmallBlockGroup.Location = new System.Drawing.Point(13, 12);
             this.SmallBlockGroup.Name = "SmallBlockGroup";
-            this.SmallBlockGroup.Size = new System.Drawing.Size(87, 46);
+            this.SmallBlockGroup.Size = new System.Drawing.Size(87, 50);
             this.SmallBlockGroup.TabIndex = 2;
             this.SmallBlockGroup.TabStop = false;
             this.SmallBlockGroup.Text = "Small Block";
@@ -75,16 +75,16 @@ namespace JRunner.Forms
             this.BigBlockGroup.Controls.Add(this.btn512);
             this.BigBlockGroup.Controls.Add(this.btn256);
             this.BigBlockGroup.Controls.Add(this.btn64);
-            this.BigBlockGroup.Location = new System.Drawing.Point(106, 11);
+            this.BigBlockGroup.Location = new System.Drawing.Point(106, 12);
             this.BigBlockGroup.Name = "BigBlockGroup";
-            this.BigBlockGroup.Size = new System.Drawing.Size(284, 46);
+            this.BigBlockGroup.Size = new System.Drawing.Size(285, 50);
             this.BigBlockGroup.TabIndex = 3;
             this.BigBlockGroup.TabStop = false;
-            this.BigBlockGroup.Text = "Big Block - Only 64MB Needed";
+            this.BigBlockGroup.Text = "Big Block - Use 64MB Unless Full Dump Needed";
             // 
             // btn512
             // 
-            this.btn512.Location = new System.Drawing.Point(203, 16);
+            this.btn512.Location = new System.Drawing.Point(203, 19);
             this.btn512.Name = "btn512";
             this.btn512.Size = new System.Drawing.Size(75, 23);
             this.btn512.TabIndex = 3;
@@ -94,7 +94,7 @@ namespace JRunner.Forms
             // 
             // btn256
             // 
-            this.btn256.Location = new System.Drawing.Point(122, 16);
+            this.btn256.Location = new System.Drawing.Point(122, 19);
             this.btn256.Name = "btn256";
             this.btn256.Size = new System.Drawing.Size(75, 23);
             this.btn256.TabIndex = 2;
@@ -106,7 +106,7 @@ namespace JRunner.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(403, 69);
+            this.ClientSize = new System.Drawing.Size(404, 73);
             this.Controls.Add(this.BigBlockGroup);
             this.Controls.Add(this.SmallBlockGroup);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -114,7 +114,7 @@ namespace JRunner.Forms
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "xFlasherNandSel";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "xFlasher: Select Nand Size";
             this.SmallBlockGroup.ResumeLayout(false);
             this.BigBlockGroup.ResumeLayout(false);

@@ -290,11 +290,6 @@ namespace CommPort
                 //return true
                 return true;
             }
-            catch (UnauthorizedAccessException)
-            {
-                MessageBox.Show("COM port could not be opened\n\nAnother application is currently using the selected port", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
             catch (Exception ex)
             {
                 DisplayData(MessageType.Error, ex.Message);
@@ -347,7 +342,6 @@ namespace CommPort
         {
             foreach (string str in Enum.GetNames(typeof(StopBits)))
             {
-                if (str == "None") continue;
                 ((ComboBox)obj).Items.Add(str);
             }
         }
@@ -356,7 +350,6 @@ namespace CommPort
         {
             foreach (string str in Enum.GetNames(typeof(StopBits)))
             {
-                if (str == "None") continue;
                 obj.Add(str);
             }
         }
@@ -390,13 +383,13 @@ namespace CommPort
                     using (RegistryKey currentSubKey = currentKey.OpenSubKey(startKeyPath))
                     {
                         string[] currentSubkeys = currentSubKey.GetSubKeyNames();
-                        if (new List<string>(currentSubkeys).Contains("Device Parameters") &&
+                        if (new List<String>(currentSubkeys).Contains("Device Parameters") &&
                             startKeyPath != "SYSTEM\\CurrentControlSet\\Enum")
                         {
                             object portName = Registry.GetValue("HKEY_LOCAL_MACHINE\\" +
                                 startKeyPath + "\\Device Parameters", "PortName", null);
                             if (portName == null ||
-                                new List<string>(portsToMap).Contains(portName.ToString()) == false)
+                                new List<String>(portsToMap).Contains(portName.ToString()) == false)
                                 return;
                             object friendlyPortName = Registry.GetValue("HKEY_LOCAL_MACHINE\\" +
                                 startKeyPath, "FriendlyName", null);

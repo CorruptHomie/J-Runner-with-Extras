@@ -1,6 +1,6 @@
 ﻿namespace JRunner.Forms
 {
-    partial class DemoN_Uart
+    partial class demon_uart
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DemoN_Uart));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(demon_uart));
             this.txtConsole = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 

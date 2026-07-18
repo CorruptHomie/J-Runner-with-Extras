@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using RenameRegistryKey;
 using System;
 using System.Collections.Generic;
@@ -9,6 +8,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+using MessageBox = System.Windows.Forms.MessageBox;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 
@@ -42,9 +42,6 @@ namespace JRunner
                 this.Invoke(new EventHandler(cpukeydb_Load), new object[] { sender, e });
                 return;
             }
-
-            rbtnSerial.Checked = variables.cpuKeyDbSerial;
-
             DataTable cputable = dataSet1.DataTable1;
             RegistryKey cpukeydb = Registry.CurrentUser.CreateSubKey("CPUKey_DB", RegistryKeyPermissionCheck.ReadWriteSubTree);
             foreach (string valueName in cpukeydb.GetValueNames())
@@ -52,6 +49,7 @@ namespace JRunner
                 if (valueName == "Index")
                 {
                     index = Convert.ToInt32(cpukeydb.GetValue(valueName));
+                    lblNumber.Text = index.ToString();
                     for (int i = 1; i <= index; i++)
                     {
                         try
@@ -63,7 +61,9 @@ namespace JRunner
                                 index = index - 1;
                                 cpukeys.SetValue("Index", i); ;
                                 cpukeydb.SetValue("Index", index);
+                                lblNumber.Text = index.ToString();
                                 cpukeys.DeleteValue("Deleted");
+                                //continue;
                             }
                             DataRow cpurow = cputable.NewRow();
                             cpurow[0] = Convert.ToInt32(cpukeys.GetValue("Index"));
@@ -78,25 +78,25 @@ namespace JRunner
                         }
                         catch (SystemException ex)
                         {
-                            if (variables.debugMode) Console.WriteLine(ex.ToString());
+                            if (variables.debugme) Console.WriteLine(ex.ToString());
                             continue;
                         }
                         catch (Exception ex)
                         {
-                            if (variables.debugMode) Console.WriteLine(ex.ToString());
+                            if (variables.debugme) Console.WriteLine(ex.ToString());
                             continue;
                         }
-                        lblNumber.Text = cputable.Rows.Count.ToString();
                     }
                 }
             }
         }
 
-        public static bool addkey_s(regentries entry, DataSet1 db, bool stealth = false, bool updDialog = false)
-        {
-            if (string.IsNullOrEmpty(entry.kvcrc)) return false;
 
-            DataTable cputable = db.DataTable1;
+        public static bool addkey_s(regentries entry, DataSet1 hi)
+        {
+            if (String.IsNullOrEmpty(entry.kvcrc)) return false;
+
+            DataTable cputable = hi.DataTable1;
             RegistryKey cpukeydb = Registry.CurrentUser.CreateSubKey("CPUKey_DB");
             foreach (string subkey in cpukeydb.GetSubKeyNames())
             {
@@ -104,15 +104,14 @@ namespace JRunner
                 {
                     if (cpukeydb.OpenSubKey(subkey).GetValue("CRC_KV").ToString() == entry.kvcrc || cpukeydb.OpenSubKey(subkey).GetValue("Serial").ToString() == entry.serial)
                     {
-                        if (!stealth) Console.WriteLine("Key already exists");
+                        Console.WriteLine("Key already Exists");
                         return false;
                     }
                 }
             }
+            if (!String.IsNullOrEmpty(variables.custname)) entry.extra = variables.custname;
 
             int index = Convert.ToInt32(cpukeydb.GetValue("Index")) + 1;
-            if (updDialog) MainForm.mainForm.cpukeydb.index = index; // Update nonstatically if the dialog calls it, dirty but I don't have time to rewrite this dialog
-
             cpukeydb.SetValue("Index", index);
             RegistryKey cpukeys = cpukeydb.CreateSubKey(index.ToString());
             cpukeys.SetValue("Index", index);
@@ -141,7 +140,7 @@ namespace JRunner
 
             }
             catch (System.Data.ConstraintException) { }
-            if (!stealth) Console.WriteLine("Added Key to Database");
+            Console.WriteLine("Added Key to Database");
             return true;
         }
         public static string getkey_s(long kvcrc, DataSet1 hi)
@@ -184,21 +183,21 @@ namespace JRunner
         /// <param name="indexrow"></param>
         public void deletekey(int indexrow)
         {
-            if (variables.debugMode) Console.WriteLine("Deleting Key");
-            --index;
+            if (variables.debugme) Console.WriteLine("Deleting Key");
+            lblNumber.Text = (--index).ToString();
             DataTable cputable = dataSet1.DataTable1;
             RegistryKey cpukeydb = Registry.CurrentUser.CreateSubKey("CPUKey_DB");
-            if (variables.debugMode) Console.WriteLine("Index Row {0} | Index {1}", indexrow, index);
+            if (variables.debugme) Console.WriteLine("Index Row {0} | Index {1}", indexrow, index);
             if (indexrow == index)
             {
-                if (variables.debugMode) Console.WriteLine("Last one");
+                if (variables.debugme) Console.WriteLine("Last one");
                 cpukeydb.SetValue("Index", index);
                 cpukeydb.DeleteSubKeyTree(cputable.Rows[indexrow][0].ToString());
-                if (variables.debugMode) Console.WriteLine("Done");
+                if (variables.debugme) Console.WriteLine("Done");
             }
             else
             {
-                if (variables.debugMode) Console.WriteLine("Setting deleted");
+                if (variables.debugme) Console.WriteLine("Setting Deleted");
                 RegistryKey cpukeys = cpukeydb.CreateSubKey(cputable.Rows[indexrow][0].ToString());
                 foreach (string valueN in cpukeys.GetValueNames())
                 {
@@ -208,18 +207,16 @@ namespace JRunner
                     }
                 }
                 cpukeys.SetValue("Deleted", 1);
-                if (variables.debugMode) Console.WriteLine("Done");
+                if (variables.debugme) Console.WriteLine("Done");
             }
             cputable.Rows.Remove(cputable.Rows[indexrow]);
-            lblNumber.Text = cputable.Rows.Count.ToString();
-            if (variables.debugMode) Console.WriteLine("Finished");
-            //this.Refresh(); // Uncomment if below is removed
-            MainForm.mainForm.restartCpuKeyDb(); // Fix the sorting in registry and table, there is probably a better way to do this
+            if (variables.debugme) Console.WriteLine("Finished");
+            this.Refresh();
         }
 
         private void dataGridView1_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
-            if (variables.debugMode) Console.WriteLine("UserDeletingRow {0}", e.Row.ToString());
+            if (variables.debugme) Console.WriteLine("UserDeletingRow {0}", e.Row.ToString());
             //Console.WriteLine(e.Row.Index);
             deletekey(e.Row.Index);
             //cpukeydb.DeleteSubKeyTree(cputable.Rows[e.Row.Index][0].ToString(), false);
@@ -250,7 +247,6 @@ namespace JRunner
         private void rbtnSerial_CheckedChanged(object sender, EventArgs e)
         {
             updateSearch();
-            variables.cpuKeyDbSerial = rbtnSerial.Checked;
         }
 
         private void rbtnCPU_CheckedChanged(object sender, EventArgs e)
@@ -310,8 +306,7 @@ namespace JRunner
             {
                 if (proc != null) proc.Dispose();
             }
-            Console.WriteLine("CPU Key Database Export Complete");
-            Console.WriteLine("");
+            MessageBox.Show("Export is completed.");
         }
 
         enum STATES
@@ -343,18 +338,6 @@ namespace JRunner
         }
         private void importReg(string regfile)
         {
-            Forms.ProgressIndeterminate pi = new Forms.ProgressIndeterminate();
-
-            this.BeginInvoke(new Action(() =>
-            {
-                this.Hide();
-                pi.Show();
-                pi.updateTitle("Importing");
-            }));
-            MainForm.mainForm.BeginInvoke(new Action(() => {
-                MainForm.mainForm.Enabled = false;
-            }));
-
             Console.WriteLine("Importing");
             string[] lines = File.ReadAllLines(regfile);
             int keystoadd = 0;
@@ -405,7 +388,7 @@ namespace JRunner
                             {
                                 tempentry.extra = (line.Substring(line.IndexOf("=\"") + 1)).Replace("\"", "");
                             }
-                            else if (line.Contains("DVDKey"))
+                            else if (line.Contains("DVDkey"))
                             {
                                 tempentry.dvdkey = (line.Substring(line.IndexOf("=\"") + 1)).Replace("\"", "");
                             }
@@ -434,28 +417,39 @@ namespace JRunner
             {
                 long crc;
                 if (!long.TryParse(entry.kvcrc, System.Globalization.NumberStyles.HexNumber, System.Threading.Thread.CurrentThread.CurrentCulture, out crc)) continue;
-                if (!string.IsNullOrWhiteSpace(getkey_s(crc, dataSet1))) continue;
+                if (!String.IsNullOrWhiteSpace(getkey_s(crc, dataSet1))) continue;
                 if (getkey_s(entry.cpukey, dataSet1)) continue;
 
 
-                if (addkey_s(entry, dataSet1, true, true)) counter++;
+                if (addkey_s(entry, dataSet1)) counter++;
             }
-            DataTable cputable = dataSet1.DataTable1;
-            lblNumber.Text = cputable.Rows.Count.ToString();
-            Console.WriteLine("Added {0} keys", counter);
-            Console.WriteLine("");
+            Console.WriteLine("Done, added {0} keys", counter);
 
-            MainForm.mainForm.BeginInvoke(new Action(() => {
-                MainForm.mainForm.Enabled = true;
-            }));
-            this.BeginInvoke(new Action(() =>
-            {
-                this.Show();
-                pi.Close();
-            }));
         }
 
         #region Buttons
+        /// <summary>
+        /// Manual Add value
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            AddCpuKey myNewForm = new AddCpuKey();
+            myNewForm.ShowDialog();
+            if (myNewForm.DialogResult != DialogResult.OK) return;
+            regentries entry = new regentries();
+            entry.kvcrc = myNewForm.kvcrc().ToString("X");
+            entry.cpukey = myNewForm.cpukey();
+            entry.serial = myNewForm.serial();
+            entry.extra = myNewForm.motherboard();
+            entry.dvdkey = myNewForm.dvdkey();
+            entry.region = myNewForm.region();
+            entry.osig = myNewForm.osig();
+            addkey_s(entry, dataSet1);
+            lblNumber.Text = index.ToString();
+
+        }
         private void EditMobotoolStripMenuItem1_Click(object sender, EventArgs e)
         {
             string EdID = dataGridView1.CurrentRow.Cells[0].Value.ToString();
@@ -518,10 +512,10 @@ namespace JRunner
             try
             {
                 Clipboard.SetText(dataGridView1.CurrentRow.Cells[2].Value.ToString());
-                variables.cpukey = dataGridView1.CurrentRow.Cells[2].Value.ToString();
+                variables.cpkey = dataGridView1.CurrentRow.Cells[2].Value.ToString();
                 //Console.WriteLine(Path.Combine(Directory.GetParent(variables.outfolder).FullName, dataGridView1.CurrentRow.Cells[1].Value.ToString()));
                 variables.FindFolder = Path.Combine(Path.Combine(Directory.GetParent(variables.outfolder).FullName, dataGridView1.CurrentRow.Cells[1].Value.ToString()));
-                if (variables.debugMode) Console.WriteLine((variables.FindFolder));
+                if (variables.debugme) Console.WriteLine((variables.FindFolder));
                 if (Directory.Exists(variables.FindFolder))
                 {
                     Console.WriteLine("Select Load Source to open the folder: {0}", (variables.FindFolder));
@@ -529,25 +523,18 @@ namespace JRunner
                 else variables.FindFolder = "";
                 this.Close();
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
         }
         #endregion
 
+        private void CpuKeyDB_Resize(object sender, EventArgs e)
+        {
+            //dataGridView1.Height = this.ClientSize.Height - 50;
+        }
+
         private void scan(string folder)
         {
-            Forms.ProgressIndeterminate pi = new Forms.ProgressIndeterminate();
-
-            this.BeginInvoke(new Action(() =>
-            {
-                this.Hide();
-                pi.Show();
-                pi.updateTitle("Scanning");
-            }));
-            MainForm.mainForm.BeginInvoke(new Action(() => {
-                MainForm.mainForm.Enabled = false;
-            }));
-
-            Console.WriteLine("Scanning Files...");
+            Console.WriteLine("Scanning Files..");
             try
             {
                 int counter = 0, nandfiles = 0, median = 0, textfiles = 0, percent = 0, previous = 0;
@@ -566,10 +553,10 @@ namespace JRunner
 
                         foreach (string nand in nandPaths)
                         {
-                            if (variables.debugMode) Console.WriteLine(nand);
+                            if (variables.debugme) Console.WriteLine(nand);
 
                             #region percent
-                            if (variables.debugMode)
+                            if (variables.debugme)
                             {
                                 Console.WriteLine("counter: {0} - i: {1}", counter, textfiles);
                                 Console.WriteLine("nandpaths.length: {0}", nandPaths.Length);
@@ -577,10 +564,10 @@ namespace JRunner
                             }
                             median = (counter) / textfiles;
                             if (median == 0) median = 1;
-                            percent = ((nandfiles + (textfiles - median)) * 100) / Math.Max((filePaths.Length - textfiles) * median, 1);
+                            percent = ((nandfiles + (textfiles - median)) * 100) / ((filePaths.Length - textfiles) * median);
                             if (percent > previous && percent < 100)
                             {
-                                if (percent % 5 == 0) Console.WriteLine("\rCompleted: {0}%", percent);
+                                if (percent % 5 == 0) Console.WriteLine("\rCompletion {0}%", percent);
                                 Console.Out.Flush();
                                 previous = percent;
                             }
@@ -604,13 +591,13 @@ namespace JRunner
                                         if (blacklist.Contains(nand)) break;
                                         if (Nand.Nand.imageknown(nand, false))
                                         {
-                                            if (variables.debugMode) Console.WriteLine("Verifying key");
+                                            if (variables.debugme) Console.WriteLine("Verifying key");
                                             if (Nand.Nand.cpukeyverification(nand, cpukey, true)) break;
-                                            if (variables.debugMode) Console.WriteLine("Key not verified");
+                                            if (variables.debugme) Console.WriteLine("Key not verified");
                                         }
-                                        if (variables.debugMode) Console.WriteLine("Image not known");
+                                        if (variables.debugme) Console.WriteLine("Image not known");
                                     }
-                                    catch (Exception ex) { blacklist.Add(nand); if (variables.debugMode) Console.WriteLine(ex.ToString()); continue; }
+                                    catch (Exception ex) { blacklist.Add(nand); if (variables.debugme) Console.WriteLine(ex.ToString()); continue; }
                                 }
 
                                 bool sts = objAlphaPattern.IsMatch(cpukey);
@@ -623,8 +610,8 @@ namespace JRunner
                                     }
                                     catch (Exception ex)
                                     {
-                                        if (variables.debugMode) Console.WriteLine(nand.ToString());
-                                        if (variables.debugMode) Console.WriteLine(ex.ToString());
+                                        if (variables.debugme) Console.WriteLine(nand.ToString() + " Balls");
+                                        if (variables.debugme) Console.WriteLine(ex.ToString());
                                     }
 
                                 if (check)
@@ -636,10 +623,10 @@ namespace JRunner
                                         bool found = false;
                                         for (int c = 0; c != index; c++)
                                         {
-                                            if (!string.IsNullOrWhiteSpace(nan.ki.serial) && cputable.Rows[c]["Serial"].ToString().ToUpper().Contains(nan.ki.serial.ToUpper()))
+                                            if (!String.IsNullOrWhiteSpace(nan.ki.serial) && cputable.Rows[c]["Serial"].ToString().ToUpper().Contains(nan.ki.serial.ToUpper()))
                                             {
-                                                if (string.IsNullOrWhiteSpace(cputable.Rows[c]["Comment"].ToString()) || string.IsNullOrWhiteSpace(cputable.Rows[c]["Region"].ToString())
-                                                    || string.IsNullOrWhiteSpace(cputable.Rows[c]["DVDKey"].ToString()) || string.IsNullOrWhiteSpace(cputable.Rows[c]["OSIG"].ToString()))
+                                                if (String.IsNullOrWhiteSpace(cputable.Rows[c]["Comment"].ToString()) || String.IsNullOrWhiteSpace(cputable.Rows[c]["Region"].ToString())
+                                                    || String.IsNullOrWhiteSpace(cputable.Rows[c]["DVDKey"].ToString()) || String.IsNullOrWhiteSpace(cputable.Rows[c]["OSIG"].ToString()))
                                                 {
                                                     try
                                                     {
@@ -659,7 +646,7 @@ namespace JRunner
                                                     }
                                                     catch (Exception ex1)
                                                     {
-                                                        if (variables.debugMode) Console.WriteLine(ex1.ToString());
+                                                        if (variables.debugme) Console.WriteLine(ex1.ToString());
                                                     }
                                                 }
                                                 found = true;
@@ -669,7 +656,7 @@ namespace JRunner
                                                 found = true;
                                             }
                                         }
-                                        if (variables.debugMode) Console.WriteLine("found {0}", found);
+                                        if (variables.debugme) Console.WriteLine("found {0}", found);
                                         if (!found)
                                         {
                                             regentries entry = new regentries();
@@ -681,49 +668,32 @@ namespace JRunner
                                             entry.region = nan.ki.region;
                                             entry.dvdkey = nan.ki.dvdkey;
 
-                                            addkey_s(entry, dataSet1, true, true);
+                                            addkey_s(entry, dataSet1);
+
+
+
                                         }
                                         found = false;
                                     }
-                                    catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
-                                    lblNumber.Text = cputable.Rows.Count.ToString();
+                                    catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
                                 }
-                                else if (variables.debugMode) Console.WriteLine("2nd time veri failed");
+                                else if (variables.debugme) Console.WriteLine("2nd time veri failed");
                             }
                         }
                     }
                 }
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
             this.Refresh();
-            Console.WriteLine("\rCompleted: 100%");
+            Console.WriteLine("\rCompletion 100%");
+            Console.WriteLine("Done");
             Console.WriteLine("");
 
-            MainForm.mainForm.BeginInvoke(new Action(() => {
-                MainForm.mainForm.Enabled = true;
-            }));
-            this.BeginInvoke(new Action(() =>
-            {
-                this.Show();
-                pi.Close();
-            }));
         }
 
         private void scan_cpukey(string folder, string cpukey)
         {
-            Forms.ProgressIndeterminate pi = new Forms.ProgressIndeterminate();
-
-            this.BeginInvoke(new Action(() =>
-            {
-                this.Hide();
-                pi.Show();
-                pi.updateTitle("Scanning");
-            }));
-            MainForm.mainForm.BeginInvoke(new Action(() => {
-                MainForm.mainForm.Enabled = false;
-            }));
-
-            Console.WriteLine("Scanning Files...");
+            Console.WriteLine("Scanning Files..");
             try
             {
                 int i = 0, percent = 0, previous = 0;
@@ -737,7 +707,7 @@ namespace JRunner
                     percent = (i * 100) / (filePaths.Length);
                     if (percent > previous && percent < 100)
                     {
-                        if (percent % 5 == 0) Console.WriteLine("\rCompleted: {0}%", percent);
+                        if (percent % 5 == 0) Console.WriteLine("\rCompletion {0}%", percent);
                         Console.Out.Flush();
                         previous = percent;
                     }
@@ -757,36 +727,16 @@ namespace JRunner
                     }
                 }
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
             this.Refresh();
-            Console.WriteLine("\rCompleted: 100%");
+            Console.WriteLine("\rCompletion 100%");
+            Console.WriteLine("Done");
             Console.WriteLine("");
-
-            MainForm.mainForm.BeginInvoke(new Action(() => {
-                MainForm.mainForm.Enabled = true;
-            }));
-            this.BeginInvoke(new Action(() =>
-            {
-                this.Show();
-                pi.Close();
-            }));
         }
 
         private void scan_kv(string folder, long crc)
         {
-            Forms.ProgressIndeterminate pi = new Forms.ProgressIndeterminate();
-
-            this.BeginInvoke(new Action(() =>
-            {
-                this.Hide();
-                pi.Show();
-                pi.updateTitle("Scanning");
-            }));
-            MainForm.mainForm.BeginInvoke(new Action(() => {
-                MainForm.mainForm.Enabled = false;
-            }));
-
-            Console.WriteLine("Scanning Files...");
+            Console.WriteLine("Scanning Files..");
             try
             {
                 int i = 0, percent = 0, previous = 0;
@@ -800,7 +750,7 @@ namespace JRunner
                     percent = (i * 100) / (filePaths.Length);
                     if (percent > previous && percent < 100)
                     {
-                        if (percent % 5 == 0) Console.WriteLine("\rCompleted: {0}%", percent);
+                        if (percent % 5 == 0) Console.WriteLine("\rCompletion {0}%", percent);
                         Console.Out.Flush();
                         previous = percent;
                     }
@@ -817,55 +767,43 @@ namespace JRunner
                     }
                 }
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
             this.Refresh();
-            Console.WriteLine("\rCompleted: 100%");
+            Console.WriteLine("\rCompletion 100%");
+            Console.WriteLine("Done");
             Console.WriteLine("");
-
-            MainForm.mainForm.BeginInvoke(new Action(() => {
-                MainForm.mainForm.Enabled = true;
-            }));
-            this.BeginInvoke(new Action(() =>
-            {
-                this.Show();
-                pi.Close();
-            }));
         }
 
         private void btnScan_Click(object sender, EventArgs e)
         {
-            CommonOpenFileDialog openDialog = new CommonOpenFileDialog();
-            openDialog.InitialDirectory = variables.rootfolder;
-            openDialog.RestoreDirectory = false;
-            openDialog.IsFolderPicker = true;
-
-            if (openDialog.ShowDialog() == CommonFileDialogResult.Ok)
+            FolderBrowserDialog folder = new FolderBrowserDialog();
+            //folder.RootFolder = System.Environment.SpecialFolder.DesktopDirectory;
+            DialogResult result = folder.ShowDialog();
+            if (result == DialogResult.OK)
             {
-                string fol = openDialog.FileName;
+                string fol = folder.SelectedPath;
                 ThreadStart readna = delegate { scan(fol); };
                 Thread readnt = new Thread(readna);
                 readnt.IsBackground = true;
                 readnt.Start();
             }
-            this.BringToFront(); // Because it goes behind?
         }
 
         private void btnreverse_Click(object sender, EventArgs e)
         {
             bool kv = false;
             long crc = 0;
-            if (string.IsNullOrWhiteSpace(txtSearch.Text))
+            if (String.IsNullOrWhiteSpace(txtSearch.Text))
             {
-                if (MessageBox.Show("No CPU Key has been entered in the search box\n\nDo you want to use a nand dump?", "Search", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+                if (MessageBox.Show("NO cpukey in searchbox. Use a dump?", "Search", MessageBoxButtons.YesNo) != System.Windows.Forms.DialogResult.Yes) return;
                 kv = true;
             }
 
             if (kv)
             {
                 OpenFileDialog openFileDialog1 = new OpenFileDialog();
-                openFileDialog1.Filter = "Nand files (*.bin;*.ecc)|*.bin;*.ecc|HEX files (*.hex)|*.hex|All files (*.*)|*.*";
-                openFileDialog1.Title = "Select Nand File";
-                if (openFileDialog1.ShowDialog() == DialogResult.OK)
+                openFileDialog1.Title = "Select a File";
+                if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     string filename1 = openFileDialog1.FileName;
                     crc = Nand.Nand.kvcrc(filename1);
@@ -914,7 +852,7 @@ namespace JRunner
                     txtosig.Text = dataSet1.DataTable1.Rows[nid][DataTableColumns.OSIG.GetHashCode()].ToString();
                 }
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
         }
     }
 }

@@ -12,11 +12,16 @@ namespace JRunner.Panels
         bool demon = false;
         private List<RadioButton> _radioButtonGroup = new List<RadioButton>();
 
+        public delegate void ClickedProgramCR();
+        public event ClickedProgramCR ProgramCRClick;
+        public delegate void ClickedCloseCR();
+        public event ClickedCloseCR CloseCRClick;
+
         public XSVFChoice()
         {
             InitializeComponent();
             btnProgram.DialogResult = DialogResult.OK;
-            btnClose.DialogResult = DialogResult.Cancel;
+            btnCancel.DialogResult = DialogResult.Cancel;
             var d = GetAll(this, typeof(RadioButton));
             foreach (RadioButton a in d)
             {
@@ -35,8 +40,13 @@ namespace JRunner.Panels
                 }
                 else Rgh12Trinity.Checked = true;
 
-                if (board.Contains("Xenon") || board.Contains("Zephyr")) TimingTabs.SelectedTab = MiscTimings;
-                else TimingTabs.SelectedTab = Rgh12Timings;
+                if (board.Contains("Zephyr")) TimingTabs.SelectedTab = MiscTimings;
+                if (board.Contains("Falcon") || board.Contains("Jasper")) TimingTabs.SelectedTab = Rgh12Timings;
+                else if (board.Contains("Trinity") || board.Contains("Corona"))
+                {
+                    if (variables.slimprefersrgh) TimingTabs.SelectedTab = SrghTimings;
+                    else TimingTabs.SelectedTab = Rgh12Timings;
+                }
             }
         }
 
@@ -227,136 +237,167 @@ namespace JRunner.Panels
             {
                 hresult = 45;
             }
+            // Zephyr RGH2
+            else if (Zephyr687_02.Checked)
+            {
+                hresult = 46;
+            }
+            else if (Zephyr687_03.Checked)
+            {
+                hresult = 47;
+            }
+            else if (Zephyr687_05.Checked)
+            {
+                hresult = 48;
+            }
+            else if (Zephyr687_06.Checked)
+            {
+                hresult = 49;
+            }
+            else if (Zephyr690_02.Checked)
+            {
+                hresult = 50;
+            }
+            else if (Zephyr690_03.Checked)
+            {
+                hresult = 51;
+            }
+            else if (Zephyr690_05.Checked)
+            {
+                hresult = 52;
+            }
+            else if (Zephyr690_06.Checked)
+            {
+                hresult = 53;
+            }
+            else if (Zephyr693_02.Checked)
+            {
+                hresult = 54;
+            }
+            else if (Zephyr693_03.Checked)
+            {
+                hresult = 55;
+            }
+            else if (Zephyr693_05.Checked)
+            {
+                hresult = 56;
+            }
+            else if (Zephyr693_06.Checked)
+            {
+                hresult = 57;
+            }
+            else if (Zephyr696_02.Checked)
+            {
+                hresult = 58;
+            }
+            else if (Zephyr696_03.Checked)
+            {
+                hresult = 59;
+            }
+            else if (Zephyr696_05.Checked)
+            {
+                hresult = 60;
+            }
+            else if (Zephyr696_06.Checked)
+            {
+                hresult = 61;
+            }
             // RGH1.2 Trinity/Corona
             else if (Rgh12Tc_60.Checked)
             {
-                hresult = 46;
+                hresult = 62;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_65.Checked)
             {
-                hresult = 47;
+                hresult = 63;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_70.Checked)
             {
-                hresult = 48;
+                hresult = 64;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_75.Checked)
             {
-                hresult = 49;
+                hresult = 65;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_80.Checked)
             {
-                hresult = 50;
+                hresult = 66;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_85.Checked)
             {
-                hresult = 51;
+                hresult = 67;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_90.Checked)
             {
-                hresult = 52;
+                hresult = 68;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_95.Checked)
             {
-                hresult = 53;
+                hresult = 69;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_100.Checked)
             {
-                hresult = 54;
+                hresult = 70;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_105.Checked)
             {
-                hresult = 55;
+                hresult = 71;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_110.Checked)
             {
-                hresult = 56;
+                hresult = 72;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_115.Checked)
             {
-                hresult = 57;
+                hresult = 73;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_120.Checked)
             {
-                hresult = 58;
+                hresult = 74;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_125.Checked)
             {
-                hresult = 59;
+                hresult = 75;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_130.Checked)
             {
-                hresult = 60;
+                hresult = 76;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
             }
             else if (Rgh12Tc_135.Checked)
             {
-                hresult = 61;
+                hresult = 77;
                 if (Rgh12Corona.Checked) hresult += 16;
                 else if (Rgh12CoronaWb.Checked) hresult += 32;
-            }
-            else if (Xenon96_594_09.Checked)
-            {
-                hresult = 94;
-            }
-            // Xenon EXT_CLK
-            else if (Xenon96_594_10.Checked)
-            {
-                hresult = 95;
-            }
-            else if (Xenon192_594_09.Checked)
-            {
-                hresult = 96;
-            }
-            else if (Xenon192_594_10.Checked)
-            {
-                hresult = 97;
-            }
-            // Zephyr EXT_CLK
-            else if (Zephyr96_625_09.Checked)
-            {
-                hresult = 98;
-            }
-            else if (Zephyr96_625_10.Checked)
-            {
-                hresult = 99;
-            }
-            else if (Zephyr192_625_09.Checked)
-            {
-                hresult = 100;
-            }
-            else if (Zephyr192_625_10.Checked)
-            {
-                hresult = 101;
             }
 
             else hresult = -1;
@@ -385,13 +426,9 @@ namespace JRunner.Panels
         {
             selectedGroupUpdate("CoronaSrgh");
         }
-        private void enterXenonExtClk(object sender, EventArgs e)
+        private void enterZephyrRgh2(object sender, EventArgs e)
         {
-            selectedGroupUpdate("XenonExtClk");
-        }
-        private void enterZephyrExtClk(object sender, EventArgs e)
-        {
-            selectedGroupUpdate("ZephyrExtClk");
+            selectedGroupUpdate("ZephyrRgh2");
         }
         private void enterRgh1(object sender, EventArgs e)
         {
@@ -434,16 +471,9 @@ namespace JRunner.Panels
                     a.Checked = false;
                 }
             }
-            if (board != "XenonExtClk")
+            if (board != "ZephyrRgh2")
             {
-                foreach (RadioButton a in XenonExtClkGroup.Controls.OfType<RadioButton>())
-                {
-                    a.Checked = false;
-                }
-            }
-            if (board != "ZephyrExtClk")
-            {
-                foreach (RadioButton a in ZephyrExtClkGroup.Controls.OfType<RadioButton>())
+                foreach (RadioButton a in ZephyrRgh2Group.Controls.OfType<RadioButton>())
                 {
                     a.Checked = false;
                 }
@@ -467,20 +497,15 @@ namespace JRunner.Panels
         public void setTimingFromAssistant(string timing)
         {
             selectedGroupUpdate("All");
-            if (timing == "xenon_extclk")
-            {
-                TimingTabs.SelectedTab = MiscTimings;
-                Xenon96_594_09.Checked = true;
-            }
-            else if (timing == "zephyr_rgh1")
+            if (timing == "zephyr_rgh1")
             {
                 TimingTabs.SelectedTab = MiscTimings;
                 Rgh1Zephyr.Checked = true;
             }
-            else if (timing == "zephyr_extclk")
+            else if (timing == "zephyr_rgh2")
             {
                 TimingTabs.SelectedTab = MiscTimings;
-                Zephyr96_625_09.Checked = true;
+                Zephyr693_03.Checked = true;
             }
             else if (timing == "falcon_rgh1")
             {
@@ -541,11 +566,11 @@ namespace JRunner.Panels
             return controls.SelectMany(ctrl => GetAll(ctrl, type)).Concat(controls).Where(c => c.GetType() == type);
         }
 
-        private void btnClose_Click(object sender, EventArgs e)
+        private void btnCancel_Click(object sender, EventArgs e)
         {
             try
             {
-                MainForm.mainForm.xsvfChoice_CloseClick();
+                CloseCRClick();
             }
             catch (Exception) { }
         }
@@ -554,36 +579,14 @@ namespace JRunner.Panels
         {
             try
             {
-                MainForm.mainForm.xsvfChoice_ProgramClick();
+                ProgramCRClick();
             }
             catch (Exception) { }
         }
 
-        private void btnAssistant_Click(object sender, EventArgs e)
+        private void btnAss_Click(object sender, EventArgs e)
         {
             MainForm.mainForm.timingAssistant();
-        }
-
-        private void selectFileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            int timingType = MainForm.mainForm.getTimingType();
-            string file = "";
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (timingType == 2) openFileDialog.Filter = "SVF files (*.svf)|*.svf";
-            else if (timingType == 1) openFileDialog.Filter = "XSVF files (*.xsvf)|*.xsvf";
-            else openFileDialog.Filter = "XSVF/SVF files (*.xsvf;*.svf)|*.xsvf;*.svf";
-            openFileDialog.Title = "Select a File";
-            openFileDialog.RestoreDirectory = false;
-            if (openFileDialog.ShowDialog() == DialogResult.OK) file = openFileDialog.FileName;
-            if (!string.IsNullOrWhiteSpace(file))
-            {
-                MainForm.mainForm.nandTimingFunctionsExecute("Xsvf", file, 16, 0, 0, false);
-            }
-        }
-
-        private void btnMoreTimings_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start("https://github.com/Octal450/Timing-Files/releases/tag/Timings");
         }
     }
 }

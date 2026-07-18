@@ -18,7 +18,9 @@ namespace JRunner.Panels
     {
 
         private bool showall = false;
+        private bool force = false;
         private bool enumearting = false;
+        //public static string filename = "";
         public static Function fu = Function.ReadWrite;
 
         //byte MediaType = 0xb;
@@ -56,28 +58,43 @@ namespace JRunner.Panels
             else if (fu == Function.Write) btnRead.Enabled = btnErase.Enabled = false;
         }
 
+        public delegate void ClickedCloseLD();
+        public event ClickedCloseLD CloseLDClick;
+
+        public delegate void UpdateProgress(int progress);
+        public event UpdateProgress UpdateProgres;
+        public delegate void UpdateBlock(string block);
+        public event UpdateBlock UpdateBloc;
+        public delegate void UpdateFile(string file);
+        public event UpdateFile UpdateSourc;
+
+        public delegate void UpdateAddit(string file);
+        public event UpdateAddit UpdateAdditional;
+        public delegate void doCompare();
+        public event doCompare doCompar;
+
         private void btnClose_Click(object sender, EventArgs e)
         {
             try
             {
-                MainForm.mainForm.ldInfo_CloseClick();
+                CloseLDClick();
             }
             catch (Exception) { }
         }
 
         private void btnErase_Click(object sender, EventArgs e)
         {
-            new Thread(startErase).Start();
+            new Thread(erase).Start();
         }
 
         private void btnWrite_Click(object sender, EventArgs e)
         {
-            new Thread(startWrite).Start();
+            new Thread(Write_b).Start();
         }
 
         private void btnRead_Click(object sender, EventArgs e)
         {
-            new Thread(startRead).Start();
+            new Thread(Read_b).Start();
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
@@ -92,7 +109,7 @@ namespace JRunner.Panels
             enumThread.Start();
         }
 
-        private void chkShowAll_CheckedChanged(object sender, EventArgs e)
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             showall = chkShowAll.Checked;
             Thread enumThread = new Thread(() => enumerate());
@@ -122,7 +139,7 @@ namespace JRunner.Panels
                 {
                     int driveNumber = Convert.ToInt32(info.Replace(@"PhysicalDrive", ""));
                     List<string> letter = GetLetters(driveNumber);
-                    if (variables.debugMode) Console.WriteLine("{0} - {1}", info, letter.Count);
+                    if (variables.debugme) Console.WriteLine("{0} - {1}", info, letter.Count);
                     if (letter.Count == 0)
                     {
                         ListViewItem lvi = new ListViewItem();
@@ -141,7 +158,7 @@ namespace JRunner.Panels
                         int j = 0;
                         foreach (string drive in letter)
                         {
-                            if (variables.debugMode) Console.WriteLine("{0} - {1}", info, drive);
+                            if (variables.debugme) Console.WriteLine("{0} - {1}", info, drive);
                             ListViewItem lvi = new ListViewItem();
                             lvi.Text = info;
                             DriveInfo driv = new DriveInfo(drive.Replace(@"\\.\", ""));
@@ -152,7 +169,7 @@ namespace JRunner.Panels
                                 lvi.SubItems.Add(driv.VolumeLabel);
                                 lvi.SubItems.Add(driv.DriveFormat);
                                 lvi.SubItems.Add((driv.TotalSize / (1024f) / 1024f).ToString());
-                                if (variables.debugMode) Console.WriteLine("Drive is ready");
+                                if (variables.debugme) Console.WriteLine("Drive is ready");
                             }
                             else
                             {
@@ -164,12 +181,12 @@ namespace JRunner.Panels
                             }
                             if (driv.DriveType == DriveType.Removable || showall) listView1.Items.Add(lvi);
                             j++;
-                            MainForm.mainForm.updateProgress(((i + j) * 100) / (pdrives.Count * letter.Count));
+                            UpdateProgres(((i + j) * 100) / (pdrives.Count * letter.Count));
                         }
                     }
                     //lvi.SubItems.Add(string.Join("", getletters(Convert.ToInt32(info[info.Length -1].ToString()))));
                     i++;
-                    MainForm.mainForm.updateProgress((i * 100) / pdrives.Count);
+                    UpdateProgres((i * 100) / pdrives.Count);
                 }
                 enumearting = false;
             }
@@ -183,13 +200,13 @@ namespace JRunner.Panels
             btnRefresh.Enabled = what;
         }
 
-        private void startRead()
+        private void Read_b()
         {
             buttons(false);
             variables.reading = true;
-            if (variables.numReads != 1)
+            if (variables.NoReads != 1)
             {
-                for (int i = 1; i <= variables.numReads; i++)
+                for (int i = 1; i <= variables.NoReads; i++)
                 {
                     string filename = variables.outfolder + "\\nanddump" + i + ".bin";
                     variables.reading = true;
@@ -197,11 +214,11 @@ namespace JRunner.Panels
                     variables.reading = false;
                     if (result == 0) break;
                     Thread.Sleep(1000);
-                    if (i == 1) MainForm.mainForm.xPanel_updateSource(filename);
+                    if (i == 1) UpdateSourc(filename);
                     else
                     {
-                        MainForm.mainForm.ldInfo_UpdateAdditional(filename);
-                        MainForm.mainForm.compareNands();
+                        UpdateAdditional(filename);
+                        doCompar();
                     }
                     Thread.Sleep(1000);
                 }
@@ -210,19 +227,18 @@ namespace JRunner.Panels
             {
                 read(variables.outfolder + "\\nanddump1.bin");
                 variables.reading = false;
-                MainForm.mainForm.xPanel_updateSource(variables.outfolder + "\\nanddump1.bin");
+                UpdateSourc(variables.outfolder + "\\nanddump1.bin");
             }
             buttons(true);
         }
-
         private int read(string filename)
         {
-            if (string.IsNullOrEmpty(filename)) return 0;
+            if (String.IsNullOrEmpty(filename)) return 0;
             if (listView1.SelectedItems.Count == 0) return 0;
 
             if (File.Exists(filename))
             {
-                if (DialogResult.Cancel == MessageBox.Show("A nand dump already exists!\n\nContinuing will cause the contents to be overwritten!", "File Conflict", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+                if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press OK to continue", "File Already Exists", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                 {
                     Console.WriteLine("Cancelled");
                     Console.WriteLine("");
@@ -233,7 +249,7 @@ namespace JRunner.Panels
                 {
                     File.Delete(filename);
                 }
-                catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); return 0; }
+                catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); return 0; }
             }
 
             string ldrive = listView1.SelectedItems[0].SubItems[1].Text;
@@ -262,54 +278,273 @@ namespace JRunner.Panels
                 byte[] temp = new byte[track];
                 while (i < tracks && !variables.escapeloop)
                 {
-                    MainForm.mainForm.updateProgress((int)((i * 100) / tracks));
-                    MainForm.mainForm.updateBlock(((i * track) / 1024 / 1024).ToString("F0") + "MB");
+                    UpdateProgres((int)((i * 100) / tracks));
+                    UpdateBloc(((i * track) / 1024 / 1024).ToString("F0") + "MB");
                     i++;
                     fs.Read(temp, 0, (int)track);
                     fw.Write(temp, 0, (int)track);
                 }
                 fs.Close();
                 fw.Close();
-                MainForm.mainForm.updateBlock("");
-                MainForm.mainForm.updateProgress(100);
+                UpdateBloc("");
+                UpdateProgres(100);
                 stopwatch.Stop();
                 Console.WriteLine("Read Successful! Time Elapsed: {0}:{1:D2}", stopwatch.Elapsed.Minutes + (stopwatch.Elapsed.Hours * 60), stopwatch.Elapsed.Seconds);
                 Console.WriteLine("");
 
-                if (variables.playSuccess)
-                {
-                    SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
-                    success.Play();
-                }
+                SoundPlayer successSound = new SoundPlayer(Properties.Resources.chime);
+                if (variables.soundsuccess != "") successSound.SoundLocation = variables.soundsuccess;
+                successSound.Play();
             }
             catch (Exception ex) { Console.WriteLine(ex.ToString() + i); }
             return 1;
         }
 
-        private void startWrite()
+        private void Write_b()
         {
             if (listView1.SelectedItems.Count == 0) return;
             buttons(false);
-            write(variables.filename1);
-            if (variables.debugMode) Console.WriteLine("changing back to old file");
+            if (!force) write2(variables.filename1);
+            else write(variables.filename1);
+            if (variables.debugme) Console.WriteLine("changing back to old file");
             if (Path.GetExtension(variables.filename1) == ".ecc")
             {
-                MainForm.mainForm.afterWriteXeLLCleanup();
+                if (variables.tempfile != "")
+                {
+                    variables.filename1 = variables.tempfile;
+                    UpdateSourc(variables.tempfile);
+                }
             }
             buttons(true);
         }
-
         private void write(string filename)
         {
-            if (string.IsNullOrEmpty(filename)) return;
+            if (!File.Exists(variables.filename1)) return;
+
+            const uint OPEN_EXISTING = 3;
+            const uint GENERIC_WRITE = (0x40000000);
+            const uint FSCTL_LOCK_VOLUME = 0x00090018;
+            const uint FSCTL_UNLOCK_VOLUME = 0x0009001c;
+            const uint FSCTL_DISMOUNT_VOLUME = 0x00090020;
+
+            if (listView1.SelectedItems.Count == 0) return;
+            string ldrive = listView1.SelectedItems[0].SubItems[0].Text;
+            if (variables.debugme) Console.WriteLine(ldrive);
+
+            bool success = false;
+            int intOut;
+            string deviceId = @"\\.\" + ldrive;
+
+            var diskGeometry = DiskGeometry.FromDevice(@"\\.\" + ldrive.Replace("\\", ""));
+
+            List<string> logicaldrives = GetLetters(Convert.ToInt32(ldrive.Replace(@"PhysicalDrive", "").Replace("\\", "").Replace(".", "").ToString()));
+
+            SafeFileHandle diskHandle = CreateFile(deviceId, GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
+            if (diskHandle.IsInvalid)
+            {
+                Console.WriteLine(deviceId + " open error.");
+                Console.WriteLine("");
+                return;
+            }
+            if (variables.debugme) Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": opened.");
+
+            List<SafeFileHandle> lhandles = new List<SafeFileHandle>();
+            List<string> lnames = new List<string>();
+            int i = 0;
+
+            if (variables.debugme) Console.WriteLine(logicaldrives.Count);
+            foreach (string logdrive in logicaldrives)
+            {
+                if (variables.debugme) Console.WriteLine("Opening logical drives");
+                string ldevid = @"\\.\" + logdrive.Replace("\\", "").Replace(".", "");
+                if (variables.debugme) Console.WriteLine(ldevid);
+                SafeFileHandle ldiskHandle = CreateFile(ldevid, GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
+                if (ldiskHandle.IsInvalid)
+                {
+                    Console.WriteLine(ldevid + " open error.");
+                    Console.WriteLine("");
+                    break;
+                }
+                if (variables.debugme) Console.WriteLine(ldevid + " " + Marshal.GetHRForLastWin32Error().ToString() + ": opened.");
+                lhandles.Add(ldiskHandle);
+                lnames.Add(ldevid);
+
+                success = DeviceIoControl(ldiskHandle, FSCTL_LOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+                if (!success)
+                {
+                    Console.WriteLine(ldevid + " lock error.");
+                    Console.WriteLine("");
+                    CloseHandle(ldiskHandle);
+                    break;
+                }
+
+                if (variables.debugme) Console.WriteLine(ldevid + " " + Marshal.GetHRForLastWin32Error().ToString() + ": locked.");
+
+                success = DeviceIoControl(ldiskHandle, FSCTL_DISMOUNT_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+                if (!success)
+                {
+                    Console.WriteLine(ldevid + " " + Marshal.GetHRForLastWin32Error().ToString() + ": dismount error.");
+                    Console.WriteLine("");
+                    DeviceIoControl(ldiskHandle, FSCTL_UNLOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+                    CloseHandle(ldiskHandle);
+                    return;
+                }
+            }
+            success = DeviceIoControl(diskHandle, FSCTL_LOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+            if (!success)
+            {
+                Console.WriteLine(deviceId + " lock error.");
+                Console.WriteLine("");
+                CloseHandle(diskHandle);
+                return;
+            }
+
+            if (variables.debugme) Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": locked.");
+
+            success = DeviceIoControl(diskHandle, FSCTL_DISMOUNT_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+            if (!success)
+            {
+                Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": dismount error.");
+                Console.WriteLine("");
+                DeviceIoControl(diskHandle, FSCTL_UNLOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+                CloseHandle(diskHandle);
+                return;
+            }
+
+            if (variables.debugme) Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": unmounted.");
+
+            //uint numTotalSectors = 0x795FFF;//DiskSize / 512;
+            //uint numTotalSectors = 0x702000;
+            uint track = diskGeometry.BytesPerSector * (diskGeometry.Sector + 1);
+            long totaltracks = diskGeometry.DiskSize / track;
+
+            byte[] junkBytes = new byte[(int)track];
+
+            FileStream fs = new FileStream(filename, FileMode.Open);
+            if (fs.Length / (track) < totaltracks) totaltracks = (int)(fs.Length / (track));
+            if (variables.debugme) Console.WriteLine(totaltracks);
+            FileStream fw = new FileStream(diskHandle, FileAccess.ReadWrite);
+            uint offset = 0;
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            for (uint sectorNum = 0; sectorNum < totaltracks; sectorNum++)
+            {
+                if (variables.escapeloop) break;
+                int numBytesWritten = (int)diskGeometry.BytesPerSector;
+                //int moveToHigh;
+                try
+                {
+                    fs.Read(junkBytes, 0, (int)track);
+                    offset++;
+                    int value = (int)((offset * 100) / totaltracks);
+                    //if (offset % 1000 == 0) Console.WriteLine(offset + " " + value);
+                    UpdateProgres(value);
+                }
+                catch (Exception ex) { Console.WriteLine("{0} - {1} - {2}", offset, sectorNum, ex.ToString()); break; }
+
+
+                //uint rvalsfp = SetFilePointer(diskHandle, sectorNum * numBytesPerSector, out moveToHigh, EMoveMethod.Begin);
+
+                //Console.WriteLine("File pointer set " + Marshal.GetHRForLastWin32Error().ToString() + ": " + (sectorNum * numBytesPerSector).ToString());
+
+                fw.Write(junkBytes, 0, (int)track);
+
+                //int rval = WriteFile(diskHandle, junkBytes, junkBytes.Length, out numBytesWritten, IntPtr.Zero);
+
+                if (numBytesWritten != junkBytes.Length)
+                {
+                    //Console.WriteLine("Write error on track " + sectorNum.ToString() + " from " + (sectorNum * numBytesPerSector).ToString() + "-" + moveToHigh.ToString() + " " + Marshal.GetHRForLastWin32Error().ToString() + ": Only " + numBytesWritten.ToString() + "/" + junkBytes.Length.ToString() + " bytes written.");
+                    //break;
+                }
+                else
+                {
+                    //Console.WriteLine("Write success " + Marshal.GetHRForLastWin32Error().ToString() + ": " + numBytesWritten.ToString() + "/" + junkBytes.Length.ToString() + " bytes written.");
+                }
+            }
+            stopwatch.Stop();
+            Console.WriteLine("Write Successful! Time Elapsed: {0}:{1:D2}", stopwatch.Elapsed.Minutes + (stopwatch.Elapsed.Hours * 60), stopwatch.Elapsed.Seconds);
+            Console.WriteLine("");
+            fs.Close();
+
+            SoundPlayer successSound = new SoundPlayer(Properties.Resources.chime);
+            if (variables.soundsuccess != "") successSound.SoundLocation = variables.soundsuccess;
+            successSound.Play();
+
+            i = 0;
+            foreach (SafeFileHandle sfh in lhandles)
+            {
+                success = DeviceIoControl(sfh, FSCTL_UNLOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+                if (success)
+                {
+                    if (variables.debugme) Console.WriteLine(lnames[i] + " " + Marshal.GetHRForLastWin32Error().ToString() + ": unlocked.");
+                }
+                else
+                {
+                    Console.WriteLine(lnames[i] + " " + Marshal.GetHRForLastWin32Error().ToString() + ": unlock error: " + Marshal.GetHRForLastWin32Error().ToString());
+                    Console.WriteLine("");
+                }
+                i++;
+            }
+
+
+            success = DeviceIoControl(diskHandle, FSCTL_UNLOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+            if (success)
+            {
+                if (variables.debugme) Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": unlocked.");
+            }
+            else
+            {
+                Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": unlock error: " + Marshal.GetHRForLastWin32Error().ToString());
+                Console.WriteLine("");
+            }
+
+            i = 0;
+            foreach (SafeFileHandle sfh in lhandles)
+            {
+                success = CloseHandle(sfh);
+                if (success)
+                {
+                    if (variables.debugme) Console.WriteLine(lnames[i] + " " + Marshal.GetHRForLastWin32Error().ToString() + ": handle closed.");
+                }
+                else
+                {
+                    Console.WriteLine(lnames[i] + " " + Marshal.GetHRForLastWin32Error().ToString() + ": close handle error: " + Marshal.GetHRForLastWin32Error().ToString());
+                    Console.WriteLine("");
+                }
+                i++;
+            }
+
+
+            success = CloseHandle(diskHandle);
+            if (success)
+            {
+                if (variables.debugme) Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": handle closed.");
+            }
+            else
+            {
+                Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": close handle error: " + Marshal.GetHRForLastWin32Error().ToString());
+                Console.WriteLine("");
+            }
+            try
+            {
+                fw.Close();
+            }
+            catch (Exception) { }
+            Environment.GetLogicalDrives();
+        }
+        private void write2(string filename)
+        {
+            if (String.IsNullOrEmpty(filename)) return;
             if (listView1.SelectedItems.Count == 0) return;
             string ldrive = listView1.SelectedItems[0].SubItems[1].Text;
             if (listView1.SelectedItems[0].SubItems[2].Text != "Removable") { Console.WriteLine("Must be a removable type"); return; }
-            if (MessageBox.Show("You are about to write to " + ldrive + ".\n\nAre you sure you want to continue?", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
+            if (MessageBox.Show("You are about to write to " + ldrive + ". Continue?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
 
             var diskGeometry = DiskGeometry.FromDevice(@"\\.\" + ldrive.Replace("\\", ""));
             uint track = diskGeometry.BytesPerSector * (diskGeometry.Sector + 1);
-            long tracks;
+            long tracks = diskGeometry.DiskSize / track;
+
             long i = 0;
 
             Stopwatch stopwatch = new Stopwatch();
@@ -319,52 +554,256 @@ namespace JRunner.Panels
                 Console.WriteLine("Writing to {0} from {1}", ldrive, filename);
                 FileStream fs = new FileStream(CreateFile(@"\\.\" + ldrive.Replace("\\", ""), FileAccess.ReadWrite, FileShare.ReadWrite, 0, FileMode.Open, 0, IntPtr.Zero), FileAccess.ReadWrite);
                 FileStream fw = new FileStream(filename, FileMode.OpenOrCreate);
-                tracks = fw.Length / track;
+                tracks = (fw.Length / track);
                 byte[] temp = new byte[track];
                 while (i < tracks && !variables.escapeloop)
                 {
-                    MainForm.mainForm.updateProgress((int)((i * 100) / tracks));
-                    MainForm.mainForm.updateBlock(((i * track) / 1024 / 1024).ToString("F0") + "MB");
+                    UpdateProgres((int)((i * 100) / tracks));
                     i++;
                     fw.Read(temp, 0, (int)track);
                     fs.Write(temp, 0, (int)track);
                 }
                 fs.Close();
                 fw.Close();
-                MainForm.mainForm.updateBlock("");
-                MainForm.mainForm.updateProgress(100);
+                UpdateProgres(100);
                 stopwatch.Stop();
                 Console.WriteLine("Write Successful! Time Elapsed: {0}:{1:D2}:{2}", stopwatch.Elapsed.Minutes + (stopwatch.Elapsed.Hours * 60), stopwatch.Elapsed.Seconds, stopwatch.Elapsed.Milliseconds);
                 Console.WriteLine("");
 
-                if (variables.playSuccess)
-                {
-                    SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
-                    success.Play();
-                }
+                SoundPlayer successSound = new SoundPlayer(Properties.Resources.chime);
+                if (variables.soundsuccess != "") successSound.SoundLocation = variables.soundsuccess;
+                successSound.Play();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                if (variables.debugMode) Console.WriteLine(ex.ToString());
+                if (variables.debugme) Console.WriteLine(ex.ToString());
                 Console.WriteLine("");
             }
-        }
-
-        private void startErase()
-        {
-            if (listView1.SelectedItems.Count == 0) return;
-            buttons(false);
-            erase();
-            buttons(true);
         }
 
         private void erase()
         {
             if (listView1.SelectedItems.Count == 0) return;
+            buttons(false);
+            if (force) erase_v1();
+            else erase_v2();
+            buttons(true);
+        }
+        private void erase_v1()
+        {
+            const uint OPEN_EXISTING = 3;
+            const uint GENERIC_WRITE = (0x40000000);
+            const uint FSCTL_LOCK_VOLUME = 0x00090018;
+            const uint FSCTL_UNLOCK_VOLUME = 0x0009001c;
+            const uint FSCTL_DISMOUNT_VOLUME = 0x00090020;
+
+            if (listView1.SelectedItems.Count == 0) return;
+            string ldrive = listView1.SelectedItems[0].SubItems[0].Text;
+            if (variables.debugme) Console.WriteLine(ldrive);
+
+            bool success = false;
+            int intOut;
+            string deviceId = @"\\.\" + ldrive;
+            var diskGeometry = DiskGeometry.FromDevice(@"\\.\" + ldrive.Replace("\\", ""));
+            List<string> logicaldrives = GetLetters(Convert.ToInt32(ldrive.Replace(@"PhysicalDrive", "").Replace("\\", "").Replace(".", "").ToString()));
+
+            SafeFileHandle diskHandle = CreateFile(deviceId, GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
+            if (diskHandle.IsInvalid)
+            {
+                Console.WriteLine(deviceId + " open error.");
+                Console.WriteLine("");
+                return;
+            }
+            if (variables.debugme) Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": opened.");
+
+            List<SafeFileHandle> lhandles = new List<SafeFileHandle>();
+            List<string> lnames = new List<string>();
+            int i = 0;
+
+            if (variables.debugme) Console.WriteLine(logicaldrives.Count);
+            foreach (string logdrive in logicaldrives)
+            {
+                if (variables.debugme) Console.WriteLine("Opening logical drives");
+                string ldevid = @"\\.\" + logdrive.Replace("\\", "").Replace(".", "");
+                if (variables.debugme) Console.WriteLine(ldevid);
+                SafeFileHandle ldiskHandle = CreateFile(ldevid, GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
+                if (ldiskHandle.IsInvalid)
+                {
+                    Console.WriteLine(ldevid + " open error.");
+                    Console.WriteLine("");
+                    break;
+                }
+                if (variables.debugme) Console.WriteLine(ldevid + " " + Marshal.GetHRForLastWin32Error().ToString() + ": opened.");
+                lhandles.Add(ldiskHandle);
+                lnames.Add(ldevid);
+
+                success = DeviceIoControl(ldiskHandle, FSCTL_LOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+                if (!success)
+                {
+                    Console.WriteLine(ldevid + " lock error.");
+                    Console.WriteLine("");
+                    CloseHandle(ldiskHandle);
+                    break;
+                }
+
+                if (variables.debugme) Console.WriteLine(ldevid + " " + Marshal.GetHRForLastWin32Error().ToString() + ": locked.");
+
+                success = DeviceIoControl(ldiskHandle, FSCTL_DISMOUNT_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+                if (!success)
+                {
+                    Console.WriteLine(ldevid + " " + Marshal.GetHRForLastWin32Error().ToString() + ": dismount error.");
+                    Console.WriteLine("");
+                    DeviceIoControl(ldiskHandle, FSCTL_UNLOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+                    CloseHandle(ldiskHandle);
+                    return;
+                }
+            }
+            success = DeviceIoControl(diskHandle, FSCTL_LOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+            if (!success)
+            {
+                Console.WriteLine(deviceId + " lock error.");
+                Console.WriteLine("");
+                CloseHandle(diskHandle);
+                return;
+            }
+
+            if (variables.debugme) Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": locked.");
+
+            success = DeviceIoControl(diskHandle, FSCTL_DISMOUNT_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+            if (!success)
+            {
+                Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": dismount error.");
+                Console.WriteLine("");
+                DeviceIoControl(diskHandle, FSCTL_UNLOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+                CloseHandle(diskHandle);
+                return;
+            }
+
+            if (variables.debugme) Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": unmounted.");
+
+            //uint numTotalSectors = 0x795FFF;//DiskSize / 512;
+            //uint numTotalSectors = 0x702000;
+            uint track = diskGeometry.BytesPerSector * (diskGeometry.Sector + 1);
+            long totaltracks = diskGeometry.DiskSize / track;
+
+            byte[] junkBytes = new byte[(int)track];
+
+            if (variables.debugme) Console.WriteLine(totaltracks);
+            FileStream fw = new FileStream(diskHandle, FileAccess.ReadWrite);
+            uint offset = 0;
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            for (uint sectorNum = 0; sectorNum < totaltracks; sectorNum++)
+            {
+                if (variables.escapeloop) break;
+                int numBytesWritten = (int)diskGeometry.BytesPerSector;
+                //int moveToHigh;
+                try
+                {
+                    offset++;
+                    int value = (int)((offset * 100) / totaltracks);
+                    //if (offset % 1000 == 0) Console.WriteLine(offset + " " + value);
+                    UpdateProgres(value);
+                }
+                catch (Exception ex) { Console.WriteLine("{0} - {1} - {2}", offset, sectorNum, ex.ToString()); break; }
+
+
+                //uint rvalsfp = SetFilePointer(diskHandle, sectorNum * numBytesPerSector, out moveToHigh, EMoveMethod.Begin);
+
+                //Console.WriteLine("File pointer set " + Marshal.GetHRForLastWin32Error().ToString() + ": " + (sectorNum * numBytesPerSector).ToString());
+
+                fw.Write(junkBytes, 0, (int)track);
+
+                //int rval = WriteFile(diskHandle, junkBytes, junkBytes.Length, out numBytesWritten, IntPtr.Zero);
+
+                if (numBytesWritten != junkBytes.Length)
+                {
+                    //Console.WriteLine("Write error on track " + sectorNum.ToString() + " from " + (sectorNum * numBytesPerSector).ToString() + "-" + moveToHigh.ToString() + " " + Marshal.GetHRForLastWin32Error().ToString() + ": Only " + numBytesWritten.ToString() + "/" + junkBytes.Length.ToString() + " bytes written.");
+                    //break;
+                }
+                else
+                {
+                    //Console.WriteLine("Write success " + Marshal.GetHRForLastWin32Error().ToString() + ": " + numBytesWritten.ToString() + "/" + junkBytes.Length.ToString() + " bytes written.");
+                }
+            }
+            stopwatch.Stop();
+            Console.WriteLine("Erase Successful! Time Elapsed: {0}:{1:D2}", stopwatch.Elapsed.Minutes + (stopwatch.Elapsed.Hours * 60), stopwatch.Elapsed.Seconds);
+            Console.WriteLine("");
+
+            SoundPlayer successSound = new SoundPlayer(Properties.Resources.chime);
+            if (variables.soundsuccess != "") successSound.SoundLocation = variables.soundsuccess;
+            successSound.Play();
+
+            i = 0;
+            foreach (SafeFileHandle sfh in lhandles)
+            {
+                success = DeviceIoControl(sfh, FSCTL_UNLOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+                if (success)
+                {
+                    if (variables.debugme) Console.WriteLine(lnames[i] + " " + Marshal.GetHRForLastWin32Error().ToString() + ": unlocked.");
+                }
+                else
+                {
+                    Console.WriteLine(lnames[i] + " " + Marshal.GetHRForLastWin32Error().ToString() + ": unlock error: " + Marshal.GetHRForLastWin32Error().ToString());
+                    Console.WriteLine("");
+                }
+                i++;
+            }
+
+
+            success = DeviceIoControl(diskHandle, FSCTL_UNLOCK_VOLUME, null, 0, null, 0, out intOut, IntPtr.Zero);
+            if (success)
+            {
+                if (variables.debugme) Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": unlocked.");
+            }
+            else
+            {
+                Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": unlock error: " + Marshal.GetHRForLastWin32Error().ToString());
+                Console.WriteLine("");
+            }
+
+            i = 0;
+            foreach (SafeFileHandle sfh in lhandles)
+            {
+                success = CloseHandle(sfh);
+                if (success)
+                {
+                    if (variables.debugme) Console.WriteLine(lnames[i] + " " + Marshal.GetHRForLastWin32Error().ToString() + ": handle closed.");
+                }
+                else
+                {
+                    Console.WriteLine(lnames[i] + " " + Marshal.GetHRForLastWin32Error().ToString() + ": close handle error: " + Marshal.GetHRForLastWin32Error().ToString());
+                    Console.WriteLine("");
+                }
+                i++;
+            }
+
+
+            success = CloseHandle(diskHandle);
+            if (success)
+            {
+                if (variables.debugme) Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": handle closed.");
+            }
+            else
+            {
+                Console.WriteLine(deviceId + " " + Marshal.GetHRForLastWin32Error().ToString() + ": close handle error: " + Marshal.GetHRForLastWin32Error().ToString());
+                Console.WriteLine("");
+            }
+            try
+            {
+                fw.Close();
+            }
+            catch (Exception) { }
+            Environment.GetLogicalDrives();
+        }
+        private void erase_v2()
+        {
+            if (listView1.SelectedItems.Count == 0) return;
             string ldrive = listView1.SelectedItems[0].SubItems[1].Text;
             if (listView1.SelectedItems[0].SubItems[2].Text != "Removable") { Console.WriteLine("Must be a removable type"); return; }
-            if (MessageBox.Show("You are about to erase " + ldrive + ".\n\nAre you sure you want to continue?", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
+            if (MessageBox.Show("You are about to erase " + ldrive + ". Continue?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
 
             var diskGeometry = DiskGeometry.FromDevice(@"\\.\" + ldrive.Replace("\\", ""));
             uint track = diskGeometry.BytesPerSector * (diskGeometry.Sector + 1);
@@ -381,28 +820,24 @@ namespace JRunner.Panels
                 byte[] temp = new byte[track];
                 while (i < tracks && !variables.escapeloop)
                 {
-                    MainForm.mainForm.updateProgress((int)((i * 100) / tracks));
-                    MainForm.mainForm.updateBlock(((i * track) / 1024 / 1024).ToString("F0") + "MB");
+                    UpdateProgres((int)((i * 100) / tracks));
                     i++;
                     fs.Write(temp, 0, (int)track);
                 }
                 fs.Close();
-                MainForm.mainForm.updateBlock("");
-                MainForm.mainForm.updateProgress(100);
+                UpdateProgres(100);
                 stopwatch.Stop();
                 Console.WriteLine("Erase Successful! Time Elapsed: {0}:{1:D2}:{2}", stopwatch.Elapsed.Minutes + (stopwatch.Elapsed.Hours * 60), stopwatch.Elapsed.Seconds, stopwatch.Elapsed.Milliseconds);
                 Console.WriteLine("");
 
-                if (variables.playSuccess)
-                {
-                    SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
-                    success.Play();
-                }
+                SoundPlayer successSound = new SoundPlayer(Properties.Resources.chime);
+                if (variables.soundsuccess != "") successSound.SoundLocation = variables.soundsuccess;
+                successSound.Play();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                if (variables.debugMode) Console.WriteLine(ex.ToString());
+                if (variables.debugme) Console.WriteLine(ex.ToString());
                 Console.WriteLine("");
             }
         }
@@ -472,7 +907,7 @@ namespace JRunner.Panels
             try
             {
                 string deviceId = @"\\.\PHYSICALDRIVE" + numberofdrive;
-                if (variables.debugMode) Console.WriteLine(deviceId);
+                if (variables.debugme) Console.WriteLine(deviceId);
                 string queryString = "ASSOCIATORS OF {Win32_DiskDrive.DeviceID='" + deviceId + "'} WHERE AssocClass = Win32_DiskDriveToDiskPartition";
                 ManagementObjectSearcher diskSearcher = new ManagementObjectSearcher("root\\CIMV2", queryString);
                 ManagementObjectCollection diskMoc = diskSearcher.Get();
@@ -488,8 +923,21 @@ namespace JRunner.Panels
                     }
                 }
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
             return driveLetters;
+        }
+        private long GetSize(int drive)
+        {
+            int returnedBytes;
+            IntPtr buffer = Marshal.AllocHGlobal(sizeof(ulong));
+            bool result = DeviceIoControl(CreateFile(@"\\.\PHYSICALDRIVE" + drive, FileAccess.Read, FileShare.ReadWrite, 0, FileMode.Open, 0, IntPtr.Zero), 0x0007405C, IntPtr.Zero, 0, buffer, sizeof(ulong), out returnedBytes, IntPtr.Zero);
+            long sessionId = Marshal.ReadInt64(buffer);
+            if (!result) sessionId = 0;
+            if (variables.debugme) Console.WriteLine(result);
+            if (variables.debugme) Console.WriteLine(sessionId);
+            if (variables.debugme) Console.WriteLine(returnedBytes);
+            Marshal.FreeHGlobal(buffer);
+            return sessionId;
         }
 
         private void LDrives_KeyUp(object sender, KeyEventArgs e)
@@ -499,6 +947,11 @@ namespace JRunner.Panels
                 variables.escapeloop = true;
                 ThreadStart starter = delegate { escapedexit(5000); };
                 new Thread(starter).Start();
+            }
+            else if (e.KeyCode == Keys.F2)
+            {
+                force = !force;
+                if (force) Console.WriteLine("Alternative method");
             }
             else if (e.KeyCode == Keys.F3)
             {
@@ -518,24 +971,23 @@ namespace JRunner.Panels
             var diskGeometry = DiskGeometry.FromDevice(device);
             var cubicAddress = diskGeometry.MaximumCubicAddress;
 
-            Console.WriteLine("Media Type: {0}", diskGeometry.MediaTypeName);
-            Console.WriteLine("");
+            Console.WriteLine("            media type: {0}", diskGeometry.MediaTypeName);
+            Console.WriteLine();
 
-            Console.WriteLine("Maximum Linear Address: {0}", diskGeometry.MaximumLinearAddress);
-            Console.WriteLine("Last Cylinder Number: {0}", cubicAddress.Cylinder);
-            Console.WriteLine("Last Head Number: {0}", cubicAddress.Head);
-            Console.WriteLine("Last Sector Number: {0}", cubicAddress.Sector);
-            Console.WriteLine("");
+            Console.WriteLine("maximum linear address: {0}", diskGeometry.MaximumLinearAddress);
+            Console.WriteLine("  last cylinder number: {0}", cubicAddress.Cylinder);
+            Console.WriteLine("      last head number: {0}", cubicAddress.Head);
+            Console.WriteLine("    last sector number: {0}", cubicAddress.Sector);
+            Console.WriteLine();
 
-            Console.WriteLine("Cylinders: {0}", diskGeometry.Cylinder);
-            Console.WriteLine("Tracks Per Cylinder: {0}", diskGeometry.Head);
-            Console.WriteLine("Sectors Per Track: {0}", diskGeometry.Sector);
-            Console.WriteLine("");
+            Console.WriteLine("             cylinders: {0}", diskGeometry.Cylinder);
+            Console.WriteLine("   tracks per cylinder: {0}", diskGeometry.Head);
+            Console.WriteLine("     sectors per track: {0}", diskGeometry.Sector);
+            Console.WriteLine();
 
-            Console.WriteLine("Bytes Per Sector: {0}", diskGeometry.BytesPerSector);
-            Console.WriteLine("Bytes Per Cylinder: {0}", diskGeometry.BytesPerCylinder);
-            Console.WriteLine("Total Disk Space: {0}", diskGeometry.DiskSize);
-            Console.WriteLine("");
+            Console.WriteLine("      bytes per sector: {0}", diskGeometry.BytesPerSector);
+            Console.WriteLine("    bytes per cylinder: {0}", diskGeometry.BytesPerCylinder);
+            Console.WriteLine("      total disk space: {0}", diskGeometry.DiskSize);
         }
 
         public void updateIter(int n)
@@ -587,12 +1039,5 @@ namespace JRunner.Panels
 
         #endregion
 
-        private void chkFullDump_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chkFullDump.Checked)
-            {
-                MessageBox.Show("Warning: This function is for advanced users only.\n\nYou should not do a full dump unless you have a specific reason.", "Steep Hill Ahead", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
     }
 }

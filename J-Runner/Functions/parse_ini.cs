@@ -120,7 +120,7 @@ namespace JRunner
                         }
                         else
                         {
-                            if (line == tochange)
+                            if (line == (tochange))
                             {
                                 //Console.WriteLine("{0} - {1} || 4", line, (tochange));
                                 found = true;
@@ -205,40 +205,6 @@ namespace JRunner
             return labels.ToArray();
         }
 
-        public static void getLabelsandCBs(string filename, ref List<string> labels, ref List<string> cbs)
-        {
-            if (File.Exists(filename))
-            {
-                TextReader tr = new StreamReader(filename);
-
-                string temp;
-                while ((temp = tr.ReadLine()) != null)
-                {
-                    if (temp == "") continue;
-                    else if (temp[0] == ';') continue;
-                    else if (temp[0] == '[' && temp.Contains("]") && temp.Contains("bl"))
-                    {
-                        labels.Add(temp.Replace(" ", string.Empty).Replace("[", string.Empty).Replace("]", string.Empty));
-                    }
-                    else if (temp.Contains("cb_"))
-                    {
-                        cbs.Add(temp.Substring(temp.IndexOf("cb_") + 3, temp.IndexOf(".bin") - 3));
-                    }
-                    else if (temp.Contains("cb."))
-                    {
-                        cbs.Add(temp.Substring(temp.IndexOf("cb.") + 3, temp.IndexOf(".bin") - 3));
-                    }
-                    else if (temp.Contains("cbb_"))
-                    {
-                        cbs.Add(temp.Substring(temp.IndexOf("cbb_") + 4, temp.IndexOf(".bin") - 4));
-                    }
-                    else if (temp.Contains("cbb."))
-                    {
-                        cbs.Add(temp.Substring(temp.IndexOf("cbb.") + 4, temp.IndexOf(".bin") - 4));
-                    }
-                }
-            }
-        }
     }
 }
 

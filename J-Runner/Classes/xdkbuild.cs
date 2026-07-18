@@ -11,14 +11,14 @@ namespace JRunner
         private string sc;
         private string key1bl_options = "";
 
-        public void create(string board, bool notlast = false)
+        public void create(string board)
         {
             Console.WriteLine("Converting Image to XDKbuild...");
             Thread.Sleep(1000); // Important
 
             try
             {
-                key1bl_options = File.ReadAllText(variables.rootfolder + @"\xeBuild\options.ini");
+                key1bl_options = File.ReadAllText(variables.pathforit + @"\xeBuild\options.ini");
                 key1bl_options = key1bl_options.Substring(key1bl_options.IndexOf("1blkey = ") + 9, 32);
             }
             catch
@@ -27,18 +27,19 @@ namespace JRunner
                 return;
             }
 
-            filename = Path.Combine(variables.xefolder, variables.updflash);
+            filename = Path.Combine(variables.xefolder, variables.nandflash);
 
-            if (board.Contains("jasper")) board = "jasper";
-            if (board.Contains("corona")) board = "corona";
+            if (board == "jasper256") board = "jasper";
+            if (board == "jasper512") board = "jasper";
+            if (board == "corona4g") board = "corona";
 
             sc = board + ".bin";
 
             Process pProcess = new Process();
-            pProcess.StartInfo.FileName = variables.rootfolder + @"\xeBuild\XDKbuild\XDKbuild.exe";
+            pProcess.StartInfo.FileName = variables.pathforit + @"\xeBuild\XDKbuild\XDKbuild.exe";
             pProcess.StartInfo.Arguments = "\"" + filename + "\" " + key1bl_options + " " + sc;
             pProcess.StartInfo.UseShellExecute = false;
-            pProcess.StartInfo.WorkingDirectory = variables.rootfolder + @"\xeBuild\XDKbuild\";
+            pProcess.StartInfo.WorkingDirectory = variables.pathforit + @"\xeBuild\XDKbuild\";
             pProcess.StartInfo.RedirectStandardInput = true;
             pProcess.StartInfo.RedirectStandardOutput = true;
             pProcess.StartInfo.CreateNoWindow = true;
@@ -68,11 +69,7 @@ namespace JRunner
                     pProcess.CancelOutputRead();
                     Console.WriteLine("XDKbuild Conversion Finished!");
                     Console.WriteLine("Remember to program a compatible timing file!");
-                    if (!notlast)
-                    {
-                        variables.xefinished = true;
-                        MainForm.mainForm.xPanel.xeExitActual();
-                    }
+                    MainForm.mainForm.xPanel.xeExitActual();
                 }
             }
             catch (Exception objException)

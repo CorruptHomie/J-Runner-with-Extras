@@ -7,43 +7,24 @@ using System.Windows.Forms;
 
 namespace UI
 {
-    public class CommandLink : Button
-    {
-        public CommandLink()
-        {
-            this.FlatStyle = FlatStyle.System;
-        }
-
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams cParams = base.CreateParams;
-                cParams.Style |= 0x0000000E;
-                return cParams;
-            }
-        }
-    }
-
-    public class MenuButton : Button
+    public class SplitButton : Button
     {
         ContextMenuStrip contextStrip;
         bool isHot;
         bool menuOpen;
-        bool split = false;
+        bool alwaysShowMenu = false;
 
         #region context menu
-
         [DefaultValue(false)]
-        public bool SplitButton
+        public bool AlwaysShowMenu
         {
             get
             {
-                return split;
+                return alwaysShowMenu;
             }
             set
             {
-                split = value;
+                alwaysShowMenu = value;
             }
         }
 
@@ -103,11 +84,9 @@ namespace UI
                 contextStrip.Show(this, new Point(0, Height), ToolStripDropDownDirection.BelowRight);
             }
         }
-
         #endregion
 
         #region appearance
-
         public Image BtnImage
         {
             get
@@ -126,22 +105,18 @@ namespace UI
             if (menuOpen || Focused || hot) isHot = true;
             else isHot = false;
 
-            if (split)
+            if (isHot)
             {
-                if (isHot)
-                {
-                    BtnImage = JRunner.Properties.Resources.arrow_dn_hot;
-                }
-                else
-                {
-                    BtnImage = JRunner.Properties.Resources.arrow_dn;
-                }
+                BtnImage = JRunner.Properties.Resources.arrow_dn_hot;
+            }
+            else
+            {
+                BtnImage = JRunner.Properties.Resources.arrow_dn;
             }
         }
         #endregion
 
         #region overrides
-
         protected override void OnGotFocus(EventArgs e)
         {
             base.OnGotFocus(e);
@@ -170,7 +145,7 @@ namespace UI
         {
             var clickPos = PointToClient(new Point(MousePosition.X, MousePosition.Y));
 
-            if (clickPos.X >= (Size.Width - Image.Width) || !split) showMenu();
+            if (clickPos.X >= (Size.Width - Image.Width) || alwaysShowMenu) showMenu();
             else base.OnClick(e);
         }
 
@@ -189,7 +164,6 @@ namespace UI
             
             base.OnKeyDown(e);
         }
-
         #endregion
     }
 }

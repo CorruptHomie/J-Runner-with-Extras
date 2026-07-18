@@ -44,10 +44,12 @@ namespace JRunner.Forms
             if (on)
             {
                 MainForm.mainForm.Enabled = false;
+                //this.TopMost = true;
             }
             else
             {
                 MainForm.mainForm.Enabled = true;
+                //this.TopMost = false;
             }
         }
 
@@ -142,17 +144,7 @@ namespace JRunner.Forms
 
         private void CpuKvNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
         {
-            bool keyOk = false;
-            try
-            {
-                keyOk = Nand.Nand.VerifyKey(Oper.StringToByteArray(CpuKeyBox.Text));
-            }
-            catch
-            {
-                keyOk = false;
-            }
-
-            if (!keyOk)
+            if (!Nand.Nand.VerifyKey(Oper.StringToByteArray(CpuKeyBox.Text)))
             {
                 e.Cancel = true;
                 MessageBox.Show("CPU Key is wrong", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -217,7 +209,7 @@ namespace JRunner.Forms
                         cpukey = objAlphaPattern.Match(line).Value;
                         break;
                     }
-                    if (variables.debugMode) Console.WriteLine(objAlphaPattern.Match(line).Value);
+                    if (variables.debugme) Console.WriteLine(objAlphaPattern.Match(line).Value);
                 }
                 CpuKeyBox.Text = cpukey;
             }
@@ -228,12 +220,6 @@ namespace JRunner.Forms
                 e.Effect = DragDropEffects.All;
             else
                 e.Effect = DragDropEffects.None;
-        }
-
-        private void GenerateKey_Click(object sender, EventArgs e)
-        {
-            if ((ModifierKeys & Keys.Shift) == Keys.Shift) CpuKeyBox.Text = variables.superDevKey;
-            else CpuKeyBox.Text = CpuKeyGen.GenerateKey();
         }
 
         private void DonorKv_CheckedChanged(object sender, EventArgs e)
@@ -513,9 +499,7 @@ namespace JRunner.Forms
 
             if (File.Exists(smcConfPath))
             {
-                long smcConfLength = new FileInfo(smcConfPath).Length;
-
-                if (smcConfLength == 65536 || smcConfLength == 524288)
+                if (new FileInfo(smcConfPath).Length == 65536)
                 {
                     smcConfValid = true;
                 }

@@ -3,35 +3,23 @@ using System.Windows.Forms;
 
 namespace JRunner.Forms
 {
-    public partial class CustomXeBuild : Form
+    public partial class CustomXebuild : Form
     {
-        public CustomXeBuild()
+        public CustomXebuild()
         {
             InitializeComponent();
-            this.DialogResult = DialogResult.Cancel;
+            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
         }
 
         private void btnRun_Click(object sender, EventArgs e)
         {
-            MainForm.mainForm.CustomXeBuildStart(txtCommand.Text);
-            this.DialogResult = DialogResult.OK;
+            this.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.Close();
         }
-
-        private void txtCommand_TextChanged(object sender, EventArgs e)
+        public string getString()
         {
-            if (txtCommand.TextLength > 0)
-            {
-                if (txtCommand.Text.Contains("-d"))
-                {
-                    // Cut down on dialog spam, only warn the user once
-                    if (btnRun.Enabled) MessageBox.Show("You cannot specify a custom -d due to limitations of how J-Runner's XeBuild sequencing works", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                    btnRun.Enabled = false;
-                }
-                else btnRun.Enabled = true;
-            }
-            else btnRun.Enabled = false;
+            return txtCommand.Text;
         }
+
     }
 }

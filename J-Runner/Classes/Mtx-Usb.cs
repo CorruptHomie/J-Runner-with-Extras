@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
-using System.Media;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -32,16 +29,7 @@ namespace JRunner
 
         public void writeXeLLAuto()
         {
-            if (string.IsNullOrWhiteSpace(variables.filename1)) return;
-            if (!File.Exists(variables.filename1)) return;
-
-            if (Path.GetExtension(variables.filename1) == ".ecc") writeNand(16, variables.filename1, 1, 0, 80); // startblock + length (hex) for display purposes only, not required
-            else writeNand(16, variables.filename1, 2, 0, 80); // startblock + length (hex) for display purposes only, not required
-        }
-
-        public void writeNandAuto()
-        {
-            if (string.IsNullOrWhiteSpace(variables.filename1)) return;
+            if (String.IsNullOrWhiteSpace(variables.filename1)) return;
             if (!File.Exists(variables.filename1)) return;
 
             if (Path.GetExtension(variables.filename1) == ".ecc")
@@ -50,7 +38,35 @@ namespace JRunner
                 return;
             }
 
-            long len = new FileInfo(variables.filename1).Length;
+            writeNand(16, variables.filename1, 2, 0, 80); // startblock + length (hex) for display purposes only, not required
+        }
+
+        public void writeEccAuto()
+        {
+            if (String.IsNullOrWhiteSpace(variables.filename1)) return;
+            if (!File.Exists(variables.filename1)) return;
+
+            if (Path.GetExtension(variables.filename1) != ".ecc")
+            {
+                Console.WriteLine("You need an .ecc image");
+                return;
+            }
+
+            writeNand(16, variables.filename1, 1, 0, 80); // startblock + length (hex) for display purposes only, not required
+        }
+
+        public void writeNandAuto()
+        {
+            if (String.IsNullOrWhiteSpace(variables.filename1)) return;
+            if (!File.Exists(variables.filename1)) return;
+
+            if (Path.GetExtension(variables.filename1) == ".ecc")
+            {
+                Console.WriteLine("You need an .bin image");
+                return;
+            }
+
+            double len = new FileInfo(variables.filename1).Length;
             if (len == 50331648)
             {
                 MessageBox.Show("Unable to write eMMC type image with an SPI tool\n\nPlease use an eMMC tool", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -76,7 +92,7 @@ namespace JRunner
                 variables.nandsizex = Nandsize.S16;
                 writeNand(16, variables.filename1);
             }
-            else if (len == 1310720 | len == 1351680)
+            else if (len == 1351680)
             {
                 variables.nandsizex = Nandsize.S16;
                 writeNand(16, variables.filename1, 3);
@@ -111,11 +127,11 @@ namespace JRunner
                     }
 
                     System.Diagnostics.Process process = new System.Diagnostics.Process();
-                    process.StartInfo.FileName = "common/mtx-tools/NandPro2b_Armv3.exe";
+                    process.StartInfo.FileName = "common/mtx-tools/NandPro2e.exe";
                     if (mode == 1) process.StartInfo.Arguments = "usb: +w" + size + " \"" + filename + "\"" + slArg;
                     else process.StartInfo.Arguments = "usb: -w" + size + " \"" + filename + "\"" + slArg;
                     process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.WorkingDirectory = Path.Combine(variables.rootfolder, "common/mtx-tools");
+                    process.StartInfo.WorkingDirectory = Path.Combine(variables.pathforit, "common/mtx-tools");
                     process.StartInfo.CreateNoWindow = false;
 
                     NandX.InUse = true;
@@ -129,23 +145,11 @@ namespace JRunner
                     MainForm.mainForm.mtxBusy(0);
                     Console.WriteLine("NandPro: Completed! Time Elapsed: {0}", mtxTimeString);
                     Console.WriteLine("");
-
-                    if (variables.playSuccess)
-                    {
-                        SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
-                        success.Play();
-                    }
-
-                    if (mode == 1 || mode == 2)
-                    {
-                        Thread.Sleep(500);
-                        MainForm.mainForm.afterWriteXeLLCleanup();
-                    }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    if (variables.debugMode) Console.WriteLine(ex.ToString());
+                    if (variables.debugme) Console.WriteLine(ex.ToString());
                     Console.WriteLine("");
                 }
             });
@@ -159,78 +163,29 @@ namespace JRunner
                 Console.WriteLine("MTX USB: Device Is Busy");
                 return;
             }
-            if (Process.GetProcessesByName("xsvf").Length > 0)
-            {
-                Console.WriteLine("MTX USB: xsvf is already running!");
-                return;
-            }
+
             Thread xsvfThread = new Thread(() =>
             {
                 try
                 {
-                    if (!File.Exists(filename))
-                    {
-                        Console.WriteLine("MTX USB: File Not Found: {0}", filename);
-                        return;
-                    }
-                    if (Path.GetExtension(filename) != ".xsvf")
-                    {
-                        Console.WriteLine("MTX USB: Wrong File Type: {0}", filename);
-                        return;
-                    }
-                    try
-                    {
-                        if (File.Exists(MainForm.tempTimingPath))
-                        {
-                            File.Delete(MainForm.tempTimingPath);
-                        }
-                        File.Copy(filename, MainForm.tempTimingPath);
-                    }
-                    catch
-                    {
-                        Console.WriteLine("MTX USB: Could not open temporary file for flashing");
-                        Console.WriteLine("MTX USB: {0} is locked by another process", MainForm.tempTimingPath);
-                        return;
-                    }
+                    System.Diagnostics.Process process = new System.Diagnostics.Process();
+                    process.StartInfo.FileName = "common/mtx-tools/xsvf/xsvf.exe";
+                    process.StartInfo.Arguments = "\"" + filename + "\"";
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.WorkingDirectory = variables.pathforit;
+                    process.StartInfo.CreateNoWindow = false;
 
-                    Console.WriteLine("MTX USB: Flashing {0}", Path.GetFileName(filename));
-                    Process psi = new Process();
-                    psi.StartInfo.FileName = "common/mtx-tools/xsvf/xsvf.exe";
-                    psi.StartInfo.Arguments = "\"" + MainForm.tempTimingPath + "\"";
-                    psi.StartInfo.WorkingDirectory = variables.rootfolder;
-                    psi.StartInfo.UseShellExecute = false;
-					psi.StartInfo.CreateNoWindow = false;
-					
                     NandX.InUse = true;
-
-                    // Count process time
-                    Stopwatch watch = new Stopwatch();
-                    watch.Start();
-                    psi.Start();
-                    psi.WaitForExit();
-                    watch.Stop();
+                    process.Start();
+                    process.WaitForExit();
 
                     NandX.InUse = false;
-
-                    if (variables.playSuccess)
-                    {
-                        SoundPlayer success = new SoundPlayer(Properties.Resources.chime);
-                        success.Play();
-                    }
-                    Console.WriteLine("MTX USB: Flash success!");
-
-                    Console.WriteLine($"Time: {watch.Elapsed.TotalSeconds:F2}s");
-                    Console.WriteLine();
-
-                    if (File.Exists(MainForm.tempTimingPath))
-                    {
-                        File.Delete(MainForm.tempTimingPath);
-                    }
+                    Console.WriteLine("Xsvf: Completed!");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    if (variables.debugMode) Console.WriteLine(ex.ToString());
+                    if (variables.debugme) Console.WriteLine(ex.ToString());
                     Console.WriteLine("");
                 }
             });

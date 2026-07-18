@@ -13,13 +13,66 @@ namespace JRunner.Panels
             InitializeComponent();
         }
 
+        public NandTools(string lptport)
+        {
+            txtLPTPort.Text = lptport;
+        }
+
+        public NandTools(int iterations)
+        {
+            numericIterations.Value = iterations;
+        }
+
+        public NandTools(string lptport, int iterations)
+        {
+            numericIterations.Value = iterations;
+            txtLPTPort.Text = lptport;
+        }
+
         public int getNumericIterations()
         {
             return (int)numericIterations.Value;
         }
-        public void setNumericIterations(int value)
+        public void setNumericIterations(decimal value)
         {
             numericIterations.Value = value;
+        }
+        public string getLptPort()
+        {
+            return txtLPTPort.Text;
+        }
+        public void setLptPort(string port)
+        {
+            txtLPTPort.Text = port;
+        }
+        public bool getRbtnUSB()
+        {
+            return rbtnUSB.Checked;
+        }
+        public bool getRbtnLPT()
+        {
+            return rbtnLPT.Checked;
+        }
+
+        public void setbtnCreateECCEnabled(bool b)
+        {
+            btnCreateECC.Enabled = b;
+        }
+        public void setbtnCreateECC(string text)
+        {
+            btnCreateECC.Text = text;
+        }
+        public string getbtnCreateECC()
+        {
+            return btnCreateECC.Text;
+        }
+        public void setbtnWriteECC(string text)
+        {
+            btnWriteECC.Text = text;
+        }
+        public string getbtnWriteECC()
+        {
+            return btnWriteECC.Text;
         }
 
         public void setImage(Image m)
@@ -27,96 +80,106 @@ namespace JRunner.Panels
             pBoxDevice.Image = m;
         }
 
+        public delegate void ClickedRead();
+        public event ClickedRead ReadClick;
+        public delegate void ClickedCreateECC();
+        public event ClickedCreateECC CreateEccClick;
+        public delegate void ClickedWriteECC();
+        public event ClickedWriteECC WriteEccClick;
+        public delegate void ClickedXeBuild();
+        public event ClickedXeBuild XeBuildClick;
+        public delegate void ClickedWrite();
+        public event ClickedWrite WriteClick;
+        public delegate void ClickedProgramCR();
+        public event ClickedProgramCR ProgramCRClick;
+        public delegate void ClickedCPUDB();
+        public event ClickedCPUDB CPUDBClick;
+        public delegate void ChangedIter(int iter);
+        public event ChangedIter IterChange;
+        //public delegate void CheckedChanged();
+        //public event CheckedChanged ChangedChecked;
+        //public delegate void PortChanged();
+        //public event PortChanged ChangedPort;
+
         private void btnRead_Click(object sender, EventArgs e)
         {
-            MainForm.mainForm.btnReadClick();
+            ReadClick();
         }
 
         private void btnCreateECC_Click(object sender, EventArgs e)
         {
-            MainForm.mainForm.btnCreateECCClick();
+            CreateEccClick();
         }
 
         private void btnWriteECC_Click(object sender, EventArgs e)
         {
-            MainForm.mainForm.btnWriteECCClick();
+            WriteEccClick();
         }
 
         private void btnXeBuild_Click(object sender, EventArgs e)
         {
-            MainForm.mainForm.btnXeBuildClick();
+            XeBuildClick();
         }
 
         private void btnWrite_Click(object sender, EventArgs e)
         {
-            MainForm.mainForm.btnWriteClick();
+            WriteClick();
         }
 
         private void btnProgramCR_Click(object sender, EventArgs e)
         {
-            MainForm.mainForm.openXsvfChoice(true, true);
+            ProgramCRClick();
+        }
+
+        private void rbtn_CheckedChanged(object sender, EventArgs e)
+        {
+            //ChangedChecked();
+            txtLPTPort.Visible = (rbtnLPT.Checked);
+            lblLPTPort.Visible = txtLPTPort.Visible;
         }
 
         private void numericIterations_ValueChanged(object sender, EventArgs e)
         {
-            MainForm.mainForm.nTools_IterChange((int)numericIterations.Value);
+            IterChange((int)numericIterations.Value);
         }
 
-        private void btnExtractFiles_Click(object sender, EventArgs e)
+        private void btnCPUDB_Click(object sender, EventArgs e)
         {
-            MainForm.mainForm.extractFilesFromNand();
+            CPUDBClick();
         }
 
-        private void btnCreateDonor_Click(object sender, EventArgs e)
+        private void txtLPTPort_TextChanged(object sender, EventArgs e)
         {
-            MainForm.mainForm.createDonorNand();
+            //ChangedPort();
         }
 
-        private void btnPatchKv_Click(object sender, EventArgs e)
-        {
-            MainForm.mainForm.openPatchKv();
-        }
-
-        private int funCount = 0;
+        private int eeCount = 0;
         private void pBoxDevice_Click(object sender, EventArgs e)
         {
-            if (funCount == 5)
+            if (eeCount == 5)
             {
-                MessageBox.Show("WTF are you DOING?!?!?", "Confusion!", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                MessageBox.Show("Wtf are you doing!?!?!", "Confusion!", MessageBoxButtons.OK, MessageBoxIcon.Question);
             }
-            else if (funCount == 8)
+            else if (eeCount == 8)
             {
-                MessageBox.Show("Stop doing that!!!!!", "You're annoying!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("#%&@ Stop doing that!!!!!", "#%&@", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else if (funCount == 10)
+            else if (eeCount == 10)
             {
-                MessageBox.Show("Cut that #$@!% out!!!!!", "Stop Plz!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Cut that shit out!!!!!", "You're Annoying!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else if (funCount == 12)
+            else if (eeCount == 12)
             {
-                MessageBox.Show("CLICK ME AGAIN!\nI DARE YOU!", "You Gon Get It!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("CLICK ME AGAIN!\nI DARE YOU!", "You Gon Get It", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else if (funCount == 13)
+            else if (eeCount == 13)
             {
-                if (variables.reading || variables.writing)
-                {
-                    MessageBox.Show("The easter egg rudely tried to interrupt your nand read/write and needs a timeout\n\nTry again later", "Hypervisor", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    funCount = 0;
-                }
-                else
-                {
-                    SoundPlayer goodbye = new SoundPlayer(Properties.Resources.goodbye);
-                    goodbye.Play();
-                    Thread goodbyeThread = new Thread(() =>
-                    {
-                        Thread.Sleep(1000);
-                        Application.Exit();
-                    });
-                    goodbyeThread.Start();
-                    MessageBox.Show("I warned ya!", ":/", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                SoundPlayer goodbye = new SoundPlayer(Properties.Resources.goodbye);
+                goodbye.Play();
+                Thread.Sleep(1000);
+                Application.Exit();
             }
-            funCount += 1;
+            eeCount += 1;
         }
     }
 }

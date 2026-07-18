@@ -1368,7 +1368,7 @@ namespace Ionic.Zip
         ///
         public ZipEntry PutNextEntry(String entryName)
         {
-            if (string.IsNullOrEmpty(entryName))
+            if (String.IsNullOrEmpty(entryName))
                 throw new ArgumentNullException("entryName");
 
             if (_disposed)

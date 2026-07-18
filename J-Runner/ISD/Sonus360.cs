@@ -25,7 +25,7 @@ namespace JRunner
             MyUsbDevice = UsbDevice.OpenUsbDevice(JRunner);
             if (MyUsbDevice == null)
             {
-                if (variables.debugMode)
+                if (variables.debugme)
                     Console.WriteLine("null device...");
                 return 1;
             }
@@ -33,10 +33,10 @@ namespace JRunner
             if (!ReferenceEquals(wholeUsbDevice, null))
             {
                 wholeUsbDevice.SetConfiguration(1);
-                if (variables.debugMode)
+                if (variables.debugme)
                        Console.WriteLine("Claiming Interface...");
                 wholeUsbDevice.ClaimInterface(0);
-                if (variables.debugMode)
+                if (variables.debugme)
                     Console.WriteLine("The Interface is ours!");
             }
 
@@ -84,13 +84,13 @@ namespace JRunner
 
             ///Access Flash
             MyUsbDevice.ControlTransfer(ref packet, buf, 1, out transfer);
-            if (variables.debugMode)
+            if (variables.debugme)
                 Console.WriteLine("Length Transferred: {0}", transfer);
 
             MyUsbDevice.ControlTransfer(ref packetread, readBuffer, 8, out transfer);
-            if (variables.debugMode)
+            if (variables.debugme)
                 Console.WriteLine("Length Transferred: {0}", transfer);
-            if (variables.debugMode)
+            if (variables.debugme)
                 Console.WriteLine("Status: 0x" + readBuffer[0] + "\n");
 
             Thread.Sleep(50);
@@ -127,11 +127,11 @@ namespace JRunner
             byte[] ID_3 = { 0x03, 0xEF, 0x20, 0x11 };
 
             MyUsbDevice.ControlTransfer(ref packet, buf, 5, out transfer);
-            if (variables.debugMode)
+            if (variables.debugme)
                 Console.WriteLine("Length Transferred: {0}", transfer);
 
             MyUsbDevice.ControlTransfer(ref packetread, readBuffer, 8, out transfer);
-            if (variables.debugMode)
+            if (variables.debugme)
                 Console.WriteLine("Length Transferred: {0}", transfer);
 
             if (Oper.ByteArrayCompare(ID, Oper.returnportion(readBuffer, 1, 4)))
@@ -147,7 +147,7 @@ namespace JRunner
                 return 3;
             }
 
-            if (variables.debugMode)
+            if (variables.debugme)
                 Console.WriteLine("In " + Oper.ByteArrayToString(readBuffer) + "\n");
             return 0;
         }
@@ -175,12 +175,12 @@ namespace JRunner
             packetread.RequestType = 0xC0;
 
             MyUsbDevice.ControlTransfer(ref packet, buf, 1, out transfer);
-            if (variables.debugMode) Console.WriteLine("Length Transferred: {0}", transfer);
+            if (variables.debugme) Console.WriteLine("Length Transferred: {0}", transfer);
 
             MyUsbDevice.ControlTransfer(ref packetread, readBuffer, 8, out transfer);
-            if (variables.debugMode)
+            if (variables.debugme)
                 Console.WriteLine("Length Transferred: {0}", transfer);
-            if (variables.debugMode)
+            if (variables.debugme)
                 Console.WriteLine("Status: 0x" + readBuffer[0] + "\n");
 
             if (readBuffer[0] == 0x61)
@@ -208,13 +208,13 @@ namespace JRunner
             packetread.RequestType = 0xC0;
 
             MyUsbDevice.ControlTransfer(ref packet, buf, 1, out transfer);
-            if (variables.debugMode)
+            if (variables.debugme)
                 Console.WriteLine("Length Transferred: {0}", transfer);
 
             MyUsbDevice.ControlTransfer(ref packetread, readBuffer, 8, out transfer);
-            if (variables.debugMode)
+            if (variables.debugme)
                 Console.WriteLine("Length Transferred: {0}", transfer);
-            if (variables.debugMode)
+            if (variables.debugme)
                 Console.WriteLine("Status: 0x" + readBuffer[0] + "\n");
         }
 
@@ -242,7 +242,7 @@ namespace JRunner
             {
                 File.Delete(filename);
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); };
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); };
 
             BinaryWriter sw = new BinaryWriter(File.Open(filename, FileMode.Append, FileAccess.Write));
 
@@ -262,7 +262,7 @@ namespace JRunner
                 CMD[2] = (byte)((i & 0xff00) >> 8);
 
                 MyUsbDevice.ControlTransfer(ref packet, CMD, 8, out transfer);
-                Thread.Sleep(variables.jrpSonusDelay);
+                Thread.Sleep(variables.delay);
 
                 MyUsbDevice.ControlTransfer(ref packetread, readBuffer, 8, out transfer);
                 if (Oper.ByteArrayCompare(readBuffer, RES, 4))
@@ -309,10 +309,10 @@ namespace JRunner
 
             ///Access Flash
             MyUsbDevice.ControlTransfer(ref packet, buf, 2, out transfer);
-            if (variables.debugMode) Console.WriteLine("Length Transferred: {0}", transfer);
-            Thread.Sleep(variables.jrpSonusDelay);
+            if (variables.debugme) Console.WriteLine("Length Transferred: {0}", transfer);
+            Thread.Sleep(variables.delay);
             MyUsbDevice.ControlTransfer(ref packetread, readBuffer, 8, out transfer);
-            if (variables.debugMode) Console.WriteLine("Length Transferred: {0}", transfer);
+            if (variables.debugme) Console.WriteLine("Length Transferred: {0}", transfer);
             //Console.WriteLine("Status: 0x{0:X}", readBuffer[0]);
 
             if (readBuffer[0] != 0x60 && readBuffer[0] != 0x40)
@@ -382,19 +382,19 @@ namespace JRunner
                     CMD[2] = (byte)((i & 0xff00) >> 8);
 
                     MyUsbDevice.ControlTransfer(ref packet, CMD, 8, out transfer);
-                    Thread.Sleep(variables.jrpSonusDelay + stayPause);
+                    Thread.Sleep(variables.delay + stayPause);
                     MyUsbDevice.ControlTransfer(ref packetread, readBuffer, 8, out transfer);
                     while (!Oper.ByteArrayCompare(readBuffer, RES, 5))
                     {
                         AddPause += 2;
-                        Thread.Sleep(variables.jrpSonusDelay + AddPause + stayPause);
+                        Thread.Sleep(variables.delay + AddPause + stayPause);
                         MyUsbDevice.ControlTransfer(ref packet, CMD, 8, out transfer);
-                        Thread.Sleep(variables.jrpSonusDelay + AddPause + stayPause);
+                        Thread.Sleep(variables.delay + AddPause + stayPause);
                         MyUsbDevice.ControlTransfer(ref packetread, readBuffer, 8, out transfer);
                         log("byte mismatch, retrying..\n");
-                        if (variables.debugMode)
+                        if (variables.debugme)
                             Console.WriteLine("Slowing down...");
-                        if (variables.debugMode)
+                        if (variables.debugme)
                             Console.WriteLine("additional delay now set to :" + AddPause);
 
                         if (AddPause > 16)
@@ -405,11 +405,11 @@ namespace JRunner
                     }
                 }
 
-                if (stayPause > 0) Console.WriteLine("Consider changing delay in setting page to : " + (variables.jrpSonusDelay + 1));
+                if (stayPause > 0) Console.WriteLine("Consider changing delay in setting page to : " + (variables.delay + 1));
                 UpdateProgress(100);
                 rw.Close();
             }
-            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
         }
         public Boolean ISD_Verify_Flash(string filename)
         {
@@ -470,7 +470,7 @@ namespace JRunner
                 {
                     if (fails == 1) Console.Write("x");
                     MyUsbDevice.ControlTransfer(ref packet, CMD, 8, out transfer);
-                    Thread.Sleep(variables.jrpSonusDelay + fails);
+                    Thread.Sleep(variables.delay + fails);
                     MyUsbDevice.ControlTransfer(ref packetread, readBuffer, 8, out transfer);
 
                     Buffer.BlockCopy(readBuffer, 4, data, i, 4);
@@ -501,12 +501,12 @@ namespace JRunner
 
             byte[] buf = new byte[3];
             buf[0] = 0xA6;
-            buf[1] = (byte)((index & 0xff00) >> 8);
-            buf[2] = (byte)(index & 0x00ff);
-            
+            buf[3] = (byte)(index & 0x00ff);
+            buf[2] = (byte)((index & 0xff00) >> 8);
+
             ///Access Flash
             MyUsbDevice.ControlTransfer(ref packet, buf, 3, out transfer);
-            if (variables.debugMode) Console.WriteLine("Length Transferred: {0}", transfer);
+            if (variables.debugme) Console.WriteLine("Length Transferred: {0}", transfer);
         }
 
         public void ISD_Exec(UInt16 index)
@@ -523,12 +523,12 @@ namespace JRunner
 
             byte[] buf = new byte[3];
             buf[0] = 0xB0;
-            buf[1] = (byte)((index & 0xff00) >> 8);
-            buf[2] = (byte)(index & 0x00ff);
+            buf[3] = (byte)(index & 0x00ff);
+            buf[2] = (byte)((index & 0xff00) >> 8);
 
             ///Access Flash
             MyUsbDevice.ControlTransfer(ref packet, buf, 3, out transfer);
-            if (variables.debugMode) Console.WriteLine("Length Transferred: {0}", transfer);
+            if (variables.debugme) Console.WriteLine("Length Transferred: {0}", transfer);
         }
     }
 }
