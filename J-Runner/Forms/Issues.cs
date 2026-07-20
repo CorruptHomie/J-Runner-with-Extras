@@ -25,12 +25,12 @@ namespace JRunner
 
         private void ViewButton_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/X360Tools/J-Runner-Pro/issues");
+            Process.Start("https://github.com/ScallywagDude/J-Runner-Premium/issues");
         }
 
         private void CreateButton_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/X360Tools/J-Runner-Pro/issues/new/choose");
+            Process.Start("https://github.com/ScallywagDude/J-Runner-Premium/issues/new/choose");
         }
     }
 }

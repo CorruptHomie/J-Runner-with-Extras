@@ -189,28 +189,28 @@ namespace JRunner.Classes
             }
         }
 
-        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(string eccPath, string flashPath, string cpuKey, string outPath)
+        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(string eccPath, string flashPath, string cpuKey, string outPath, bool patchSMC = true)
         {
             byte[] output;
-            var ret = ConvertRgh2ToRgh3(File.ReadAllBytes(eccPath), File.ReadAllBytes(flashPath), Unhexlify(cpuKey), out output);
+            var ret = ConvertRgh2ToRgh3(File.ReadAllBytes(eccPath), File.ReadAllBytes(flashPath), Unhexlify(cpuKey), out output, patchSMC);
             File.WriteAllBytes(outPath, output);
             return ret;
         }
 
-        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(string eccPath, string flashPath, byte[] cpuKey, string outPath)
+        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(string eccPath, string flashPath, byte[] cpuKey, string outPath, bool patchSMC = true)
         {
             byte[] output;
-            var ret = ConvertRgh2ToRgh3(File.ReadAllBytes(eccPath), File.ReadAllBytes(flashPath), cpuKey, out output);
+            var ret = ConvertRgh2ToRgh3(File.ReadAllBytes(eccPath), File.ReadAllBytes(flashPath), cpuKey, out output, patchSMC);
             File.WriteAllBytes(outPath, output);
             return ret;
         }
 
-        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(byte[] eccData, byte[] flashData, string cpuKey, out byte[] output)
+        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(byte[] eccData, byte[] flashData, string cpuKey, out byte[] output, bool patchSMC = true)
         {
-            return ConvertRgh2ToRgh3(eccData, flashData, Unhexlify(cpuKey), out output);
+            return ConvertRgh2ToRgh3(eccData, flashData, Unhexlify(cpuKey), out output, patchSMC);
         }
 
-        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(byte[] eccData, byte[] flashData, byte[] cpuKey, out byte[] output)
+        public static RGH_CONVERT_ERROR ConvertRgh2ToRgh3(byte[] eccData, byte[] flashData, byte[] cpuKey, out byte[] output, bool patchSMC = true)
         {
             output = null;
 
@@ -307,10 +307,14 @@ namespace JRunner.Classes
                 return RGH_CONVERT_ERROR.ERROR_XELL_NOT_FOUND;
             }
 
-            patchFlashData = patchFlashData.Take((int)rgh3SmcOffs)
-                .Concat(rgh3Smc)
-                .Concat(patchFlashData.Skip((int)(rgh3SmcOffs + rgh3SmcLen)))
-                .ToArray();
+            // Replace SMC if the patch flag is set to true, otherwise we're only injecting the CB_X
+            if (patchSMC)
+            {
+                patchFlashData = patchFlashData.Take((int)rgh3SmcOffs)
+                    .Concat(rgh3Smc)
+                    .Concat(patchFlashData.Skip((int)(rgh3SmcOffs + rgh3SmcLen)))
+                    .ToArray();
+            }
 
             loaderOffs = U32ReadBE(patchFlashData, 8);
 

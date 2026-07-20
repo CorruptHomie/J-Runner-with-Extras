@@ -19,6 +19,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using WinUsb;
 using MessageBox = System.Windows.Forms.MessageBox;
@@ -134,7 +135,7 @@ namespace JRunner
             trayIcon.ContextMenuStrip = trayContext;
             trayIcon.MouseClick += new MouseEventHandler(activateWindow);
             trayIcon.Icon = Properties.Resources.Project3;
-            trayIcon.Text = "J-Runner Pro";
+            trayIcon.Text = "J-Runner Premium";
             trayIcon.Visible = false;
 
             settings();
@@ -208,6 +209,9 @@ namespace JRunner
             nTools.ProgramCRClick += btnProgramCRClick;
             nTools.XeBuildClick += btnXeBuildClick;
             nTools.IterChange += nTools_IterChange;
+            nTools.CreateDonorClick += createDonorNand;
+            nTools.ExtractFilesClick += extractFilesFromNand;
+            nTools.PatchKvClick += openPatchKv;
             xsvfInfo.CloseCRClick += xsvfInfo_CloseCRClick;
             xsvfInfo.ProgramCRClick += xsvfInfo_ProgramCRClick;
             xPanel.DeletedDash += xPanel_DeletedDash;
@@ -387,7 +391,7 @@ namespace JRunner
         private void printstartuptext(bool firsttime = false)
         {
             Console.WriteLine("=========================================================================");
-            Console.WriteLine("J-Runner Pro");
+            Console.WriteLine("J-Runner Premium");
             Console.WriteLine("Session: {0:F}", DateTime.Now.ToString("MM/dd/yyyy H:mm:ss"));
             if (variables.version.Contains("Beta")) Console.WriteLine("Version: {0}", variables.build);
             else Console.WriteLine("Version: {0}", variables.version);
@@ -470,7 +474,7 @@ namespace JRunner
                 Assets = new Assets
                 {
                     LargeImageKey = "j-runner",
-                    LargeImageText = "J-Runner Pro",
+                    LargeImageText = "J-Runner Premium",
                     SmallImageKey = ""
                 }
             });
@@ -549,7 +553,7 @@ namespace JRunner
                 Assets = new Assets
                 {
                     LargeImageKey = "j-runner",
-                    LargeImageText = "J-Runner Pro",
+                    LargeImageText = "J-Runner Premium",
                     SmallImageKey = ""
                 }
             });
@@ -2970,7 +2974,7 @@ namespace JRunner
         public void killShade()
         {
             shade.Dispose();
-            this.Text = "J-Runner Pro";
+            this.Text = "J-Runner Premium";
         }
 
         private void reportIssueToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2981,7 +2985,7 @@ namespace JRunner
 
         private void shortcutsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("J-Runner Pro has several shortcut keybinds:\n\n" +
+                    MessageBox.Show("J-Runner Premium has several shortcut keybinds:\n\n" +
                 "Operations:\n" +
                 "Esc - Cancel active task (if possible)\n" +
                 "F1 - New Session\n" +
@@ -3137,6 +3141,11 @@ namespace JRunner
         CreateDonorNand cdonor;
         private void createDonorNandToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            createDonorNand();
+        }
+
+        public void createDonorNand()
+        {
             if ((ModifierKeys & Keys.Shift) == Keys.Shift)
             {
                 createDonorAdvanced();
@@ -3164,13 +3173,120 @@ namespace JRunner
             dk.ShowDialog();
         }
 
+        private void injectKeyvaultToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!nand.ok)
+            {
+                Console.WriteLine("Couldn't inject KV: no NAND loaded.");
+                return;
+            }
+
+            if (!nand.cpukeyverification(variables.cpkey))
+            {
+                Console.WriteLine("Couldn't inject KV: Invalid CPU key.");
+                return;
+            }
+
+            DialogResult mbr = MessageBox.Show("Warning: injecting a KV successfully requires FreeBoot patches or a Type 1 CB.\n\nContinue?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (mbr != DialogResult.Yes)
+            {
+                return;
+            }
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Decrypted KV (*.bin)|*.bin|All files (*.*)|*.*";
+            ofd.Title = "Select Decrypted Keyvault";
+            ofd.InitialDirectory = variables.rootfolder;
+            ofd.RestoreDirectory = false;
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                Console.WriteLine("Injecting KV...");
+                Nand.Nand.injectEncryptedKV(variables.filename1, ofd.FileName, Oper.StringToByteArray(variables.cpkey));
+                nand_init();
+            }
+        }
+
+        private void loadGlitch2XeLLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "XeLL files (*.bin;*.ecc)|*.bin;*.ecc|All files (*.*)|*.*";
+            ofd.Title = "Select XeLL File";
+            ofd.InitialDirectory = Path.Combine(variables.rootfolder, @"common\xell-images\glitch2");
+            ofd.RestoreDirectory = false;
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                txtFilePath1.Text = variables.filename1 = ofd.FileName;
+            }
+        }
+
+        private void loadJTAGXeLLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "XeLL files (*.bin;*.ecc)|*.bin;*.ecc|All files (*.*)|*.*";
+            ofd.Title = "Select XeLL File";
+            ofd.InitialDirectory = Path.Combine(variables.rootfolder, @"common\xell-images\jtag");
+            ofd.RestoreDirectory = false;
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                txtFilePath1.Text = variables.filename1 = ofd.FileName;
+            }
+        }
+
+        private void injectXeLLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (String.IsNullOrEmpty(variables.filename1))
+            {
+                MessageBox.Show("Please load a source NAND image before injecting XeLL", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "XeLL binary (xell*.bin)|xell*.bin|All files (*.*)|*.*";
+            ofd.Title = "Select XeLL Binary";
+            ofd.InitialDirectory = Path.Combine(variables.rootfolder, @"xeBuild\data");
+            ofd.RestoreDirectory = false;
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                Nand.Nand.injectXell(variables.filename1, ofd.FileName);
+                nand_init();
+            }
+        }
+
+        private void customizeThemeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (String.IsNullOrEmpty(variables.filename1))
+            {
+                MessageBox.Show("Please load a source NAND image before attempting to customize the XeLL Theme", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            XellCustomizer xc = new XellCustomizer();
+            xc.InitializeAndShowDialog(variables.filename1);
+        }
+
         private void sMCConfigViewerToolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            if (!nand.ok)
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             SMCConfig smcedit = new SMCConfig();
             smcedit.ShowDialog();
         }
 
         private void patchNandToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            openPatchKv();
+        }
+
+        public void openPatchKv()
         {
             if (!nand.ok)
             {
@@ -3191,9 +3307,230 @@ namespace JRunner
             xbo.ShowDialog();
         }
 
+        private async void gB16MBToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(variables.filename1))
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            const int sixteenMB = 0x01000000;
+            byte[] sixteenMBdata;
+
+            using (FileStream fs = new FileStream(variables.filename1, FileMode.Open, FileAccess.Read))
+            {
+                sixteenMBdata = new byte[sixteenMB];
+                int bytesRead = fs.Read(sixteenMBdata, 0, sixteenMB);
+
+                if (bytesRead < sixteenMB)
+                {
+                    for (int i = bytesRead; i < sixteenMB; i++)
+                        sixteenMBdata[i] = 0x00;
+                }
+            }
+
+            byte[] eccAligned = await Task.Run(() =>
+                Nand.Nand.addecc_v2(sixteenMBdata, true, 0, 1)
+            );
+
+            string outputFile = Path.Combine(
+                Path.GetDirectoryName(variables.filename1),
+                Path.GetFileNameWithoutExtension(variables.filename1) + "_aligned.bin"
+            );
+
+            File.WriteAllBytes(outputFile, eccAligned);
+
+            MessageBox.Show("Done! Please check the location of your original file.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void mB64MBToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(variables.filename1))
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            variables.filename1 = Nand.Nand.extend16mbTo64mb(variables.filename1);
+            txtFilePath1.Text = variables.filename1;
+            nand_init();
+        }
+
+        private void addressCalculatorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddressCalculator formAC = new AddressCalculator();
+            formAC.ShowDialog();
+        }
+
         #endregion
 
         #region Advanced
+
+        private void zeroPairSbToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (String.IsNullOrWhiteSpace(variables.filename1))
+            {
+                Console.WriteLine("Zeropair SB error: Please select a valid NAND image!");
+                return;
+            }
+
+            Nand.Nand.zeroPairDevkitSb(variables.filename1, false);
+        }
+
+        private void g3fixToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string cpukey = "";
+
+            if (!nand.cpukeyverification(variables.cpkey))
+            {
+                Console.WriteLine("g3fix error: Invalid CPU key.");
+                return;
+            }
+
+            if (String.IsNullOrWhiteSpace(variables.filename1))
+            {
+                Console.WriteLine("g3fix error: Please select a valid NAND image!");
+                return;
+            }
+
+            if (Nand.Nand.doesNandContainVfuses(variables.filename1))
+            {
+                EnterCPUKey ecpuDialog = new EnterCPUKey();
+                DialogResult dr = ecpuDialog.ShowDialog();
+
+                if (dr != DialogResult.OK)
+                {
+                    return;
+                }
+
+                cpukey = ecpuDialog.cpukey;
+            }
+            else
+            {
+                cpukey = variables.cpkey;
+            }
+
+            Nand.Nand.g3fix(variables.filename1, Oper.StringToByteArray(cpukey));
+        }
+
+        private void convertToRGH3ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(variables.filename1))
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (!Nand.Nand.VerifyKey(Oper.StringToByteArray(variables.cpkey)))
+            {
+                Console.WriteLine("Bad CPU Key");
+                return;
+            }
+
+            if (!nand.cpukeyverification(variables.cpkey))
+            {
+                Console.WriteLine("Wrong CPU Key");
+                return;
+            }
+
+            if (xPanel.getRbtnGlitch2mChecked())
+            {
+                // MFG loaders and by extension Glitch2m images encrypt the CB_B differently
+                // than retail CB_B, so we need to use a zero CPU key for invoking rgh3build
+                rgh3Build.create(variables.boardtype, "00000000000000000000000000000000", false);
+            }
+            else
+            {
+                rgh3Build.create(variables.boardtype, variables.cpkey, false);
+            }
+        }
+
+        private void injectGlitch3ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(variables.filename1))
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (!Nand.Nand.VerifyKey(Oper.StringToByteArray(variables.cpkey)))
+            {
+                Console.WriteLine("Bad CPU Key");
+                return;
+            }
+
+            if (!nand.cpukeyverification(variables.cpkey))
+            {
+                Console.WriteLine("Wrong CPU Key");
+                return;
+            }
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Glitch3 ECC (*.ecc)|*.ecc|All files (*.*)|*.*";
+            ofd.Title = "Select RGH1.3 or RGH3 ECC file";
+            ofd.InitialDirectory = variables.rootfolder;
+            ofd.RestoreDirectory = false;
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            if (xPanel.getRbtnGlitch2mChecked())
+            {
+                // MFG loaders and by extension Glitch2m images encrypt the CB_B differently
+                // than retail CB_B, so we need to use a zero CPU key for invoking rgh3build
+                rgh3Build.injectECC(ofd.FileName, "00000000000000000000000000000000");
+            }
+            else
+            {
+                rgh3Build.injectECC(ofd.FileName, variables.cpkey);
+            }
+        }
+
+        private void injectRGH3CBXToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(variables.filename1))
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (!Nand.Nand.VerifyKey(Oper.StringToByteArray(variables.cpkey)))
+            {
+                Console.WriteLine("Bad CPU Key");
+                return;
+            }
+
+            if (!nand.cpukeyverification(variables.cpkey))
+            {
+                Console.WriteLine("Wrong CPU Key");
+                return;
+            }
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Glitch3 ECC (*.ecc)|*.ecc|All files (*.*)|*.*";
+            ofd.Title = "Select RGH1.3 or RGH3 ECC file";
+            ofd.InitialDirectory = variables.rootfolder;
+            ofd.RestoreDirectory = false;
+
+            if (ofd.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            if (xPanel.getRbtnGlitch2mChecked())
+            {
+                // MFG loaders and by extension Glitch2m images encrypt the CB_B differently
+                // than retail CB_B, so we need to use a zero CPU key for invoking rgh3build
+                rgh3Build.injectECC(ofd.FileName, "00000000000000000000000000000000", false);
+            }
+            else
+            {
+                rgh3Build.injectECC(ofd.FileName, variables.cpkey, false);
+            }
+        }
 
         private void customNandProCommandToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -3255,6 +3592,128 @@ namespace JRunner
                 cpu = new CPUKeyGen();
                 cpu.Show();
                 cpu.Location = new Point(Location.X + (Width - cpu.Width) / 2, Location.Y + 155);
+            }
+        }
+
+        private void generateCpuKeyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if ((ModifierKeys & Keys.Shift) == Keys.Shift)
+            {
+                txtCPUKey.Text = variables.superDevKey;
+            }
+            else
+            {
+                cPUKeyToolsToolStripMenuItem_Click(sender, e);
+            }
+        }
+
+        private void enableDevGLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool enableDevGlStatus = false;
+
+            // If we've already got SB_priv.bin, no need to try extracting it again
+            if (xPanel.canDevGL(variables.boardtype))
+            {
+                Console.WriteLine("DevGL already enabled.");
+                return;
+            }
+
+            // SB_priv.bin is contained within content.dll in the 360's SDK.
+            string contentDllPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Microsoft Xbox 360 SDK\\bin\\win32\\content.dll");
+
+            // If we couldn't find content.dll from the default installation path, prompt the user
+            if (!File.Exists(contentDllPath))
+            {
+                Console.WriteLine("Enable DevGL: SDK not found, manual selection required.");
+
+                OpenFileDialog sdkFileDialog = new OpenFileDialog();
+                sdkFileDialog.Title = "Select DevGL Key, SDK Installer, or content.dll";
+                sdkFileDialog.Filter = "SDK Files|content.dll;XDKSetupXenon*.exe;SB_priv.bin;SB_prv.bin";
+
+                if (sdkFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    if (!File.Exists(sdkFileDialog.FileName))
+                    {
+                        Console.WriteLine("Enable DevGL: SDK files not found.");
+                        return;
+                    }
+
+                    contentDllPath = sdkFileDialog.FileName;
+                }
+                else
+                {
+                    Console.WriteLine("Enable DevGL: cancelled.");
+                    return;
+                }
+            }
+
+            // Theoretically we've got the path to the DLL
+            if (variables.debugMode) Console.WriteLine($"Enable DevGL: DLL Path ({contentDllPath})");
+
+            if (contentDllPath.ToLower().EndsWith("exe"))
+            {
+                if (variables.debugMode) Console.WriteLine("Enable DevGL: exe selected, extraction required");
+
+                try
+                {
+                    contentDllPath = Classes.EnableDevGL.extractContentDllFileFromExe(contentDllPath, getCurrentWorkingFolder());
+                }
+                catch (Exception ex)
+                {
+                    if (variables.debugMode) Console.WriteLine("Enable DevGL Error: " + ex.Message);
+                    Console.WriteLine("Enable DevGL: Failed. Couldn't extract SDK installer.");
+                    return;
+                }
+            }
+
+            try
+            {
+                enableDevGlStatus = Classes.EnableDevGL.enableDevGL(contentDllPath);
+            }
+            catch (Exception ex)
+            {
+                if (variables.debugMode) Console.WriteLine("Enable DevGL Error: " + ex.Message);
+            }
+
+            if (false == enableDevGlStatus)
+            {
+                Console.WriteLine("Enable DevGL: Failed. Check the SDK installation and try again.");
+                return;
+            }
+
+            Console.WriteLine("Enable DevGL: Success!");
+
+            // Ok, DevGL was successfully enabled. We'll re-init the NAND to refresh
+            // any UI elements that can now use DevGL
+            nand_init();
+        }
+
+        HexEdit.KVViewer kvv;
+        private void kVViewerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            kVViewer();
+        }
+
+        public void kVViewer()
+        {
+            if (!string.IsNullOrWhiteSpace(variables.filename1) && nand != null && nand.ok)
+            {
+                if (Application.OpenForms.OfType<HexEdit.KVViewer>().Any())
+                {
+                    kvv.WindowState = FormWindowState.Normal;
+                    kvv.Activate();
+                }
+                else
+                {
+                    kvv = new HexEdit.KVViewer(Nand.Nand.decryptkv(nand._rawkv, Oper.StringToByteArray(nand._cpukey)));
+                    kvv.Show();
+                    kvv.Location = new Point(Location.X + (Width - kvv.Width) / 2, Location.Y + (Height - kvv.Height) / 2);
+                }
+            }
+            else
+            {
+                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
         }
 
@@ -4178,6 +4637,18 @@ namespace JRunner
         }
         private void onDevNotify(object sender, DeviceNotifyEventArgs e)
         {
+            if (InvokeRequired)
+            {
+                this.Invoke(new EventHandler<DeviceNotifyEventArgs>(onDevNotify), new object[] { sender, e });
+                return;
+            }
+
+            if (e == null || e.Device == null)
+            {
+                if (variables.debugme) Console.WriteLine("DevNotify: event or Device is null. EventType={0}", e?.EventType);
+                return;
+            }
+
             try
             {
                 if (variables.debugme) Console.WriteLine("DevNotify - {0}", e.Device.Name);

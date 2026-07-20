@@ -156,6 +156,7 @@
     <Compile Include="Classes\RC4.cs" />
     <Compile Include="Classes\RGH2to3.cs" />
     <Compile Include="Classes\rgh3build.cs" />
+    <Compile Include="Classes\EnableDevGL.cs" />
     <Compile Include="Classes\UI.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -242,6 +243,24 @@
     </Compile>
     <Compile Include="Forms\KeyvaultDecrypter.Designer.cs">
       <DependentUpon>KeyvaultDecrypter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\EnterCPUKey.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\EnterCPUKey.Designer.cs">
+      <DependentUpon>EnterCPUKey.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\AddressCalculator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\AddressCalculator.Designer.cs">
+      <DependentUpon>AddressCalculator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\XellCustomizer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\XellCustomizer.Designer.cs">
+      <DependentUpon>XellCustomizer.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ShowPanel.cs">
       <SubType>Form</SubType>
@@ -659,6 +678,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\KeyvaultDecrypter.resx">
       <DependentUpon>KeyvaultDecrypter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\EnterCPUKey.resx">
+      <DependentUpon>EnterCPUKey.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\AddressCalculator.resx">
+      <DependentUpon>AddressCalculator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\XellCustomizer.resx">
+      <DependentUpon>XellCustomizer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ShowPanel.resx">
       <DependentUpon>ShowPanel.cs</DependentUpon>

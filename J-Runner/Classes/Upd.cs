@@ -42,7 +42,7 @@ namespace JRunner
                 {
                     client.Headers.Add("User-Agent", "J-Runner");
                     client.Headers.Add("Accept", "application/vnd.github.v3+json");
-                    reader = new JsonTextReader(new StringReader(client.DownloadString("https://api.github.com/repos/X360Tools/J-Runner-Pro/releases")));
+                    reader = new JsonTextReader(new StringReader(client.DownloadString("https://api.github.com/repos/ScallywagDude/J-Runner-Premium/releases")));
 
                     string name = "";
                     int deep = 0;
@@ -154,7 +154,7 @@ namespace JRunner
                 {
                     Upd.upToDate = false;
 
-                    if (MessageBox.Show("Updates are available for J-Runner Pro\n\n" + changelog + "\n\nWould you like to download and install the update?", "J-Runner Pro", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.No)
+                    if (MessageBox.Show("Updates are available for J-Runner Premium\n\n" + changelog + "\n\nWould you like to download and install the update?", "J-Runner Premium", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.No)
                     {
                         // Do nothing and launch as normal
                         Application.Run(new MainForm());

@@ -72,16 +72,20 @@ namespace JRunner
             foreach (String s3 in rk2.GetSubKeyNames())
             {
                 RegistryKey rk3 = rk2.OpenSubKey(s3);
+                if (rk3 == null) continue;
                 foreach (String s in rk3.GetSubKeyNames())
                 {
                     if (_rx.Match(s).Success)
                     {
                         RegistryKey rk4 = rk3.OpenSubKey(s);
+                        if (rk4 == null) continue;
                         foreach (String s2 in rk4.GetSubKeyNames())
                         {
                             RegistryKey rk5 = rk4.OpenSubKey(s2);
+                            if (rk5 == null) continue;
                             string location = (string)rk5.GetValue("LocationInformation");
                             RegistryKey rk6 = rk5.OpenSubKey("Device Parameters");
+                            if (rk6 == null) continue; // Windows hasn't finished assigning a COM port yet (race right after plug-in)
                             string portName = (string)rk6.GetValue("PortName");
                             if (!String.IsNullOrEmpty(portName) && SerialPort.GetPortNames().Contains(portName))
                                 comports.Add((string)rk6.GetValue("PortName"));
@@ -111,20 +115,31 @@ namespace JRunner
             serial.ReadTimeout = 5000;
             serial.WriteTimeout = 5000;
 
-            serial.Open();
-
-            CMD cmd = new CMD();
-            cmd.cmd = COMMANDS.GET_VERSION;
-            cmd.lba = 0;
-
-            SendCmd(serial, cmd);
-
-            UInt32 version = RecvUInt32(serial);
-
-            if (version != 3)
+            try
             {
-                serial.Close();
-                MessageBox.Show("PicoFlasher firmware is too old\n\nUpdate the PicoFlasher firmware to continue", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                serial.Open();
+
+                CMD cmd = new CMD();
+                cmd.cmd = COMMANDS.GET_VERSION;
+                cmd.lba = 0;
+
+                SendCmd(serial, cmd);
+
+                UInt32 version = RecvUInt32(serial);
+
+                if (version != 3)
+                {
+                    serial.Close();
+                    MessageBox.Show("PicoFlasher firmware is too old\n\nUpdate the PicoFlasher firmware to continue", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Port can still be settling right after a fresh plug-in (open failure, or a timeout
+                // waiting on the version reply) - fail gracefully instead of an unhandled crash.
+                if (serial.IsOpen) serial.Close();
+                MessageBox.Show("Couldn't talk to the PicoFlasher (" + ex.Message + ")\n\nUnplug and replug the device, then try again", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
 
@@ -412,6 +427,21 @@ namespace JRunner
                     Console.WriteLine("");
                     CloseSerial(serial);
                     return;
+                }
+
+                if (flashsize == 268435456 || flashsize == 536870912)
+                {
+                    DialogResult bbdr = MessageBox.Show("A big block nand has been detected\n\nDo you want to dump only the system partition? (recommended)", "Nand Dump Size", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+
+                    if (bbdr == DialogResult.Cancel)
+                    {
+                        CloseSerial(serial);
+                        return;
+                    }
+                    else if (bbdr == DialogResult.Yes)
+                    {
+                        flashsize = 67108864;
+                    }
                 }
 
                 for (int i = 0; i < iterations; i++)

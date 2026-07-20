@@ -46,6 +46,9 @@
             this.numericIterations = new System.Windows.Forms.NumericUpDown();
             this.pBoxDevice = new System.Windows.Forms.PictureBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.btnCreateDonor = new System.Windows.Forms.Button();
+            this.btnExtractFiles = new System.Windows.Forms.Button();
+            this.btnPatchKv = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox9.SuspendLayout();
@@ -58,9 +61,9 @@
             // 
             // btnCPUDB
             // 
-            this.btnCPUDB.Location = new System.Drawing.Point(206, 107);
+            this.btnCPUDB.Location = new System.Drawing.Point(221, 107);
             this.btnCPUDB.Name = "btnCPUDB";
-            this.btnCPUDB.Size = new System.Drawing.Size(65, 51);
+            this.btnCPUDB.Size = new System.Drawing.Size(63, 51);
             this.btnCPUDB.TabIndex = 80;
             this.btnCPUDB.TabStop = false;
             this.btnCPUDB.Text = "CPU Key Database";
@@ -74,9 +77,9 @@
             this.groupBox9.Controls.Add(this.lblLPTPort);
             this.groupBox9.Controls.Add(this.rbtnLPT);
             this.groupBox9.Controls.Add(this.rbtnUSB);
-            this.groupBox9.Location = new System.Drawing.Point(63, 99);
+            this.groupBox9.Location = new System.Drawing.Point(59, 99);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(137, 62);
+            this.groupBox9.Size = new System.Drawing.Size(160, 62);
             this.groupBox9.TabIndex = 82;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Glitch Chip Programming";
@@ -260,13 +263,49 @@
             // 
             this.pBoxDevice.ErrorImage = null;
             this.pBoxDevice.InitialImage = null;
-            this.pBoxDevice.Location = new System.Drawing.Point(323, 106);
+            this.pBoxDevice.Location = new System.Drawing.Point(12, 166);
             this.pBoxDevice.Name = "pBoxDevice";
-            this.pBoxDevice.Size = new System.Drawing.Size(53, 43);
-            this.pBoxDevice.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pBoxDevice.Size = new System.Drawing.Size(220, 64);
+            this.pBoxDevice.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pBoxDevice.TabIndex = 83;
             this.pBoxDevice.TabStop = false;
             this.pBoxDevice.Click += new System.EventHandler(this.pBoxDevice_Click);
+            // 
+            // btnCreateDonor
+            // 
+            this.btnCreateDonor.Location = new System.Drawing.Point(285, 107);
+            this.btnCreateDonor.Name = "btnCreateDonor";
+            this.btnCreateDonor.Size = new System.Drawing.Size(58, 51);
+            this.btnCreateDonor.TabIndex = 87;
+            this.btnCreateDonor.TabStop = false;
+            this.btnCreateDonor.Text = "Create\r\nDonor";
+            this.toolTip1.SetToolTip(this.btnCreateDonor, "Launches the Create Donor Nand Wizard");
+            this.btnCreateDonor.UseVisualStyleBackColor = true;
+            this.btnCreateDonor.Click += new System.EventHandler(this.btnCreateDonor_Click);
+            // 
+            // btnExtractFiles
+            // 
+            this.btnExtractFiles.Location = new System.Drawing.Point(344, 107);
+            this.btnExtractFiles.Name = "btnExtractFiles";
+            this.btnExtractFiles.Size = new System.Drawing.Size(58, 51);
+            this.btnExtractFiles.TabIndex = 88;
+            this.btnExtractFiles.TabStop = false;
+            this.btnExtractFiles.Text = "Extract\r\nFiles";
+            this.toolTip1.SetToolTip(this.btnExtractFiles, "Extracts the files from the source nand");
+            this.btnExtractFiles.UseVisualStyleBackColor = true;
+            this.btnExtractFiles.Click += new System.EventHandler(this.btnExtractFiles_Click);
+            // 
+            // btnPatchKv
+            // 
+            this.btnPatchKv.Location = new System.Drawing.Point(403, 107);
+            this.btnPatchKv.Name = "btnPatchKv";
+            this.btnPatchKv.Size = new System.Drawing.Size(58, 51);
+            this.btnPatchKv.TabIndex = 89;
+            this.btnPatchKv.TabStop = false;
+            this.btnPatchKv.Text = "Patch\r\nKeyvault";
+            this.toolTip1.SetToolTip(this.btnPatchKv, "Launches the KV Patcher");
+            this.btnPatchKv.UseVisualStyleBackColor = true;
+            this.btnPatchKv.Click += new System.EventHandler(this.btnPatchKv_Click);
             // 
             // groupBox1
             // 
@@ -296,11 +335,14 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.pBoxDevice);
+            this.Controls.Add(this.btnPatchKv);
+            this.Controls.Add(this.btnExtractFiles);
+            this.Controls.Add(this.btnCreateDonor);
             this.Controls.Add(this.btnCPUDB);
             this.Controls.Add(this.groupBox9);
             this.Controls.Add(this.groupBox3);
             this.Name = "NandTools";
-            this.Size = new System.Drawing.Size(463, 175);
+            this.Size = new System.Drawing.Size(463, 233);
             this.groupBox9.ResumeLayout(false);
             this.groupBox9.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -335,5 +377,8 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button btnCreateDonor;
+        private System.Windows.Forms.Button btnExtractFiles;
+        private System.Windows.Forms.Button btnPatchKv;
     }
 }

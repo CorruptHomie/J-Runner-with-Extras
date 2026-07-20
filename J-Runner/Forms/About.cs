@@ -12,7 +12,7 @@ namespace JRunner.Forms
                                     "DaCukiMonsta: Nand Info Improvements/Bugfixes",
                                     "DrSchottky, Visual Studio: RGH2 to 3",
                                     "Element18592: xFlasher Hardware",
-                                    "Josh/Octal450: J-Runner with Extras \nMain Development",
+                                    "Josh/Octal450: J-Runner Premium \nMain Development",
                                     "Mena:\nGeneral Dev, xFlasher Speedup,\nMatrix Hex Flashing, CPU Key Gen",
                                     "Nick Stefanou: Original J-Runner \nDevelopment and Software",
                                     "Orpheus: Updates to KV Info/Bugfixes",

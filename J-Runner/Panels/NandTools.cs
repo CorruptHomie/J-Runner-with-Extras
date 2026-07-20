@@ -96,6 +96,12 @@ namespace JRunner.Panels
         public event ClickedCPUDB CPUDBClick;
         public delegate void ChangedIter(int iter);
         public event ChangedIter IterChange;
+        public delegate void ClickedCreateDonor();
+        public event ClickedCreateDonor CreateDonorClick;
+        public delegate void ClickedExtractFiles();
+        public event ClickedExtractFiles ExtractFilesClick;
+        public delegate void ClickedPatchKv();
+        public event ClickedPatchKv PatchKvClick;
         //public delegate void CheckedChanged();
         //public event CheckedChanged ChangedChecked;
         //public delegate void PortChanged();
@@ -146,6 +152,21 @@ namespace JRunner.Panels
         private void btnCPUDB_Click(object sender, EventArgs e)
         {
             CPUDBClick();
+        }
+
+        private void btnCreateDonor_Click(object sender, EventArgs e)
+        {
+            CreateDonorClick();
+        }
+
+        private void btnExtractFiles_Click(object sender, EventArgs e)
+        {
+            ExtractFilesClick();
+        }
+
+        private void btnPatchKv_Click(object sender, EventArgs e)
+        {
+            PatchKvClick();
         }
 
         private void txtLPTPort_TextChanged(object sender, EventArgs e)

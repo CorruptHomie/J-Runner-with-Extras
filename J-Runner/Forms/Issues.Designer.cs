@@ -92,7 +92,7 @@ namespace JRunner
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(478, 65);
             this.label1.TabIndex = 0;
-            this.label1.Text = "We\'d love to hear from you in order to make J-Runner Pro better!\r\n\r\nPleas" +
+            this.label1.Text = "We\'d love to hear from you in order to make J-Runner Premium better!\r\n\r\nPleas" +
     "e make sure you check open issues first before creating an issue, as duplicates " +
     "will be closed.";
             // 
@@ -102,10 +102,10 @@ namespace JRunner
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(554, 401);
             this.Controls.Add(this.IssueWizard);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
+            this.MaximizeBox = true;
+            this.MinimizeBox = true;
             this.Name = "Issues";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Report Issue";

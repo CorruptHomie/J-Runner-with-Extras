@@ -1438,18 +1438,21 @@ namespace JRunner.Panels
             xeExitActual();
         }
 
-        public void xeExitActual()
+        public void xeExitActual(bool success = true)
         {
             variables.changeldv = 0;
             UpdateProgres(100);
 
-            try
+            if (success)
             {
-                File.Copy(Path.Combine(variables.pathforit, @"xebuild\options.ini"), Path.Combine(variables.pathforit, @"xebuild\data\options.ini"), true);
-                chkxesettings.Checked = false;
-                File.Move(Path.Combine(variables.xefolder, variables.nandflash + ".log"), Path.Combine(variables.xefolder, variables.nandflash.Substring(0, variables.nandflash.IndexOf(".")) + "(" + DateTime.Now.ToString("ddMMyyyyHHmm") + ").bin.log"));
+                try
+                {
+                    File.Copy(Path.Combine(variables.pathforit, @"xebuild\options.ini"), Path.Combine(variables.pathforit, @"xebuild\data\options.ini"), true);
+                    chkxesettings.Checked = false;
+                    File.Move(Path.Combine(variables.xefolder, variables.nandflash + ".log"), Path.Combine(variables.xefolder, variables.nandflash.Substring(0, variables.nandflash.IndexOf(".")) + "(" + DateTime.Now.ToString("ddMMyyyyHHmm") + ").bin.log"));
+                }
+                catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
             }
-            catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
 
             try
             {

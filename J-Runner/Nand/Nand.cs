@@ -1001,6 +1001,7 @@ namespace JRunner.Nand
         #region variables
         static byte[] secret_1bl = { 0xDD, 0x88, 0xAD, 0x0C, 0x9E, 0xD6, 0x69, 0xE7, 0xB5, 0x67, 0x94, 0xFB, 0x68, 0x56, 0x3E, 0xFA };
         static byte[] random = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        public static byte[] keyZero = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
         //static string signature = "D6A582FC";
         //static string signature1 = "52A92D9";
         static Encoding enc8 = Encoding.UTF8;
@@ -1525,6 +1526,27 @@ namespace JRunner.Nand
                 else finalimage[i] = imfordec[i - 0x20];
             }
             return finalimage;
+        }
+
+        public static byte[] encrypt_CB_cpukey(byte[] image, byte[] CB_A_key, bool CB_A_new_crypto, byte[] cpukey)
+        {
+            if (variables.debugMode) Console.WriteLine(cpukey.Length);
+
+            byte[] cbb_nonce = Oper.returnportion(image, 0x10, 0x10);
+
+            byte[] RC4_key = getCbbRc4Key(CB_A_key, CB_A_new_crypto, cbb_nonce, cpukey);
+            byte[] imfordec = Oper.returnportion(image, 0x20, image.Length - 0x20);
+            if (variables.debugMode) Console.WriteLine(Oper.ByteArrayToString(RC4_key));
+            Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
+
+            byte[] finalimage2 = new byte[image.Length];
+            for (int i = 0; i < image.Length; i++)
+            {
+                if (i < 0x10) finalimage2[i] = image[i];
+                else if (i < 0x20) finalimage2[i] = cbb_nonce[i - 0x10];
+                else finalimage2[i] = imfordec[i - 0x20];
+            }
+            return finalimage2;
         }
 
         public static byte[] encrypt_CB_cpukey(byte[] image, byte[] CB_A_key, byte[] cpukey)
@@ -2506,6 +2528,152 @@ namespace JRunner.Nand
             }
             catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); else Console.WriteLine(ex.Message); }
             return false;
+        }
+
+        public static void injectXell(string flashFilePath, string xellFilePath)
+        {
+            int[] xellOffsets = { 0x70000,    // Glitch, Glitch2, Glitch2m, DevGL: xell-gggggg
+                                  0x95060,    // JTAG: xell-2f
+                                  0x100000,   // XeLL-Only Image (Main XeLL)
+                                  0xC0000,    // XeLL-Only Image (Backup XeLL)
+                                  0xE0000,    // Unknown, but listed in libxenon updxell function
+                                  0xF0000,    // XeLL in the flashfs of XDKBuild and RGLoader images
+                                  0xF4000,    // XeLL in the flashfs of 64mb Devkit images
+                                  0xB80000 }; // XeLL in the flashfs of BB Jasper and BB Trinity XDKBuild images
+
+            int blockType = 0;
+            bool flashHasEcc = false;
+
+            int pagesz = 0x200;
+            int pagesz_phys = 0x210;
+
+            int xellOffset = 0;
+            int xellOffsetPhys = 0;
+
+            int xellFirstPageOffsetPhys = 0;
+            int xellPageNumber = 0;
+            int xellOffsetInPage = 0;
+            int xellPageCount = 0;
+
+            // Read in flash data
+            byte[] flashData = File.ReadAllBytes(flashFilePath);
+            byte[] xellData = File.ReadAllBytes(xellFilePath);
+
+            // XeLL should be an even multiple of the page size
+            xellPageCount = xellData.Length / pagesz;
+
+            // Determine whether this image has ECC
+            if (flashData.Length == 17301504 || flashData.Length == 69206016 || flashData.Length == 1351680 )
+            {
+                flashHasEcc = true;
+            }
+            else if (flashData.Length == 50331648 || flashData.Length == 1310720 )
+            {
+                flashHasEcc = false;
+            }
+            else
+            {
+                Console.WriteLine("Couldn't inject XeLL: Invalid flash image size");
+                return;
+            }
+
+            // XeLL binaries should always be 256kb. If not, either they've made it
+            // larger and this check needs to change, or something has gone wrong.
+            if (xellData.Length != 262144)
+            {
+                Console.WriteLine("Couldn't inject XeLL: Invalid XeLL binary size");
+                return;
+            }
+
+            Console.WriteLine("Injecting " + Path.GetFileName(xellFilePath) + " into " + Path.GetFileName(flashFilePath));
+
+            // If the flash has ECC data, determine the block type so ECC data can be recalculated
+            if (flashHasEcc)
+            {
+                byte[] sparedata = flashData.Skip(0x4400).Take(0x10).ToArray();
+
+                // Block Types
+                // 0 = Small block NAND (XSB)
+                // 1 = Small block NAND on BB controller (PSB/KSB)
+                // 2 = Big block NAND on BB controller (PSB/KSB)
+                blockType = identifylayout(sparedata);
+
+            }
+
+            // Determine where in the world XeLL lives in this image
+            foreach (int testXellOffset in xellOffsets)
+            {
+                if(flashHasEcc)
+                {
+                    // Calculate WHERE in the physical image we should be able to find XeLL,
+                    // and calculate a few other values that will help us later
+                    xellOffsetInPage = testXellOffset % pagesz;
+                    xellPageNumber = testXellOffset / pagesz;
+                    xellFirstPageOffsetPhys = xellPageNumber * pagesz_phys;
+                    xellOffsetPhys = xellFirstPageOffsetPhys + xellOffsetInPage;
+                }
+                else
+                {
+                    // For a non-ECC flash image, the offset is the physical offset as there
+                    // is no ECC data to take in to account
+                    xellOffsetPhys = testXellOffset;
+                }
+
+                // Look for the XeLL header to see if we're at the right spot
+                if (Oper.ByteArrayCompare(flashData, Oper.StringToByteArray("48000020480000EC4800000048000000"), xellOffsetPhys, 0, 0x10))
+                {
+                    xellOffset = testXellOffset;
+                    Console.WriteLine("XeLL found at offset 0x" + xellOffset.ToString("x"));
+
+                    if (0 != xellOffsetInPage)
+                    {
+                        // If XeLL is not stored on a page boundary (thank you JTAG)
+                        // then we need to read one more page from the flash data
+                        xellPageCount += 1;
+                    }
+
+                    if (flashHasEcc)
+                    {
+                        // Get the physical pages from the flash image that we need to modify
+                        byte[] xellFlashPages = flashData.Skip(xellFirstPageOffsetPhys).Take(xellPageCount * pagesz_phys).ToArray();
+
+                        // Strip the ECC data
+                        xellFlashPages = unecc(xellFlashPages);
+
+                        // Copy the xell data into the pages
+                        Buffer.BlockCopy(xellData, 0, xellFlashPages, xellOffsetInPage, xellData.Length);
+
+                        // Re-add ECC data
+                        xellFlashPages = addecc_v2(xellFlashPages, true, xellPageNumber * pagesz_phys, blockType);
+
+                        // Copy the ECC'ed pages back to the NAND image
+                        Buffer.BlockCopy(xellFlashPages, 0, flashData, xellFirstPageOffsetPhys, xellFlashPages.Length);
+                    }
+                    else
+                    {
+                        // We can just do a plain copy if there's no ECC data
+                        Buffer.BlockCopy(xellData, 0, flashData, xellOffset, xellData.Length);
+                    }
+
+                    // Do a final sanity check to make sure something didn't go wrong
+                    if (!Oper.ByteArrayCompare(flashData, Oper.StringToByteArray("48000020480000EC4800000048000000"), xellOffsetPhys, 0, 0x10))
+                    {
+                        Console.WriteLine("Couldn't inject XeLL: couldn't detect XeLL in the resulting flash image");
+                        return;
+                    }
+                }
+            }
+
+            if( 0 == xellOffset )
+            {
+                Console.WriteLine("Couldn't inject XeLL: did not find XeLL in this flash image");
+                return;
+            }
+
+            // So we've updated the flashData, write it back to disk!
+            File.WriteAllBytes(flashFilePath, flashData);
+
+            Console.WriteLine("Successfully injected XeLL");
         }
 
         public static void injectXell(string filename, byte[] xell, bool ecc)
@@ -3710,6 +3878,1045 @@ namespace JRunner.Nand
         public static bool kvFcrtEncrypted(byte[] kv)
         {
             return !Oper.allsame(Oper.returnportion(kv, 0x40, 0x20), 0x00);
+        }
+
+        #endregion
+
+
+
+        #region Ported from J-Runner Premium (RGH3 / KV / NAND alignment helpers)
+
+        public static byte[] addecc_v2_internal(byte[] image, bool addecc, int blockstart, int layout, IProgress<int> progress)
+        {
+            if (variables.extractfiles)
+                Oper.savefile(image, "test.bin");
+
+            if (variables.debugMode)
+                Console.WriteLine("blockstart: {0:X}, layout: {1}", blockstart / 0x4200, layout);
+
+            if (!addecc)
+            {
+                if (hasecc(image))
+                    unecc(ref image);
+            }
+
+            int pageSize = 0x200;
+            int spareSize = 0x10;
+            int pageWithSpareSize = 0x210;
+
+            int totalPages = (int)Math.Ceiling(image.Length / (double)pageSize);
+            byte[] result = new byte[totalPages * pageWithSpareSize];
+
+            byte[] sparedata = new byte[spareSize];
+            int blockNumberBase = blockstart / 0x4200;
+
+            int readOffset = 0;
+            int writeOffset = 0;
+
+            for (int i = 0; i < totalPages; i++)
+            {
+                // extract next 0x200 bytes
+                byte[] dataBlock;
+                int bytesRemaining = image.Length - readOffset;
+
+                if (bytesRemaining > 0)
+                {
+                    int bytesToCopy = Math.Min(pageSize, bytesRemaining);
+                    dataBlock = Oper.padto(
+                        Oper.returnportion(ref image, readOffset, bytesToCopy),
+                        0x00,
+                        pageSize
+                    );
+                    readOffset += bytesToCopy;
+                }
+                else
+                {
+                    dataBlock = Oper.padto(new byte[0], 0x00, pageSize);
+                }
+
+                Array.Clear(sparedata, 0, spareSize);
+
+                switch (layout)
+                {
+                    case 0:
+                        sparedata[5] = 0xFF;
+                        sparedata[0] = (byte)(((i / 32) + blockNumberBase) & 0xFF);
+                        sparedata[1] = (byte)(((i / 32) + blockNumberBase) / 0x100);
+                        break;
+                    case 1:
+                        sparedata[5] = 0xFF;
+                        sparedata[1] = (byte)(((i / 32) + blockNumberBase) & 0xFF);
+                        sparedata[2] = (byte)(((i / 32) + blockNumberBase) / 0x100);
+                        break;
+                    case 2:
+                        sparedata[0] = 0xFF;
+                        sparedata[1] = (byte)(((i / 0x100) + (blockstart / 0x21000)) & 0xFF);
+                        sparedata[2] = (byte)((((i / 0x100) + (blockstart / 0x21000)) & 0xFF00) >> 8);
+                        break;
+                }
+
+                // Combine data + spare
+                byte[] pagePlusSpare = new byte[pageWithSpareSize];
+                Buffer.BlockCopy(dataBlock, 0, pagePlusSpare, 0, pageSize);
+                Buffer.BlockCopy(sparedata, 0, pagePlusSpare, pageSize, spareSize);
+
+                // ECC
+                byte[] pageWithECC;
+                try
+                {
+                    pageWithECC = calcecc(pagePlusSpare);
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    Oper.ByteArrayToString(pagePlusSpare);
+                    throw;
+                }
+
+                Buffer.BlockCopy(pageWithECC, 0, result, writeOffset, pageWithECC.Length);
+                writeOffset += pageWithECC.Length;
+            }
+
+            return result;
+        }
+
+        public static byte[] decrypt_CB_internal(byte[] image, byte[] cpu1blKey)
+        {
+
+            byte[] message = Oper.returnportion(image, 0x10, 0x10);
+            byte[] RC4_key = Oper.HMAC_SHA1(cpu1blKey, message);
+            byte[] imfordec = Oper.returnportion(image, 0x20, image.Length - 0x20);
+            Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
+            byte[] finalimage = new byte[image.Length];
+            for (int i = 0; i < image.Length; i++)
+            {
+                if (i < 0x10) finalimage[i] = image[i];
+                else if (i < 0x20) finalimage[i] = RC4_key[i - 0x10];
+                else finalimage[i] = imfordec[i - 0x20];
+            }
+
+            return finalimage;
+        }
+
+        public static byte[] decrypt_CD_cpukey(byte[] CD, byte[] CB_B, byte[] cpukey)
+        {
+            byte[] secret = Oper.returnportion(CB_B, 0x10, 0x10);
+            byte[] message = Oper.returnportion(CD, 0x10, 0x10);
+
+            byte[] RC4_key = Oper.returnportion(Oper.HMAC_SHA1(secret, message), 0, 0x10);
+
+            byte[] imfordec = Oper.returnportion(CD, 0x20, CD.Length - 0x20);
+            Oper.RC4_v(ref imfordec, RC4_key);
+
+            // Check to see if we need decrypted the CD properly. If not, this is probably a
+            // non-zeropaired single cb image that needs a CPU key to decrypt the CD. Borrowed
+            // this check from the RGBuild image editor
+            if (!( (imfordec[0x20] == 0 && imfordec[0x21] == 0 && imfordec[0x22] == 0 && imfordec[0x23] == 0) ||
+                   (imfordec[0x210] == 0 && imfordec[0x211] == 0 && imfordec[0x212] == 0 && imfordec[0x213] == 0) ))
+            {
+                // We didn't decrypt the CD properly. Oops! We've got to try again with the CPU key if available
+                if (cpukey != null)
+                {
+                    if (variables.debugMode) Console.WriteLine("CD wasn't decrypted properly, trying again with the CPU key");
+
+                    // The nonce/message is the previously calculated RC4 key, the secret is the CPU key
+                    secret = cpukey;
+                    message = RC4_key;
+
+                    // Regenerate the decryption key
+                    RC4_key = Oper.returnportion(Oper.HMAC_SHA1(secret, message), 0, 0x10);
+
+                    // Let's try this again... hopefully it works this time
+                    imfordec = Oper.returnportion(CD, 0x20, CD.Length - 0x20);
+                    Oper.RC4_v(ref imfordec, RC4_key);
+                }
+            }
+
+            byte[] finalimage = new byte[CD.Length];
+
+            for (int i = 0; i < CD.Length; i++)
+            {
+                if (i < 0x10) finalimage[i] = CD[i];
+                else if (i < 0x20) finalimage[i] = RC4_key[i - 0x10];
+                else finalimage[i] = imfordec[i - 0x20];
+            }
+            return finalimage;
+        }
+
+        public static byte[] decrypt_CE(byte[] CE, byte[] CD)
+        {
+            // CE is encrypted the exact same way the CD is
+            return decrypt_CD(CE, CD);
+        }
+
+        public static byte[] decrypt_S2(byte[] image)
+        {
+            if (variables.debugMode) Console.WriteLine(" * decrypting S2...");
+            return decrypt_CB_internal(image, keyZero);
+        }
+
+        public static byte[] decrypt_SC(byte[] SC)
+        {
+            // This is decrypted the same way as CD, but with a zero key
+            // as input. So we don't have to reinvent the wheel, pass
+            // a blank byte array in to decrypt_CD
+            byte[] ZERO_KEY_SC = new byte[0x20];
+
+            return decrypt_CD(SC, ZERO_KEY_SC);
+        }
+
+        public static byte[] decrypt_SD(byte[] SD, byte[] SC)
+        {
+            // SD is decrypted the same way as CD, but with SC as input
+            return decrypt_CD(SD, SC);
+        }
+
+        public static bool doesNandContainVfuses(string flashFilePath)
+        {
+            byte[] cpukeyArr = { };
+            return getVirtualCPUKey(flashFilePath, ref cpukeyArr);
+        }
+
+        public static byte[] encrypt_CB_A(byte[] image, byte[] random, ref byte[] key, ref bool CB_A_new_crypto)
+        {
+            byte[] finalimage = new byte[image.Length];
+            try
+            {
+                // Split CB_A that have the bit 0x1000 set in their flags structure use
+                // a different method for generating the CB_B encryption key.
+                if (0 != (BitConverter.ToInt16(image.Skip(0x6).Take(0x2).Reverse().ToArray(), 0) & 0x1000))
+                {
+                    if (variables.debugMode) Console.WriteLine("CB_A uses new encryption scheme...");
+
+                    CB_A_new_crypto = true;
+                }
+                else
+                {
+                    CB_A_new_crypto = false;
+                }
+
+                if (variables.debugMode) Console.WriteLine("Encrypting CB...");
+                byte[] RC4_key = Oper.HMAC_SHA1(secret_1bl, random);
+                //byte[] RC4_key = returnportion(image, 0x10, 0x10);
+                byte[] imfordec = Oper.returnportion(image, 0x20, image.Length - 0x20);
+                if (variables.debugMode) Console.WriteLine(" CB Stage 1");
+                key = Oper.returnportion(RC4_key, 0, 0x10);
+                Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
+                if (variables.debugMode) Console.WriteLine(" CB Stage 2");
+
+                for (int i = 0; i < image.Length; i++)
+                {
+                    if (i < 0x10) finalimage[i] = image[i];
+                    else if (i < 0x20) finalimage[i] = random[i - 0x10];
+                    else finalimage[i] = imfordec[i - 0x20];
+                }
+                if (variables.debugMode) Console.WriteLine("Encrypted CB...");
+
+            }
+            catch (Exception ex) { if (variables.debugMode) Console.WriteLine(ex.ToString()); }
+            return finalimage;
+        }
+
+        public static string extend16mbTo64mb(string flashFilePath)
+        {
+            string flashFileResultPath = flashFilePath + "_aligned.bin";
+
+            byte[] flashData = File.ReadAllBytes(flashFilePath);
+            
+            int blockType = 0;
+
+            if (flashData.Length != 17301504)
+            {
+                Console.WriteLine("Error: input NAND image is not 16mb with ECC");
+                return flashFilePath;
+            }
+
+            Console.WriteLine("Aligning 16mb NAND image to 64mb...");
+
+            // Determine what kind of ECC is in this image... should only
+            // ever be 0 or 1, 2 would be unexpected
+            byte[] sparedata = flashData.Skip(0x4400).Take(0x10).ToArray();
+
+            // Block Types
+            // 0 = Small block NAND (XSB)
+            // 1 = Small block NAND on BB controller (PSB/KSB)
+            // 2 = Big block NAND on BB controller (PSB/KSB)
+            blockType = identifylayout(sparedata);
+
+            // extend the buffer to 69206016 bytes (64mb w/ ECC)
+            Array.Resize(ref flashData, 69206016);
+
+            // Step 2: fill it with 48mb worth of zero pages w/ valid ECC data
+            // we don't reeeeeeeallly need a bunch of buffers for this but 
+            // addeccv2 doesn't have a "start at this offset" option (yet)
+            byte[] blankPages = new byte[0x18000 * 0x200];
+            blankPages = addecc_v2(blankPages, true, 17301504, blockType);
+            Buffer.BlockCopy(blankPages,0,flashData, 17301504, blankPages.Length);
+
+            // Copy the SMC config to the new location
+            // 64mb: 0x03dfc000 (0x3FEBE00 physical), len 0x400 (two logical pages)
+            // 16mb: 0x00f7c000 (0xFF7E00 physical), len 0x400 (two logical pages)
+            // logical page size: 0x200
+            // physical page size: 0x210
+
+            // Get the old SMC config bytes and re-add ECC data for the new loc
+            byte[] smcConfigBytes = flashData.Skip(0xFF7E00).Take(0x420).ToArray();
+            smcConfigBytes = unecc(smcConfigBytes);
+            smcConfigBytes = addecc_v2(smcConfigBytes, true, 0x3FEBE00, blockType);
+            //smcConfigBytes *should* be 0x420 now
+            Buffer.BlockCopy(smcConfigBytes,0,flashData,0x3FEBE00, smcConfigBytes.Length);
+
+            //zero out the old location
+            byte[] blankSmcConfigPages = new byte[0x400];
+            blankSmcConfigPages = addecc_v2(blankSmcConfigPages, true, 0xFF7E00, blockType);
+            Buffer.BlockCopy(blankSmcConfigPages, 0, flashData, 0xFF7E00, blankSmcConfigPages.Length);
+
+            File.WriteAllBytes(flashFileResultPath, flashData);
+
+            Console.WriteLine("Done. Image written to " + flashFileResultPath);
+
+            return flashFileResultPath;
+        }
+
+        public static void fixBuggyXeBuildImage(string flashFilePath)
+        {
+            byte[] flashData = { };
+
+            // Logical page size is always 0x200
+            // and the physical page size (for ECC images) is always 0x210
+            int pagesz = 0x200;
+            int pagesz_phys = 0x210;
+
+            int blockType = 0;
+            bool flashHasEcc = false;
+
+            Console.WriteLine("Patching image to resolve xeBuild bugs...");
+
+            // Read in the flash image
+            try
+            {
+                flashData = File.ReadAllBytes(flashFilePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Image patch error: couldn't read input flash image");
+                if (variables.debugMode) Console.WriteLine(ex.ToString());
+                return;
+            }
+
+            // Determine whether this image has ECC
+            if (flashData.Length == 17301504 || flashData.Length == 69206016)
+            {
+                flashHasEcc = true;
+            }
+            else if (flashData.Length == 50331648)
+            {
+                // Flash data doesn't have ECC, pagesz_phys = pagesz
+                flashHasEcc = false;
+                pagesz_phys = pagesz;
+            }
+            else
+            {
+                Console.WriteLine("Image patch error: invalid image size");
+                return;
+            }
+
+            // If the flash has ECC data, determine the block type so ECC data can be recalculated
+            if (flashHasEcc)
+            {
+                byte[] sparedata = flashData.Skip(0x4400).Take(0x10).ToArray();
+
+                // Block Types
+                // 0 = Small block NAND (XSB)
+                // 1 = Small block NAND on BB controller (PSB/KSB)
+                // 2 = Big block NAND on BB controller (PSB/KSB)
+                blockType = identifylayout(sparedata);
+            }
+
+            
+            // The patch slot size that we need to fix for Falcon images is always
+            // in the first NAND page, so we can just take the first page of bytes
+            byte[] nandPatchPages = flashData.Take(pagesz_phys).ToArray();
+
+            if (flashHasEcc)
+            {
+                // remove the ECC so we can copy our patch data to the logical addresses
+                nandPatchPages = unecc(nandPatchPages);
+            }
+
+            // If the patch slot size is unset, set the patch slot size to 0x00010000
+            // which is the size for all common image types
+            if( 0 == BitConverter.ToInt32(nandPatchPages.Skip(0x70).Take(0x4).ToArray(),0) )
+            {
+                Console.WriteLine("Fixing patch slot size set to zero...");
+
+                nandPatchPages[0x70] = 0x00;
+                nandPatchPages[0x71] = 0x01;
+                nandPatchPages[0x72] = 0x00;
+                nandPatchPages[0x73] = 0x00;
+            }
+
+
+            // If the KV size is unset, set the KV size to 0x00004000 (this is assuming a retail KV)
+            if (0 == BitConverter.ToInt32(nandPatchPages.Skip(0x60).Take(0x4).ToArray(), 0))
+            {
+                Console.WriteLine("Fixing KV size set to zero...");
+
+                nandPatchPages[0x60] = 0x00;
+                nandPatchPages[0x61] = 0x00;
+                nandPatchPages[0x62] = 0x40;
+                nandPatchPages[0x63] = 0x00;
+            }
+
+            // Re-add ECC data and copy it over to the flash data buffer
+            if (flashHasEcc)
+            {
+                nandPatchPages = addecc_v2(nandPatchPages, true, 0, blockType);
+            }
+            Buffer.BlockCopy(nandPatchPages, 0, flashData, 0, nandPatchPages.Length);
+
+            try
+            {
+                // So we've updated the flashData, write it back to disk!
+                File.WriteAllBytes(flashFilePath, flashData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Image patch error: couldn't write output flash image");
+                if (variables.debugMode) Console.WriteLine(ex.ToString());
+                return;
+            }
+
+            Console.WriteLine("Successfully patched image!");
+            Console.WriteLine("");
+        }
+
+        public static void g3fix(string flashFilePath, byte[] cpukey_phys)
+        {
+            byte[] flashData = { };
+            int blockType = 0;
+            bool flashHasEcc = false;
+
+            Console.WriteLine("g3fix Physical CPU Key: " + Oper.ByteArrayToString(cpukey_phys));
+
+            // Read in the flash image
+            try
+            {
+                flashData = File.ReadAllBytes(flashFilePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("g3fix error: couldn't read input flash image");
+                if (variables.debugMode) Console.WriteLine(ex.ToString());
+                return;
+            }
+
+            // Determine whether this image has ECC
+            if (flashData.Length == 17301504 || flashData.Length == 69206016)
+            {
+                flashHasEcc = true;
+            }
+            else if (flashData.Length == 50331648)
+            {
+                // Flash data doesn't have ECC
+                flashHasEcc = false;
+            }
+            else
+            {
+                Console.WriteLine("g3fix error: Invalid flash image size");
+                return;
+            }
+
+            // If the flash has ECC data, determine the block type so ECC data can be recalculated
+            if (flashHasEcc)
+            {
+                byte[] sparedata = flashData.Skip(0x4400).Take(0x10).ToArray();
+
+                // Block Types
+                // 0 = Small block NAND (XSB)
+                // 1 = Small block NAND on BB controller (PSB/KSB)
+                // 2 = Big block NAND on BB controller (PSB/KSB)
+                blockType = identifylayout(sparedata);
+            }
+
+            // Take the first 0x21000 bytes (one block on 256/512mb BB machines)
+            // It's more than enough to capture the CB_A, CB_X, and CB_B. We can
+            // un-ecc it and won't need to monkey around with logical/physical
+            // address calculations
+            byte[] nandPatchPages = flashData.Take(0x21000).ToArray();
+
+            if (flashHasEcc)
+            {
+                // remove the ECC so we can copy our patch data to the logical addresses
+                nandPatchPages = unecc(nandPatchPages);
+            }
+
+            int cbaOffset = BitConverter.ToInt32(nandPatchPages.Skip(0x8).Take(4).Reverse().ToArray(), 0);
+            int cbaSize = BitConverter.ToInt32(nandPatchPages.Skip(cbaOffset + 0xC).Take(4).Reverse().ToArray(), 0);
+            byte[] cba_nonce = nandPatchPages.Skip(cbaOffset + 0x10).Take(0x10).ToArray();
+
+            int cbxOffset = cbaOffset + cbaSize;
+            int cbxSize = BitConverter.ToInt32(nandPatchPages.Skip(cbxOffset + 0xC).Take(4).Reverse().ToArray(), 0);
+            byte[] cbx_nonce = nandPatchPages.Skip(cbxOffset + 0x10).Take(0x10).ToArray();
+
+            int cbbOffset = cbxOffset + cbxSize;
+            int cbbSize = BitConverter.ToInt32(nandPatchPages.Skip(cbbOffset + 0xC).Take(4).Reverse().ToArray(), 0);
+
+            //byte[] cbb_nonce = nandPatchPages.Skip(cbbOffset + 0x10).Take(0x10).ToArray();
+            byte[] cbb_dec = nandPatchPages.Skip(cbbOffset).Take(cbbSize).ToArray();
+
+            int cbaVersion = BitConverter.ToInt16(nandPatchPages.Skip(cbaOffset + 2).Take(2).Reverse().ToArray(), 0);
+            int cbxVersion = BitConverter.ToInt16(nandPatchPages.Skip(cbxOffset + 2).Take(2).Reverse().ToArray(), 0);
+            int cbbVersion = BitConverter.ToInt16(nandPatchPages.Skip(cbbOffset + 2).Take(2).Reverse().ToArray(), 0);
+
+            // Do some checking on the CB_A and CB_X we've decrypted.
+            // RGH3 images that use CB_A 10918 and CB_X 15432 are what we're looking to patch
+            if (cbaVersion != 10918 || cbxVersion != 15432)
+            {
+                Console.WriteLine("g3fix error: invalid bootloaders. Image is not RGH3, has already been g3fixed, or is corrupt.");
+                Console.WriteLine("CB_A version: " + cbaVersion.ToString());
+                Console.WriteLine("CB_X version: " + cbxVersion.ToString());
+                return;
+            }
+
+            //
+            // Step 1: prepare the new CB_A and patch it in to the NAND image
+            //
+
+            byte[] newcba = { };
+
+            // The new CB_A is going to be 5772. It doesn't really matter,
+            // since all the CB_As are pretty much the same, but g3fix.py
+            // uses it and that seems to work so we'll do it here too.
+            try
+            {
+                newcba = File.ReadAllBytes(Path.Combine(variables.rootfolder, "common\\CB\\CB_A.5772.bin"));
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("g3fix error: couldn't read replacement CB_A");
+                Console.WriteLine(ex.ToString());
+                return;
+            }
+
+            if (newcba.Length > cbaSize)
+            {
+                Console.WriteLine("g3fix error: replacement CB_A is somehow larger than original CB_A");
+                return;
+            }
+
+            // re-encrypt the cba and copy it to the flash image
+            byte[] cba_key = { };
+            newcba = encrypt_CB(newcba, cba_nonce, ref cba_key);
+            Buffer.BlockCopy(newcba, 0 , nandPatchPages, cbaOffset, newcba.Length);
+
+            //
+            // Step 2: Load the pre-patched CB_X
+            //
+            // Credits to wurthless-elektroniks- this CB_X is based on
+            // the "new" RGH3 ECCs. Old dashboards don't get along with
+            // CB_X so we use the RGH3 V2 CB_X and patch it slightly
+            //
+            // 0x3C0: mov r4,r31 (avoid r31 being trashed by cbb_jump)
+            //      : byte[] cbx_mov = { 0x7F, 0xE4, 0xFB, 0x78 };
+            //
+            // 0x3C4: b 0xB4 (jump to the CB_A "jump to CB_B" function)
+            //      : byte[] cba_jump = { 0x48, 0x00, 0x00, 0xB4 };
+            //
+            byte[] newcbx = { };
+
+            try
+            {
+                newcbx = File.ReadAllBytes(Path.Combine(variables.rootfolder, "common\\CB\\CB_X_g3fix.bin"));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("g3fix error: couldn't read replacement CB_X");
+                Console.WriteLine(ex.ToString());
+                return;
+            }
+
+            // Set the nonce in the new CB_X
+            Buffer.BlockCopy(cbx_nonce, 0, newcbx, 0x10, 0x10);
+
+            // Re-encrypt the CB_X. CB_A doesn't have vfuses, so this
+            // MUST be the *physical* CPU key if it differs on a glitch2m image
+            // We're always going to use a CB_A that uses the "old" crypto scheme,
+            // there's really no reason to use one of the newer CB_A binaries
+            newcbx = encrypt_CB_cpukey(newcbx, cba_key, false, cpukey_phys);
+
+            //
+            // Step 3: Fiddle with the unencrypted CB_B
+            //
+            // SMC sum patching logic based on modern-loadfare:
+            //
+            // https://github.com/wurthless-elektroniks/modern-loadfare/blob/main/newcbpatcher.py
+            // https://github.com/wurthless-elektroniks/modern-loadfare/blob/main/oldcbpatcher.py
+            //
+
+            // Need to pad the CB_B to make up the remaining space
+            int bootBlockSize = cbaSize + cbxSize + cbbSize;
+            byte[] newcbb = cbb_dec;
+            Array.Resize(ref newcbb, bootBlockSize - (newcba.Length + newcbx.Length));
+            
+            // Set the new size of the CB_B in its header
+            byte[] newcbbSizeBytes = BitConverter.GetBytes(newcbb.Length).Reverse().ToArray();
+            Buffer.BlockCopy(newcbbSizeBytes, 0, newcbb, 0xC, 0x4);
+
+            // Patch CB_B to branch past the SMC hash check
+            // After RGH dropped, microsoft removed a lot of the POST codes
+            // from the CB_B. To handle the code differences, there are two
+            // different patterns and two different patches to apply depending
+            // on which pattern is found in the CB_B
+            byte?[] oldCbbSmcHashCheckPattern = new byte?[] {
+                0x2F, 0x03, 0x00, 0x00,
+                0x40, 0x9A, 0x00, 0x14,
+                0x38, 0x80, 0x00, 0xA4
+            };
+            int oldCbbPatternSearchResult = Oper.ByteArrayFindPattern(cbb_dec, oldCbbSmcHashCheckPattern);
+
+            byte?[] newCbbSmcHashCheckPattern = new byte?[] {
+                0x48, null, null, null,
+                0x2F, 0x03, 0x00, 0x00,
+                0x40, 0x9A, 0x00, 0x08,
+                0x00, 0x00, 0x00, 0x00
+            };
+            int newCbbPatternSearchResult = Oper.ByteArrayFindPattern(cbb_dec, newCbbSmcHashCheckPattern);
+
+            if (variables.debugMode)
+            {
+                Console.WriteLine("SMC hash check pattern search results:");
+                Console.WriteLine("Old CBB pattern: " + oldCbbPatternSearchResult.ToString("x"));
+                Console.WriteLine("New CBB pattern: " + newCbbPatternSearchResult.ToString("x"));
+            }
+
+            if ( (-1 == oldCbbPatternSearchResult && -1 == newCbbPatternSearchResult ) ||
+                 (-1 != oldCbbPatternSearchResult && -1 != newCbbPatternSearchResult) )
+            {
+                // Odd, either the hash check sequence wasn't found at all or it was
+                // found with both the new and old style patterns. Skip this patch
+                // because something has obviously gone wrong or the CB_B is prepatched
+                Console.WriteLine("g3fix: Skipping CB_B SMC hash check patch");
+            }
+            else if (oldCbbPatternSearchResult != -1)
+            {
+                byte[] old_cbb_jump = { 0x48, 0x00, 0x00, 0x14 }; // b +0x14
+                int oldPatchLocation = oldCbbPatternSearchResult + 0x4;
+                Console.WriteLine("g3fix: patching old-style CB_B at location 0x" + oldPatchLocation.ToString("x"));
+                Buffer.BlockCopy(old_cbb_jump, 0, newcbb, oldPatchLocation, 0x4);
+            }
+            else
+            {
+                byte[] new_cbb_jump = { 0x48, 0x00, 0x00, 0x08 }; // b +0x8
+                int newPatchLocation = newCbbPatternSearchResult + 0xC;
+                Console.WriteLine("g3fix: patching new-style CB_B at location 0x" + newPatchLocation.ToString("x"));
+                Buffer.BlockCopy(new_cbb_jump, 0, newcbb, newPatchLocation, 0x4);
+            }
+
+            // Copy everything over to the NAND patch pages
+            // Note: we DON'T need to encrypt the CB_B, that's
+            // just the way the RGH3 boot chain works
+            int newbootblkSize = newcba.Length + newcbx.Length + newcbb.Length;
+
+            if (newbootblkSize != bootBlockSize)
+            {
+                Console.WriteLine("g3fix error: new boot block size not the same size as the old boot block!");
+                return;
+            }
+
+            byte[] newbootblk = new byte[newbootblkSize];
+
+            // Build the new CB_A/CB_X/CB_B block
+            Buffer.BlockCopy(newcba, 0, newbootblk, 0, newcba.Length);
+            Buffer.BlockCopy(newcbx, 0, newbootblk, newcba.Length, newcbx.Length);
+            Buffer.BlockCopy(newcbb, 0, newbootblk, newcba.Length + newcbx.Length, newcbb.Length);
+
+            // Copy it to the NAND image
+            Buffer.BlockCopy(newbootblk, 0, nandPatchPages, cbaOffset, newbootblkSize);
+
+            // Re-add ECC data and copy it over to the flash data buffer
+            if (flashHasEcc)
+            {
+                nandPatchPages = addecc_v2(nandPatchPages, true, 0, blockType);
+            }
+            Buffer.BlockCopy(nandPatchPages, 0, flashData, 0, nandPatchPages.Length);
+
+            try
+            {
+                // So we've updated the flashData, write it back to disk!
+                File.WriteAllBytes(flashFilePath, flashData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("g3fix error: couldn't write modified flash image");
+                if (variables.debugMode) Console.WriteLine(ex.ToString());
+                return;
+            }
+
+            Console.WriteLine("g3fix: successfully replaced CB_A and CB_X");
+            Console.WriteLine("");
+
+            MainForm.mainForm.nand_init();
+        }
+
+        public static byte[] getCbbRc4Key(byte[] CB_A_key, bool CB_A_new_crypto, byte[] CB_B_nonce, byte[] cpukey)
+        {
+            byte[] secret = CB_A_key;
+            byte[] message = Oper.concatByteArrays(CB_B_nonce, cpukey, 0x10, 0x10);
+            
+            // New CB_A versions use a different method to generate the CB_B RC4 key, as seen below.
+            // CB_A flags. WORD at 0x6 in the CB_A binary will have bit 0x1000 set if this is the case.
+            if (CB_A_new_crypto)
+            {
+                Console.WriteLine("Using new encryption scheme to generate CB_B RC4 key");
+                CB_A_key[0x6] = 0x00;
+                CB_A_key[0x7] = 0x00;
+                message = Oper.concatByteArrays(message, CB_A_key, message.Length, 0x10);
+            }
+
+            return Oper.HMAC_SHA1(secret, message);
+        }
+
+        public static bool getVirtualCPUKey(string flashFilePath, ref byte[] cpukey)
+        {
+            byte[] flashData = { };
+            byte[] fuseline0 = { 0xC0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+            bool flashHasEcc = true;
+            
+
+            try
+            {
+                flashData = File.ReadAllBytes(flashFilePath);
+            }
+            catch
+            {
+                // Couldn't read image, we'll return to the caller
+                // such that it prompts the user for a CPU key
+                return true;
+            }
+
+            // Images with vfuses (other than JTAG) store them at the beginning of the patch slots
+            // This is the same thing XeLL does when searching for the virtual CPU key
+            int patchSlotOffset = BitConverter.ToInt32(flashData.Skip(0x64).Take(0x4).Reverse().ToArray(), 0);
+            int patchSlotCount = BitConverter.ToInt16(flashData.Skip(0x68).Take(0x2).Reverse().ToArray(), 0);
+            int patchSlotSize = BitConverter.ToInt32(flashData.Skip(0x70).Take(0x4).Reverse().ToArray(), 0);
+
+            // Determine whether this image has ECC
+            if (flashData.Length == 17301504 || flashData.Length == 69206016)
+            {
+                flashHasEcc = true;
+            }
+            else if (flashData.Length == 50331648)
+            {
+                // Flash data doesn't have ECC
+                flashHasEcc = false;
+            }
+            else
+            {
+                // Invalid image type, we'll return to the caller
+                // such that it prompts the user for a CPU key
+                return true;
+            }
+
+            for (int i = 0; i < patchSlotCount; i++)
+            {
+                int patchSlotAddress = patchSlotOffset + (i * patchSlotSize);
+                int patchSlotAddressPhys = 0;
+
+                if (flashHasEcc)
+                {
+                    // Addresses stored in NAND are logical (no SPARE)
+                    // Calculate the page number and offset in page so
+                    // we can translate to a physical offset
+                    // Logical page size = 0x200
+                    // Physical page size = 0x210
+                    int patchSlotPage = patchSlotAddress / 0x200;
+                    int patchSlotOffsetInPage = patchSlotAddress % 0x200;
+                    patchSlotAddressPhys = (patchSlotPage * 0x210) + patchSlotOffsetInPage;
+                }
+                else
+                {
+                    patchSlotAddressPhys = patchSlotAddress;
+                }
+
+                if (Oper.ByteArrayCompare(fuseline0, flashData.Skip(patchSlotAddressPhys).Take(0x8).ToArray(), 0x8))
+                {
+                    // ByteArrayCompare returns true if the buffers are equal
+                    cpukey = flashData.Skip(patchSlotAddressPhys + 0x20).Take(0x10).ToArray();
+                    return true;
+                }
+            }
+
+            // If we didn't find virtual fuses in the regular locations, 
+            // try the JTAG location (0x95000 logical, 0x99A80 physical)
+            if (Oper.ByteArrayCompare(fuseline0, flashData.Skip(0x99A80).Take(0x8).ToArray(), 0x8))
+            {
+                // ByteArrayCompare returns true if the buffers are equal
+                cpukey = flashData.Skip(0x99A80 + 0x20).Take(0x10).ToArray();
+                return true;
+            }
+
+            return false;
+        }
+
+        public static void injectEncryptedKV(string flashFilePath, string kvFilePath, byte[] cpukey)
+        {
+            byte[] flashFileData = File.ReadAllBytes(flashFilePath);
+            bool flashHasEcc = false;
+            int blockType = 0;
+
+            byte[] kvFileData = File.ReadAllBytes(kvFilePath);
+
+            // KV size and KV offset are stored in the first page of NAND
+            int flashKvSize = BitConverter.ToInt32(flashFileData.Skip(0x60).Take(0x4).Reverse().ToArray(),0);
+            int flashKvOffset = BitConverter.ToInt32(flashFileData.Skip(0x6c).Take(0x4).Reverse().ToArray(),0);
+
+            if ( kvFileData.Length % 0x200 != 0 )
+            {
+                Console.WriteLine("Error: KV size is not a multiple of 0x200, decrypted KV might be corrupt.");
+                return;
+            }
+
+            if( flashKvOffset % 0x200 != 0 )
+            {
+                Console.WriteLine("Error: KV is not stored on a page boundary. NAND image may be corrupt.");
+                return;
+            }
+
+            if (flashKvSize == 0)
+            {
+                Console.WriteLine("Warning: KV size set to 0 in this flash image. KV size will not be validated.");
+            }
+            else if (kvFileData.Length != flashKvSize)
+            {
+                Console.WriteLine("Error: can't inject a different length KV in to an existing NAND");
+                return;
+            }
+
+            // Determine whether this image has ECC
+            if (flashFileData.Length == 17301504 || flashFileData.Length == 69206016)
+            {
+                flashHasEcc = true;
+            }
+            else if (flashFileData.Length == 50331648)
+            {
+                flashHasEcc = false;
+            }
+            else
+            {
+                Console.WriteLine("Couldn't inject KV: Invalid flash image size");
+                return;
+            }
+
+            // Encrypt the KV with the CPU key
+            byte[] kvenc = encryptkv_hmac(kvFileData, cpukey);
+
+            if (flashHasEcc)
+            {
+                // If the flash has ECC data, determine the block type so ECC data can be recalculated
+                byte[] sparedata = flashFileData.Skip(0x4400).Take(0x10).ToArray();
+
+                // Block Types
+                // 0 = Small block NAND (XSB)
+                // 1 = Small block NAND on BB controller (PSB/KSB)
+                // 2 = Big block NAND on BB controller (PSB/KSB)
+                blockType = identifylayout(sparedata);
+
+                int flashKvOffsetPhys = (flashKvOffset / 0x200) * 0x210;
+
+                kvenc = addecc_v2(kvenc, true, flashKvOffsetPhys, blockType);
+
+                Buffer.BlockCopy(kvenc, 0, flashFileData, flashKvOffsetPhys, kvenc.Length);
+            }
+            else
+            {
+                Buffer.BlockCopy(kvenc, 0, flashFileData, flashKvOffset, flashKvSize);
+            }
+
+            File.WriteAllBytes(flashFilePath, flashFileData);
+
+            Console.WriteLine("Success!");
+            return;
+        }
+
+        public static void zeroPairDevkitSb(string flashFilePath, bool sequenced)
+        {
+            byte[] flashData = { };
+
+            // Logical page size is always 0x200
+            // and the physical page size (for ECC images) is always 0x210
+            int pagesz = 0x200;
+            int pagesz_phys = 0x210;
+
+            int blockType = 0;
+            bool flashHasEcc = false;
+
+            // Read in the flash image
+            try
+            {
+                flashData = File.ReadAllBytes(flashFilePath);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Zero pair SB error: couldn't read input flash image");
+                if (variables.debugMode) Console.WriteLine(ex.ToString());
+
+                if (sequenced)
+                {
+                    variables.xefinished = true;
+                    MainForm.mainForm.xPanel.xeExitActual(false);
+                }
+                return;
+            }
+
+            // Determine whether this image has ECC
+            if (flashData.Length == 17301504 || flashData.Length == 69206016)
+            {
+                flashHasEcc = true;
+            }
+            else if (flashData.Length == 50331648)
+            {
+                // Flash data doesn't have ECC, pagesz_phys = pagesz
+                flashHasEcc = false;
+                pagesz_phys = pagesz;
+            }
+            else
+            {
+                Console.WriteLine("Zero pair SB error: Invalid flash image size");
+                if (sequenced)
+                {
+                    variables.xefinished = true;
+                    MainForm.mainForm.xPanel.xeExitActual(false);
+                }
+                return;
+            }
+
+            // If the flash has ECC data, determine the block type so ECC data can be recalculated
+            if (flashHasEcc)
+            {
+                byte[] sparedata = flashData.Skip(0x4400).Take(0x10).ToArray();
+
+                // Block Types
+                // 0 = Small block NAND (XSB)
+                // 1 = Small block NAND on BB controller (PSB/KSB)
+                // 2 = Big block NAND on BB controller (PSB/KSB)
+                blockType = identifylayout(sparedata);
+            }
+
+            // Encryption of the SC and later stages are different compared
+            // to retail CB/CD encryption- SC uses a zero key and nonce
+            // and the SD depends on the SC key. e.g.
+            //
+            // sb_key = XeCryptHmacSha(XECRYPT_1BL_KEY, sb_nonce)
+            // sc_key = XeCryptHmacSha(ZERO_KEY, sc_nonce)
+            // sd_key = XeCryptHmacSha(sc_key, sd_nonce)
+            // sd_key = XeCryptHmacSha(sd_key, se_nonce)
+            // 
+            // So, we can decrypt and zeropair the SB without touching
+            // later stages. Isn't that convenient!
+
+            // Determine the logical SB offset by looking at 0x8 in NAND
+            // Then calculate the physical offset and offset in page
+            int logicalSbOffset = BitConverter.ToInt32(flashData.Skip(0x8).Take(4).Reverse().ToArray(), 0);
+            int sbOffsetInPage = logicalSbOffset % pagesz;
+
+            // Calculate the offset of the first page containing the SB
+            int physicalSbPageOffset = (logicalSbOffset / pagesz) * pagesz_phys;
+
+            // The size of the SB is stored in its header, which is 0xC in to the SB binary
+            int sbSize = BitConverter.ToInt32(flashData.Skip(physicalSbPageOffset + 0xC).Take(4).Reverse().ToArray(), 0);
+
+            // Get the length of data to read from NAND, which is the (SB size / page size) + 1
+            // in case the SB doesn't start on a page boundary or the size of the SB isn't an 
+            // exact multiple of the page size.
+            int patchDataLength = ((sbSize / pagesz) + 1) * pagesz_phys;
+
+            // Get the pages of the SB that we need to patch
+            byte[] nandPatchPages = flashData.Skip(physicalSbPageOffset).Take(patchDataLength).ToArray();
+
+            if (flashHasEcc)
+            {
+                // remove the ECC so we can copy our patch data to the logical addresses
+                nandPatchPages = unecc(nandPatchPages);
+            }
+
+            // Extract the encrypted SB data
+            byte[] sb_crypt = nandPatchPages.Skip(sbOffsetInPage).Take(sbSize).ToArray();
+
+            // Check that we actually read an SB by checking the magic bytes
+            // at 0x0 and 0x1, they should be 0x53 (S) and 0x42 (B).
+            // This function does not support zeropairing CB or CF/CG
+            if(sb_crypt[0] != 0x53 || sb_crypt[1] != 0x42)
+            {
+                Console.WriteLine("Zero pair SB error: BL at offset " + logicalSbOffset.ToString("X") + " is not an SB.");
+
+                if (sequenced)
+                {
+                    variables.xefinished = true;
+                    MainForm.mainForm.xPanel.xeExitActual(false);
+                }
+                return;
+            }
+
+            // Decrypt the SB (it's encrypted the same way as a retail single CB or split CB_A)
+            byte[] sb_decrypt = Nand.decrypt_CB(sb_crypt);
+
+            // Blow away all the pairing data, LDV, auth hash, etc
+            // for a zero paired image and then re-encrypt everything
+            // - Pairing Data: 0x20-0x22
+            // - LDV: 0x23
+            // - CB auth hash/per-box digest: 0x30-0x3f
+            for (int i = 0x20; i<= 0x3F; i++)
+            {
+                sb_decrypt[i] = 0x0;
+            }
+
+            // Use the same nonce from the encrypted SB
+            // sb_key is just to make encrypt_CB happy,
+            // we don't need it for any later stages
+            byte[] sb_nonce = sb_crypt.Skip(0x10).Take(0x10).ToArray();
+            byte[] sb_key = { };
+
+            // Re-encrypt the SB and place it back in the patch data
+            sb_crypt = encrypt_CB(sb_decrypt, sb_nonce, ref sb_key);
+            Buffer.BlockCopy(sb_crypt, 0, nandPatchPages, sbOffsetInPage, sbSize);
+
+            // Re-add ECC data and copy it over to the flash data buffer
+            if(flashHasEcc)
+            {
+                nandPatchPages = addecc_v2(nandPatchPages, true, physicalSbPageOffset, blockType);
+            }
+            Buffer.BlockCopy(nandPatchPages, 0, flashData, physicalSbPageOffset, nandPatchPages.Length);
+
+            try
+            {
+                // So we've updated the flashData, write it back to disk!
+                File.WriteAllBytes(flashFilePath, flashData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Zero pair SB error: couldn't write modified flash image");
+                if (variables.debugMode) Console.WriteLine(ex.ToString());
+
+                if (sequenced)
+                {
+                    variables.xefinished = true;
+                    MainForm.mainForm.xPanel.xeExitActual(false);
+                }
+                return;
+            }
+
+            Console.WriteLine("Successfully zero paired SB");
+            Console.WriteLine("");
+
+            if(sequenced)
+            {
+                variables.xefinished = true;
+                MainForm.mainForm.xPanel.xeExitActual();
+            }
+            else
+            {
+                MainForm.mainForm.nand_init();
+            }
         }
 
         #endregion
