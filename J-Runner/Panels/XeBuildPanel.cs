@@ -450,13 +450,13 @@ namespace JRunner.Panels
         private void checkGlitch2m(string board)
         {
             if (board == null) board = "None";
-            if (variables.dashversion == 17489)
+            if (variables.dashversion == 17489 && File.Exists(variables.rootfolder + @"\xeBuild\17489\!XDKbuild Only!.txt"))
             {
                 rbtnGlitch2m.Enabled = true;
             }
             else
             {
-                if (board.Contains("Corona") || board.Contains("Trinity") || board.Contains("None")) rbtnGlitch2m.Enabled = true;
+                if (board.Contains("Winchester") || board.Contains("Corona") || board.Contains("Trinity") || board.Contains("None")) rbtnGlitch2m.Enabled = true;
                 else rbtnGlitch2m.Enabled = rbtnGlitch2m.Checked = false;
             }
         }

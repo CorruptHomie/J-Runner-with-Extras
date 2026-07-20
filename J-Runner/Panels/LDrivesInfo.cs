@@ -208,7 +208,7 @@ namespace JRunner.Panels
             {
                 for (int i = 1; i <= variables.NoReads; i++)
                 {
-                    string filename = variables.outfolder + "\\nanddump" + i + ".bin";
+                    string filename = variables.nanddumpfolder + "\\nanddump" + i + ".bin";
                     variables.reading = true;
                     int result = read(filename);
                     variables.reading = false;
@@ -225,9 +225,9 @@ namespace JRunner.Panels
             }
             else
             {
-                read(variables.outfolder + "\\nanddump1.bin");
+                read(variables.nanddumpfolder + "\\nanddump1.bin");
                 variables.reading = false;
-                UpdateSourc(variables.outfolder + "\\nanddump1.bin");
+                UpdateSourc(variables.nanddumpfolder + "\\nanddump1.bin");
             }
             buttons(true);
         }

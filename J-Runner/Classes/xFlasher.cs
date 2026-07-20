@@ -298,7 +298,7 @@ namespace JRunner
                             Thread.Sleep(1000);
                         }
 
-                        variables.filename = variables.outfolder + "\\nanddump" + i + ".bin";
+                        variables.filename = variables.nanddumpfolder + "\\nanddump" + i + ".bin";
                         if (File.Exists(variables.filename))
                         {
                             if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))

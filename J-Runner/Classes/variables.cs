@@ -92,7 +92,7 @@ namespace JRunner
             MODEJR,
             MODEFW
         }
-        public static string version = "3.2.0";
+        public static string version = "3.2.1";
         public static string build = "3103." + GetLinkerTime(Assembly.GetExecutingAssembly()).ToString("yyMMdd.HHmm");
         public static bool iswriting;
         public static bool isscanningip = false;
@@ -113,8 +113,11 @@ namespace JRunner
         public static string currentdir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string rootfolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static bool debugMode = false;
+        public static bool playSuccess = true;
         public static string superDevKey = "55555555555555555555555555D9AEE2";
         public static string outfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "output");
+        public static string nanddumpfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "NaND dumps");
+        public static string updatednandfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Updated NaNDs");
         public static string AppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "J-Runner Premium");
         public static string tempfile = "";
         public static string cpkey = "";

@@ -157,6 +157,7 @@
     <Compile Include="Classes\RGH2to3.cs" />
     <Compile Include="Classes\rgh3build.cs" />
     <Compile Include="Classes\EnableDevGL.cs" />
+    <Compile Include="Classes\DirtyPico.cs" />
     <Compile Include="Classes\UI.cs">
       <SubType>Component</SubType>
     </Compile>

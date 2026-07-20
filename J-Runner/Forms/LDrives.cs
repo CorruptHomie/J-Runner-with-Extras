@@ -182,7 +182,7 @@ namespace JRunner.Forms
                 files = new List<string>();
                 for (int i = 1; i <= numberofreads; i++)
                 {
-                    filename = variables.outfolder + "\\nanddump" + i + ".bin";
+                    filename = variables.nanddumpfolder + "\\nanddump" + i + ".bin";
                     txtFile.Text = filename;
                     files.Add(filename);
                     int result = read();

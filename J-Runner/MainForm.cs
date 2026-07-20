@@ -40,6 +40,7 @@ namespace JRunner
             XFLASHER_SPI = 3,
             XFLASHER_EMMC = 4,
             PICOFLASHER = 5,
+            DIRTYPICO = 6,
         }
 		
         public static TextWriter _writer = null;
@@ -49,6 +50,7 @@ namespace JRunner
         IP myIP = new IP();
         public static Nand.PrivateN nand = new Nand.PrivateN();
         public PicoFlasher picoflasher = new PicoFlasher();
+        public DirtyPico dirtypico = new DirtyPico();
         public xFlasher xflasher = new xFlasher();
         public Mtx_Usb mtx_usb = new Mtx_Usb();
         public xdkbuild XDKbuild = new xdkbuild();
@@ -155,6 +157,7 @@ namespace JRunner
             try
             {
                 if (File.Exists(xflasher.svfPath)) File.Delete(xflasher.svfPath);
+                else if (File.Exists(dirtypico.svfPath)) File.Delete(dirtypico.svfPath);
             }
             catch { }
         }
@@ -196,6 +199,16 @@ namespace JRunner
 
         void setUp()
         {
+            try
+            {
+                if (!Directory.Exists(variables.nanddumpfolder)) Directory.CreateDirectory(variables.nanddumpfolder);
+                if (!Directory.Exists(variables.updatednandfolder)) Directory.CreateDirectory(variables.updatednandfolder);
+            }
+            catch (Exception ex)
+            {
+                if (variables.debugme) Console.WriteLine(ex.ToString());
+            }
+
             demon.UpdateBloc += updateBlocks;
             demon.UpdateProgres += updateProgress;
             demon.updateFlas += demon_updateFlas;
@@ -270,6 +283,11 @@ namespace JRunner
                     nTools.setImage(Properties.Resources.picoflasher);
                     //PicoFlasherToolStripMenuItem.Visible = true;
                     device = DEVICE.PICOFLASHER;
+                }
+                else if (IsUsbDeviceConnected("C0CA", "1209")) // DirtyPico
+                {
+                    nTools.setImage(Properties.Resources.dirtypico);
+                    device = DEVICE.DIRTYPICO;
                 }
                 else if (IsUsbDeviceConnected("6010", "0403")) // xFlasher SPI
                 {
@@ -990,6 +1008,10 @@ namespace JRunner
                         {
                             xflasher.flashSvf(filename);
                         }
+                        else if (device == DEVICE.DIRTYPICO)
+                        {
+                            dirtypico.flashSvf(filename);
+                        }
                         else if (device == DEVICE.XFLASHER_EMMC)
                         {
                             MessageBox.Show("Unable to write timing in eMMC mode\n\nPlease switch to SPI mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1113,6 +1135,10 @@ namespace JRunner
                     else if(device == DEVICE.XFLASHER_SPI)
                     {
                         xflasher.flashSvf(file);
+                    }
+                    else if (device == DEVICE.DIRTYPICO)
+                    {
+                        dirtypico.flashSvf(file);
                     }
                     else if (device == DEVICE.XFLASHER_EMMC)
                     {
@@ -1300,7 +1326,7 @@ namespace JRunner
             {
                 if (variables.ctyp.ID == 11)
                 {
-                    calldrives(variables.outfolder + "\\nanddump1.bin", Panels.LDrivesInfo.Function.Read);
+                    calldrives(variables.nanddumpfolder + "\\nanddump1.bin", Panels.LDrivesInfo.Function.Read);
                     return;
                 }
                 else
@@ -1408,7 +1434,7 @@ namespace JRunner
                         }
                     }
 
-                    variables.filename = variables.outfolder + "\\nanddump" + j + ".bin";
+                    variables.filename = variables.nanddumpfolder + "\\nanddump" + j + ".bin";
                     variables.iterations = j;
                     if (File.Exists(variables.filename))
                     {
@@ -1633,7 +1659,7 @@ namespace JRunner
         {
             if (variables.reading) return;
             Thread.Sleep(2000);
-            variables.xefolder = Path.Combine(Directory.GetParent(variables.outfolder).FullName, nand.ki.serial);
+            variables.xefolder = Path.Combine(variables.updatednandfolder, nand.ki.serial);
 
             //updateS((variables.filename1.Replace(variables.outfolder, variables.xefolder)));
             Console.WriteLine("Moving all files from output folder to {0}", variables.xefolder);
