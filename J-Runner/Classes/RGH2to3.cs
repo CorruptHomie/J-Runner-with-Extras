@@ -193,7 +193,10 @@ namespace JRunner.Classes
         {
             byte[] output;
             var ret = ConvertRgh2ToRgh3(File.ReadAllBytes(eccPath), File.ReadAllBytes(flashPath), Unhexlify(cpuKey), out output, patchSMC);
-            File.WriteAllBytes(outPath, output);
+            // Only write on success - previously this ran unconditionally, so a real error
+            // (wrong CPU key, wrong image size, etc.) surfaced as a generic
+            // ArgumentNullException from writing a null output, masking the actual cause.
+            if (ret == RGH_CONVERT_ERROR.ERROR_NONE) File.WriteAllBytes(outPath, output);
             return ret;
         }
 
@@ -201,7 +204,7 @@ namespace JRunner.Classes
         {
             byte[] output;
             var ret = ConvertRgh2ToRgh3(File.ReadAllBytes(eccPath), File.ReadAllBytes(flashPath), cpuKey, out output, patchSMC);
-            File.WriteAllBytes(outPath, output);
+            if (ret == RGH_CONVERT_ERROR.ERROR_NONE) File.WriteAllBytes(outPath, output);
             return ret;
         }
 

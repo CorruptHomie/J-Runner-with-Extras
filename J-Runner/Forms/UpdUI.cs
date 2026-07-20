@@ -59,7 +59,7 @@ namespace JRunner
 
         private void DownloadButton_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/Octal450/J-Runner-with-Extras/releases/latest");
+            Process.Start("https://github.com/ScallywagDude/J-Runner-Premium/releases/latest");
         }
     }
 }

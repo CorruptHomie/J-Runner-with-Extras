@@ -362,14 +362,16 @@ namespace JRunner
                 if (xPanel.getComboDash().Items.Count == 4)
                 {
                     xPanel.getComboDash().SelectedIndex = 0;
-                    variables.dashversion = Convert.ToInt32(xPanel.getComboDash().Text);
+                    Match dashNumStartup = Regex.Match(xPanel.getComboDash().Text, @"^\d+");
+                    if (dashNumStartup.Success) variables.dashversion = Convert.ToInt32(dashNumStartup.Value);
                 }
                 else
                 {
                     if (variables.dashes_all.Contains(variables.preferredDash))
                     {
                         xPanel.getComboDash().SelectedIndex = variables.dashes_all.IndexOf(variables.preferredDash);
-                        variables.dashversion = Convert.ToInt32(xPanel.getComboDash().Text);
+                        Match dashNumPreferred = Regex.Match(xPanel.getComboDash().Text, @"^\d+");
+                        if (dashNumPreferred.Success) variables.dashversion = Convert.ToInt32(dashNumPreferred.Value);
                     }
                     else if (xPanel.getComboDash().Items.Count > 3) xPanel.BeginInvoke((Action)(() => xPanel.getComboDash().SelectedIndex = (xPanel.getComboDash().Items.Count - 3)));
                 }
@@ -2331,7 +2333,7 @@ namespace JRunner
             if (xPanel.getRgh3Checked())
             {
                 string mhz = "";
-                if (xPanel.getRgh3Mhz() == 10) mhz = "_10";
+                if (xPanel.getRgh3Mhz() != "27") mhz = "_" + xPanel.getRgh3Mhz();
 
                 switch (variables.ctyp.ID)
                 {
@@ -5179,7 +5181,13 @@ namespace JRunner
         {
             Dashes.delDash deldash = new Dashes.delDash();
             deldash.ShowDialog();
-            check_dash();
+            // check_dash() does directory I/O plus ~120ms of hardcoded Thread.Sleep calls;
+            // add_dash backgrounds the equivalent call (see above) but this one didn't,
+            // so deleting a dash would briefly freeze the UI. Match add_dash's pattern.
+            ThreadStart starte = delegate { check_dash(); };
+            Thread th = new Thread(starte);
+            th.IsBackground = true;
+            th.Start();
         }
 
         void check_dash()
@@ -5193,13 +5201,22 @@ namespace JRunner
                 try
                 {
                     variables.dashes_all = new List<string>();
-                    Regex regex = new Regex("^[0-9]+$");
+                    // Matches plain kernel folders ("17489") as well as variant folders
+                    // ("17489_RGL") - previously digits-only, which silently dropped variants.
+                    Regex regex = new Regex(@"^\d+(?:_[A-Za-z0-9_]+)?$");
 
                     foreach (string a in Directory.GetDirectories(Path.Combine(variables.currentdir, "xeBuild")))
                     {
                         if (regex.IsMatch(Path.GetFileNameWithoutExtension(a))) variables.dashes_all.Add(Path.GetFileNameWithoutExtension(a));
                     }
-                    variables.dashes_all.Sort();
+                    // Sort by the leading kernel number so variants (e.g. "17489_RGL") land
+                    // next to their base version instead of wherever plain string sort puts them.
+                    variables.dashes_all.Sort((a, b) =>
+                    {
+                        int numA = int.TryParse(Regex.Match(a, @"^\d+").Value, out var nA) ? nA : 0;
+                        int numB = int.TryParse(Regex.Match(b, @"^\d+").Value, out var nB) ? nB : 0;
+                        return numA.CompareTo(numB);
+                    });
                     if (variables.debugme) Console.WriteLine("Checking dashes");
                     foreach (string valueName in variables.dashes_all)
                     {

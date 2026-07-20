@@ -145,9 +145,9 @@ namespace JRunner.Panels
         {
             return chkRgh3.Checked;
         }
-        public int getRgh3Mhz()
+        public string getRgh3Mhz()
         {
-            return int.Parse(Rgh3Mhz.Text);
+            return Rgh3Mhz.Text;
         }
         public bool getAudClampChecked()
         {
@@ -336,7 +336,10 @@ namespace JRunner.Panels
             {
                 variables.preferredDash = comboDash.Text;
 
-                variables.dashversion = Convert.ToInt32(comboDash.Text);
+                // comboDash.Text can be a plain kernel version ("17489") or a variant
+                // ("17489_RGL"); take the leading number so variants don't throw here.
+                Match dashNumSelected = Regex.Match(comboDash.Text, @"^\d+");
+                if (dashNumSelected.Success) variables.dashversion = Convert.ToInt32(dashNumSelected.Value);
                 lblDash.Text = comboDash.Text;
 
             }
@@ -450,15 +453,10 @@ namespace JRunner.Panels
         private void checkGlitch2m(string board)
         {
             if (board == null) board = "None";
-            if (variables.dashversion == 17489 && File.Exists(variables.rootfolder + @"\xeBuild\17489\!XDKbuild Only!.txt"))
-            {
-                rbtnGlitch2m.Enabled = true;
-            }
-            else
-            {
-                if (board.Contains("Winchester") || board.Contains("Corona") || board.Contains("Trinity") || board.Contains("None")) rbtnGlitch2m.Enabled = true;
-                else rbtnGlitch2m.Enabled = rbtnGlitch2m.Checked = false;
-            }
+            // Glitch2m is an in-place replacement for Glitch2 on consoles with blown fuses,
+            // so it should be available on any board Glitch2 is (previously restricted to
+            // Winchester/Corona/Trinity/None, which disabled it everywhere else).
+            rbtnGlitch2m.Enabled = true;
         }
 
         private void checkDevGL(string board)

@@ -21,19 +21,52 @@ namespace JRunner
 
             Thread.Sleep(1000); // Important
 
+            Classes.RGH_CONVERT_ERROR result;
             try
             {
-                Classes.RGH2to3.ConvertRgh2ToRgh3(eccpath, variables.filename1, cpuKey, variables.filename1, patchSMC);
+                result = Classes.RGH2to3.ConvertRgh2ToRgh3(eccpath, variables.filename1, cpuKey, variables.filename1, patchSMC);
             }
             catch (Exception ex)
             {
                 if (variables.debugMode) Console.WriteLine(ex.ToString());
-                Console.WriteLine("Failed: The image is either already RGH 1.3, already RGH3, or an unsupported image type");
+                Console.WriteLine("Failed: An unexpected error occurred while converting to RGH3");
+                Console.WriteLine("");
+                return;
+            }
+
+            if (result != Classes.RGH_CONVERT_ERROR.ERROR_NONE)
+            {
+                Console.WriteLine("Failed: " + DescribeRgh3Error(result));
                 Console.WriteLine("");
                 return;
             }
 
             MainForm.mainForm.nand_init();
+        }
+
+        // Maps the specific RGH_CONVERT_ERROR reason to an accurate message. Previously the
+        // conversion's return value was discarded entirely and every failure - wrong CPU key,
+        // wrong image size, missing bootloaders, etc. - showed the same generic "already RGH3,
+        // or an unsupported image type" message, which is only actually true for one of these.
+        private static string DescribeRgh3Error(Classes.RGH_CONVERT_ERROR error)
+        {
+            switch (error)
+            {
+                case Classes.RGH_CONVERT_ERROR.ERROR_INVALID_ECC_SIZE:
+                    return "The RGH3 ECC file is not a recognized size";
+                case Classes.RGH_CONVERT_ERROR.ERROR_INVALID_ECC_BOOTLOADERS:
+                    return "Could not find valid CB_A/CB_B bootloaders in the RGH3 ECC file";
+                case Classes.RGH_CONVERT_ERROR.ERROR_INVALID_FLASH_LENGTH:
+                    return "The NAND image is not a recognized size";
+                case Classes.RGH_CONVERT_ERROR.ERROR_INVALID_FLASH_BLOCK_TYPE:
+                    return "Could not determine the NAND's ECC block type";
+                case Classes.RGH_CONVERT_ERROR.ERROR_XELL_NOT_FOUND:
+                    return "The image is either already RGH3, or an unsupported image type";
+                case Classes.RGH_CONVERT_ERROR.ERROR_FLASH_CBB_DECRYPT_FAILED:
+                    return "Failed to decrypt CB_B - double check the CPU key";
+                default:
+                    return "Unknown error (" + error + ")";
+            }
         }
 
         public void create(string board, string cpuKey, bool sequenced = true)
@@ -43,7 +76,7 @@ namespace JRunner
 
             string ecc;
             string mhz = "";
-            if (MainForm.mainForm.xPanel.getRgh3Mhz() == 10) mhz = "_10";
+            if (MainForm.mainForm.xPanel.getRgh3Mhz() != "27") mhz = "_" + MainForm.mainForm.xPanel.getRgh3Mhz();
 
             if (board == "Corona 16MB") ecc = variables.RGH3_corona;
             else if (board == "Corona 4GB") ecc = variables.RGH3_corona4GB;
@@ -65,14 +98,22 @@ namespace JRunner
             if (sequenced) filename = Path.Combine(variables.xefolder, variables.nandflash);
             else filename = variables.filename1;
 
+            Classes.RGH_CONVERT_ERROR result;
             try
             {
-                Classes.RGH2to3.ConvertRgh2ToRgh3(Path.Combine(variables.pathforit, "common", "ECC", ecc + ".ecc"), filename, cpuKey, filename);
+                result = Classes.RGH2to3.ConvertRgh2ToRgh3(Path.Combine(variables.pathforit, "common", "ECC", ecc + ".ecc"), filename, cpuKey, filename);
             }
             catch (Exception ex)
             {
                 if (variables.debugMode) Console.WriteLine(ex.ToString());
-                Console.WriteLine("Failed: The image is either already RGH3, or an unsupported image type");
+                Console.WriteLine("Failed: An unexpected error occurred while converting to RGH3");
+                Console.WriteLine("");
+                return;
+            }
+
+            if (result != Classes.RGH_CONVERT_ERROR.ERROR_NONE)
+            {
+                Console.WriteLine("Failed: " + DescribeRgh3Error(result));
                 Console.WriteLine("");
                 return;
             }
