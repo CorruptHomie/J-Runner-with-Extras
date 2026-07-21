@@ -183,35 +183,43 @@ namespace JRunner
         /// <param name="indexrow"></param>
         public void deletekey(int indexrow)
         {
-            if (variables.debugme) Console.WriteLine("Deleting Key");
-            lblNumber.Text = (--index).ToString();
-            DataTable cputable = dataSet1.DataTable1;
-            RegistryKey cpukeydb = Registry.CurrentUser.CreateSubKey("CPUKey_DB");
-            if (variables.debugme) Console.WriteLine("Index Row {0} | Index {1}", indexrow, index);
-            if (indexrow == index)
+            try
             {
-                if (variables.debugme) Console.WriteLine("Last one");
-                cpukeydb.SetValue("Index", index);
-                cpukeydb.DeleteSubKeyTree(cputable.Rows[indexrow][0].ToString());
-                if (variables.debugme) Console.WriteLine("Done");
-            }
-            else
-            {
-                if (variables.debugme) Console.WriteLine("Setting Deleted");
-                RegistryKey cpukeys = cpukeydb.CreateSubKey(cputable.Rows[indexrow][0].ToString());
-                foreach (string valueN in cpukeys.GetValueNames())
+                if (variables.debugme) Console.WriteLine("Deleting Key");
+                lblNumber.Text = (--index).ToString();
+                DataTable cputable = dataSet1.DataTable1;
+                RegistryKey cpukeydb = Registry.CurrentUser.CreateSubKey("CPUKey_DB");
+                if (variables.debugme) Console.WriteLine("Index Row {0} | Index {1}", indexrow, index);
+                if (indexrow == index)
                 {
-                    if (valueN != "Index")
-                    {
-                        cpukeys.DeleteValue(valueN);
-                    }
+                    if (variables.debugme) Console.WriteLine("Last one");
+                    cpukeydb.SetValue("Index", index);
+                    cpukeydb.DeleteSubKeyTree(cputable.Rows[indexrow][0].ToString());
+                    if (variables.debugme) Console.WriteLine("Done");
                 }
-                cpukeys.SetValue("Deleted", 1);
-                if (variables.debugme) Console.WriteLine("Done");
+                else
+                {
+                    if (variables.debugme) Console.WriteLine("Setting Deleted");
+                    RegistryKey cpukeys = cpukeydb.CreateSubKey(cputable.Rows[indexrow][0].ToString());
+                    foreach (string valueN in cpukeys.GetValueNames())
+                    {
+                        if (valueN != "Index")
+                        {
+                            cpukeys.DeleteValue(valueN);
+                        }
+                    }
+                    cpukeys.SetValue("Deleted", 1);
+                    if (variables.debugme) Console.WriteLine("Done");
+                }
+                cputable.Rows.Remove(cputable.Rows[indexrow]);
+                if (variables.debugme) Console.WriteLine("Finished");
+                this.Refresh();
             }
-            cputable.Rows.Remove(cputable.Rows[indexrow]);
-            if (variables.debugme) Console.WriteLine("Finished");
-            this.Refresh();
+            catch (Exception ex)
+            {
+                if (variables.debugme) Console.WriteLine(ex.ToString());
+                MessageBox.Show("Failed to delete the CPU Key entry:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void dataGridView1_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
@@ -220,6 +228,14 @@ namespace JRunner
             //Console.WriteLine(e.Row.Index);
             deletekey(e.Row.Index);
             //cpukeydb.DeleteSubKeyTree(cputable.Rows[e.Row.Index][0].ToString(), false);
+
+            // deletekey() above already removes the row from the bound DataTable itself
+            // (and updates the registry-backed CPUKey_DB to match). If we let this event
+            // proceed uncancelled, the DataGridView's own built-in row-deletion logic runs
+            // immediately afterwards and tries to remove that same row a second time from
+            // a data source it has already been removed from - which throws. Cancelling
+            // here tells the grid "this has already been handled, don't do it again".
+            e.Cancel = true;
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -229,6 +245,7 @@ namespace JRunner
             //int indexrow = dataGridView1.Rows.GetFirstRow(DataGridViewElementStates.Selected);
             //Console.WriteLine(indexrow);
             //deletekey(indexrow);
+            if (dataGridView1.CurrentRow == null) return;
             deletekey(dataGridView1.CurrentRow.Index);
         }
         #endregion

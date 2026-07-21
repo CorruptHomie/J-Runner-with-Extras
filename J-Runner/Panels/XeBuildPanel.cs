@@ -1219,10 +1219,22 @@ namespace JRunner.Panels
 
         #region code
 
+        // comboDash.SelectedValue holds the actual xeBuild dash folder name on disk (e.g.
+        // "17489" or a variant like "17489_RGL"), while variables.dashversion is just the
+        // leading kernel number with any variant suffix stripped (see
+        // comboDash_SelectedIndexChanged). The build engine needs the real folder name or
+        // it always falls back to the plain numeric folder no matter which variant is
+        // selected in the UI.
+        private string currentDashFolder()
+        {
+            string folder = comboDash.SelectedValue?.ToString();
+            return string.IsNullOrEmpty(folder) ? variables.dashversion.ToString() : folder;
+        }
+
         void xe_update()
         {
             Classes.xebuild xe = new Classes.xebuild();
-            xe.Uloadvariables(variables.dashversion, (variables.hacktypes)variables.ttyp, patches, chkxesettings.Checked, chkNoWrite.Checked, chkNoAva.Checked, chkClean.Checked, chkNoReeb.Checked, checkDLPatches.Checked,
+            xe.Uloadvariables(variables.dashversion, currentDashFolder(), (variables.hacktypes)variables.ttyp, patches, chkxesettings.Checked, chkNoWrite.Checked, chkNoAva.Checked, chkClean.Checked, chkNoReeb.Checked, checkDLPatches.Checked,
                 chkLaunch.Checked);
             File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin"));
             try
@@ -1299,13 +1311,15 @@ namespace JRunner.Panels
 
         public void createxebuild_v2(bool custom, Nand.PrivateN nand, bool fullDataClean)
         {
+            try
+            {
             Classes.xebuild xe = new Classes.xebuild();
-            xe.loadvariables(nand._cpukey, (variables.hacktypes)variables.ttyp, variables.dashversion,
+            xe.loadvariables(nand._cpukey, (variables.hacktypes)variables.ttyp, variables.dashversion, currentDashFolder(),
                              variables.ctyp, patches, nand, chkxesettings.Checked, checkDLPatches.Checked,
                              chkLaunch.Checked, chkAudClamp.Checked, chkRJtag.Checked, chkCleanSMC.Checked, chkCR4.Checked, chkSMCP.Checked, chkRgh3.Checked, chkBigffs.Checked, chk0Fuse.Checked, chkXdkBuild.Checked,
                              chkXLUsb.Checked, chkXLHdd.Checked, chkXLBoth.Checked, chkUsbdSec.Checked, chkCoronaKeyFix.Checked, chkHddSsAuth.Checked, chkBootAnimRemap.Checked, fullDataClean);
 
-            string ini = (variables.launchpath + @"\" + variables.dashversion + @"\_" + variables.ttyp + ".ini");
+            string ini = (variables.launchpath + @"\" + currentDashFolder() + @"\_" + variables.ttyp + ".ini");
 
             if (!custom)
             {
@@ -1431,7 +1445,7 @@ namespace JRunner.Panels
                     else
                     {
                         Console.WriteLine((variables.hacktypes)variables.ttyp);
-                        xe.loadvariables(nand._cpukey, (variables.hacktypes)variables.ttyp, variables.dashversion,
+                        xe.loadvariables(nand._cpukey, (variables.hacktypes)variables.ttyp, variables.dashversion, currentDashFolder(),
                             variables.ctyp, patches, nand, chkxesettings.Checked, checkDLPatches.Checked,
                             chkLaunch.Checked, chkAudClamp.Checked, chkRJtag.Checked, chkCleanSMC.Checked,
                             chkCR4.Checked, chkSMCP.Checked, chkRgh3.Checked, chkBigffs.Checked, chk0Fuse.Checked, chkXdkBuild.Checked,
@@ -1445,6 +1459,18 @@ namespace JRunner.Panels
                     break;
                 default:
                     break;
+            }
+            }
+            catch (Exception ex)
+            {
+                // This runs on a raw background Thread (see the callers of
+                // createxebuild_v2), so an unhandled exception anywhere above - a
+                // missing prerequisite file, a null reference, whatever - would
+                // otherwise crash the entire app instead of just this build attempt.
+                // Surface it as a normal error dialog instead.
+                if (variables.debugme) Console.WriteLine(ex.ToString());
+                try { File.AppendAllText(Path.Combine(variables.rootfolder, "Error.log"), ex.ToString() + Environment.NewLine); } catch { }
+                MessageBox.Show("Something went wrong creating the XeBuild image:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }
@@ -1556,11 +1582,11 @@ namespace JRunner.Panels
                 catch (System.IO.IOException e)
                 { MessageBox.Show(e.Message); return; }
             }
-            if (File.Exists(variables.launchpath + @"\" + variables.dashversion + @"\launch.ini"))
+            if (File.Exists(variables.launchpath + @"\" + currentDashFolder() + @"\launch.ini"))
             {
                 try
                 {
-                    File.Delete(variables.launchpath + @"\" + variables.dashversion + @"\launch.ini");
+                    File.Delete(variables.launchpath + @"\" + currentDashFolder() + @"\launch.ini");
                     if (variables.debugme) Console.WriteLine("Deleted launch.ini");
                 }
                 catch (System.IO.IOException e)
@@ -1662,7 +1688,7 @@ namespace JRunner.Panels
             {
                 c += " " + patch;
             }
-            c += " -f " + variables.dashversion;
+            c += " -f " + currentDashFolder();
             c += " -d data";
             c += " \"" + variables.xefolder + "\\" + variables.nandflash + "\" ";
 
@@ -1696,7 +1722,7 @@ namespace JRunner.Panels
                 comboCB.Items.Clear();
                 if (variables.dashversion != 0)
                 {
-                    string ini = (variables.launchpath + @"\" + variables.dashversion + @"\_retail.ini");
+                    string ini = (variables.launchpath + @"\" + currentDashFolder() + @"\_retail.ini");
                     List<string> labels = parse_ini.getlabels(ini);
 
                     foreach (string s in labels)

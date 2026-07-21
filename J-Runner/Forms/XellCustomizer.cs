@@ -15,7 +15,15 @@ namespace JRunner
 {
     public partial class XellCustomizer : Form
     {
-        string _flashFilePath;
+        // Every path here gets the same theme applied when the user hits Save. In
+        // practice this is the pair of XeLL templates JRunner actually bakes into every
+        // build (common\xell\xell-2f.bin and xell-gggggg.bin) - see moveXell() in
+        // Classes/xebuild.cs and creatergh2eccinit() in Nand/ECC.cs, which always copy
+        // those files in FRESH on every build/create. Customizing anything else (like a
+        // loaded source NAND) has no effect on what actually gets flashed, since the
+        // build pipeline never reads XeLL back out of the source image - it always
+        // pulls a clean copy from these templates.
+        string[] _flashFilePaths;
         bool flashHasEcc;
         byte[] flashData;
 
@@ -45,14 +53,62 @@ namespace JRunner
             InitializeComponent();
         }
 
-        public DialogResult InitializeAndShowDialog(string flashFilePath)
+        // Works out whether a given XeLL image has ECC/spare data wrapping it (and, if
+        // so, its block type). Recognized full-NAND-dump sizes are handled exactly as
+        // before; anything else at least one page long is treated as a bare/standalone
+        // XeLL binary (no ECC) rather than being rejected outright, so the two on-disk
+        // templates - which are plain binaries, not NAND dumps - can be customized too.
+        private bool DetectLayout(byte[] data, out bool hasEcc, out int physPageSize, out int detectedBlockType)
         {
-            _flashFilePath = flashFilePath;
+            detectedBlockType = 0;
+
+            if (data.Length == 17301504 || data.Length == 69206016 || data.Length == 1351680)
+            {
+                hasEcc = true;
+                physPageSize = 0x210;
+            }
+            else if (data.Length == 50331648 || data.Length == 1310720 || data.Length >= pagesz)
+            {
+                hasEcc = false;
+                physPageSize = pagesz;
+            }
+            else
+            {
+                hasEcc = false;
+                physPageSize = 0;
+                return false;
+            }
+
+            if (hasEcc)
+            {
+                byte[] sparedata = data.Skip(0x4400).Take(0x10).ToArray();
+
+                // Block Types
+                // 0 = Small block NAND (XSB)
+                // 1 = Small block NAND on BB controller (PSB/KSB)
+                // 2 = Big block NAND on BB controller (PSB/KSB)
+                detectedBlockType = Nand.Nand.identifylayout(sparedata);
+            }
+
+            return true;
+        }
+
+        public DialogResult InitializeAndShowDialog(string[] flashFilePaths)
+        {
+            _flashFilePaths = (flashFilePaths ?? new string[0]).Where(File.Exists).Distinct().ToArray();
+
+            if (_flashFilePaths.Length == 0)
+            {
+                MessageBox.Show("Couldn't find the XeLL template files to customize (common\\xell\\xell-2f.bin / xell-gggggg.bin). Try updating your support files.", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return DialogResult.Cancel;
+            }
 
             try
             {
-                // Read the image
-                flashData = File.ReadAllBytes(flashFilePath);
+                // Read the first available template just to populate the preview -
+                // Save (below) applies the same theme to every path in _flashFilePaths
+                // independently, recalculating each one's own ECC as needed.
+                flashData = File.ReadAllBytes(_flashFilePaths[0]);
             }
             catch
             {
@@ -60,34 +116,12 @@ namespace JRunner
                 return DialogResult.Cancel;
             }
 
-            // Determine whether this image has ECC
-            if (flashData.Length == 17301504 || flashData.Length == 69206016 || flashData.Length == 1351680)
-            {
-                flashHasEcc = true;
-            }
-            else if (flashData.Length == 50331648 || flashData.Length == 1310720)
-            {
-                // Flash data doesn't have ECC, pagesz_phys = pagesz
-                flashHasEcc = false;
-                pagesz_phys = pagesz;
-            }
-            else
+            if (!DetectLayout(flashData, out flashHasEcc, out int physSize, out blockType))
             {
                 Console.WriteLine("Customize XeLL theme error: invalid image size.");
                 return DialogResult.Cancel;
             }
-
-            // If the flash has ECC data, determine the block type so ECC data can be recalculated
-            if (flashHasEcc)
-            {
-                byte[] sparedata = flashData.Skip(0x4400).Take(0x10).ToArray();
-
-                // Block Types
-                // 0 = Small block NAND (XSB)
-                // 1 = Small block NAND on BB controller (PSB/KSB)
-                // 2 = Big block NAND on BB controller (PSB/KSB)
-                blockType = Nand.Nand.identifylayout(sparedata);
-            }
+            pagesz_phys = physSize;
 
             if (0 != flashData[0x5F])
             {
@@ -115,12 +149,15 @@ namespace JRunner
             setColor();
         }
 
-        private void btnSave_Click(object sender, EventArgs e)
+        // Applies the currently selected theme to a single XeLL image's bytes,
+        // recalculating ECC if that particular image needs it, and returns the full,
+        // modified file contents ready to write back out.
+        private byte[] ApplyThemeToImage(byte[] data, bool hasEcc, int physPageSize, int imgBlockType)
         {
-            byte[] flashFirstPage = flashData.Take(pagesz_phys).ToArray();
+            byte[] flashFirstPage = data.Take(physPageSize).ToArray();
 
             // If the flash has ECC data, determine the block type so ECC data can be recalculated
-            if (flashHasEcc)
+            if (hasEcc)
             {
                 flashFirstPage = Nand.Nand.unecc(flashFirstPage);
             }
@@ -148,14 +185,58 @@ namespace JRunner
             Buffer.BlockCopy(copyrightStringBytes, 0, flashFirstPage, 0x12, 0x36);
             flashFirstPage[0x47] = 0x0;
 
-            if (flashHasEcc)
+            if (hasEcc)
             {
-                flashFirstPage = Nand.Nand.addecc_v2(flashFirstPage, true, 0, blockType);
+                flashFirstPage = Nand.Nand.addecc_v2(flashFirstPage, true, 0, imgBlockType);
             }
 
-            Buffer.BlockCopy(flashFirstPage, 0, flashData, 0, pagesz_phys);
+            byte[] result = (byte[])data.Clone();
+            Buffer.BlockCopy(flashFirstPage, 0, result, 0, physPageSize);
+            return result;
+        }
 
-            File.WriteAllBytes(_flashFilePath, flashData);
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            List<string> succeeded = new List<string>();
+            List<string> failed = new List<string>();
+
+            foreach (string path in _flashFilePaths)
+            {
+                try
+                {
+                    byte[] data = File.ReadAllBytes(path);
+
+                    if (!DetectLayout(data, out bool hasEcc, out int physPageSize, out int imgBlockType))
+                    {
+                        failed.Add(Path.GetFileName(path) + " (unrecognized image size)");
+                        continue;
+                    }
+
+                    byte[] modified = ApplyThemeToImage(data, hasEcc, physPageSize, imgBlockType);
+                    File.WriteAllBytes(path, modified);
+                    succeeded.Add(Path.GetFileName(path));
+                }
+                catch (Exception ex)
+                {
+                    if (variables.debugme) Console.WriteLine(ex.ToString());
+                    failed.Add(Path.GetFileName(path) + " (" + ex.Message + ")");
+                }
+            }
+
+            if (succeeded.Count == 0)
+            {
+                MessageBox.Show("Failed to save the XeLL theme:\n\n" + string.Join("\n", failed), "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // btnSave has DialogResult=OK set in the designer, which closes this
+                // dialog as soon as this handler returns. On a total failure, cancel
+                // that so the user can see the error and try again instead of the
+                // dialog silently closing on them with nothing actually saved.
+                this.DialogResult = DialogResult.None;
+                return;
+            }
+
+            string message = "Theme saved to: " + string.Join(", ", succeeded);
+            if (failed.Count > 0) message += "\n\nFailed: " + string.Join(", ", failed);
+            MessageBox.Show(message, "XeLL Theme", MessageBoxButtons.OK, failed.Count > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
         }
 
         private void chkEnableColours_CheckedChanged(object sender, EventArgs e)

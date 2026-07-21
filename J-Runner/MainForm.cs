@@ -2417,53 +2417,72 @@ namespace JRunner
         {
             //Thread.CurrentThread.Join();
 
-            if (xPanel.getRbtnRetailChecked()) Console.WriteLine("You are creating an ecc image and you have selected {0}!", variables.ttyp);
-            else if (xPanel.getRbtnJtagChecked()) Console.WriteLine("You are creating an ecc image and you have selected {0}!", variables.ttyp);
-            //savedir();
-
-            if (File.Exists(variables.filename1))
+            try
             {
-                if (variables.debugme) Console.WriteLine("Filename1 = {0}", variables.filename1);
-                if (Path.GetExtension(variables.filename1) == ".bin")
-                {
-                    variables.tempfile = variables.filename1;
-                    progressBar.Value = progressBar.Minimum;
-                    int result = 0;
-                    try
-                    {
-                        bool sts = objAlphaPattern.IsMatch(txtCPUKey.Text);
+                if (xPanel.getRbtnRetailChecked()) Console.WriteLine("You are creating an ecc image and you have selected {0}!", variables.ttyp);
+                else if (xPanel.getRbtnJtagChecked()) Console.WriteLine("You are creating an ecc image and you have selected {0}!", variables.ttyp);
+                //savedir();
 
-                        ECC ecc = new ECC();
-                        result = ecc.creatergh2ecc(variables.filename1, variables.outfolder, ref this.progressBar, txtCPUKey.Text);
-                        /*
-                        if (comboRGH.SelectedIndex == 0)
+                if (File.Exists(variables.filename1))
+                {
+                    if (variables.debugme) Console.WriteLine("Filename1 = {0}", variables.filename1);
+                    if (Path.GetExtension(variables.filename1) == ".bin")
+                    {
+                        variables.tempfile = variables.filename1;
+                        progressBar.Value = progressBar.Minimum;
+                        int result = 0;
+                        try
                         {
-                            result = Nand.createeccimage(variables.filename1, variables.outfolder, ref this.progressBar1);
+                            bool sts = objAlphaPattern.IsMatch(txtCPUKey.Text);
+
+                            ECC ecc = new ECC();
+                            result = ecc.creatergh2ecc(variables.filename1, variables.outfolder, ref this.progressBar, txtCPUKey.Text);
+                            /*
+                            if (comboRGH.SelectedIndex == 0)
+                            {
+                                result = Nand.createeccimage(variables.filename1, variables.outfolder, ref this.progressBar1);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Constructing an rgh2 ecc image");
+                                if (sts) result = ECC.creatergh2(variables.filename1, variables.outfolder, ref this.progressBar1, cpukeytext.Text);
+                                else result = ECC.creatergh2(variables.filename1, variables.outfolder, ref this.progressBar1);
+                            }
+                            */
+                        }
+                        catch (Exception ex)
+                        {
+                            if (variables.debugme) Console.WriteLine(ex.ToString());
+                            try { File.AppendAllText(Path.Combine(variables.rootfolder, "Error.log"), ex.ToString() + Environment.NewLine); } catch { }
+                            MessageBox.Show("Failed to create the ECC image:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        if (result == 1)
+                        {
+                            variables.filename1 = Path.Combine(variables.outfolder, "glitch.ecc");
+                            txtFilePath1.Text = variables.filename1;
+                        }
+                        else if (result == 5)
+                        {
+                            progressBar.Value = progressBar.Maximum;
                         }
                         else
                         {
-                            Console.WriteLine("Constructing an rgh2 ecc image");
-                            if (sts) result = ECC.creatergh2(variables.filename1, variables.outfolder, ref this.progressBar1, cpukeytext.Text);
-                            else result = ECC.creatergh2(variables.filename1, variables.outfolder, ref this.progressBar1);
+                            Console.WriteLine("Failed to create ecc image");
+                            Console.WriteLine("");
                         }
-                        */
-                    }
-                    catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); }
-                    if (result == 1)
-                    {
-                        variables.filename1 = Path.Combine(variables.outfolder, "glitch.ecc");
-                        txtFilePath1.Text = variables.filename1;
-                    }
-                    else if (result == 5)
-                    {
-                        progressBar.Value = progressBar.Maximum;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Failed to create ecc image");
-                        Console.WriteLine("");
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                // This method runs on a raw background Thread (see btnCreateECCClick).
+                // Anything unexpected that slips past the inner try/catch above would
+                // otherwise be a fully unhandled exception on that thread, which kills
+                // the whole app outright rather than just this operation. Surface it
+                // instead of crashing.
+                if (variables.debugme) Console.WriteLine(ex.ToString());
+                try { File.AppendAllText(Path.Combine(variables.rootfolder, "Error.log"), ex.ToString() + Environment.NewLine); } catch { }
+                MessageBox.Show("Something went wrong creating the ECC image:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -3287,14 +3306,23 @@ namespace JRunner
 
         private void customizeThemeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(variables.filename1))
+            // These are the exact same two files moveXell() in Classes/xebuild.cs and
+            // creatergh2eccinit() in Nand/ECC.cs always copy in fresh on every build -
+            // customizing them here is what actually makes a theme show up on a flashed
+            // console, instead of editing some other file the build pipeline never reads.
+            string[] xellTemplates = {
+                Path.Combine(variables.pathforit, @"common\xell\xell-2f.bin"),
+                Path.Combine(variables.pathforit, @"common\xell\xell-gggggg.bin")
+            };
+
+            if (!xellTemplates.Any(File.Exists))
             {
-                MessageBox.Show("Please load a source NAND image before attempting to customize the XeLL Theme", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Couldn't find the XeLL template files to customize. Try updating your support files.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             XellCustomizer xc = new XellCustomizer();
-            xc.InitializeAndShowDialog(variables.filename1);
+            xc.InitializeAndShowDialog(xellTemplates);
         }
 
         private void sMCConfigViewerToolStripMenuItem1_Click(object sender, EventArgs e)

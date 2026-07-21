@@ -28,6 +28,11 @@ namespace JRunner.Classes
         private string _cpukey;
         private variables.hacktypes _ttype;
         private int _dash;
+        // The actual on-disk xeBuild dash folder name (e.g. "17489" or a variant like
+        // "17489_RGL"). _dash only ever holds the bare leading kernel number, which loses
+        // variant suffixes - anywhere we build a path or pass "-f" to xeBuild.exe we need
+        // this instead, or we silently fall back to the plain numeric folder.
+        private string _dashFolder;
         private consoles _ctype;
         private bool _audclamp;
         private bool _CR4;
@@ -56,11 +61,12 @@ namespace JRunner.Classes
         private bool _hddssauth;
         private bool _bootanimremap;
 
-        public void loadvariables(string cpukey, variables.hacktypes ttype, int dash, consoles ctype, List<String> patches, Nand.PrivateN nand, bool altoptions, bool DLpatches, bool includeLaunch, bool audclamp, bool rjtag, bool cleansmc, bool cr4, bool smcp, bool rgh3, bool bigffs, bool zfuse, bool xdkbuild, bool xlusb, bool xlhdd, bool xlboth, bool usbdsec, bool coronakeyfix, bool hddssauth, bool bootanimremap, bool fullDataClean)
+        public void loadvariables(string cpukey, variables.hacktypes ttype, int dash, string dashFolder, consoles ctype, List<String> patches, Nand.PrivateN nand, bool altoptions, bool DLpatches, bool includeLaunch, bool audclamp, bool rjtag, bool cleansmc, bool cr4, bool smcp, bool rgh3, bool bigffs, bool zfuse, bool xdkbuild, bool xlusb, bool xlhdd, bool xlboth, bool usbdsec, bool coronakeyfix, bool hddssauth, bool bootanimremap, bool fullDataClean)
         {
             this._cpukey = cpukey;
             this._ttype = ttype;
             this._dash = dash;
+            this._dashFolder = string.IsNullOrEmpty(dashFolder) ? dash.ToString() : dashFolder;
             this._ctype = ctype;
             this._patches = patches;
             this._nand = nand;
@@ -90,7 +96,7 @@ namespace JRunner.Classes
         {
             List<int> cbs = new List<int>();
             string[] ommit = { "version", "security", "flashfs" };
-            foreach (string s in parse_ini.getlabels(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\_" + _ttype + ".ini")))
+            foreach (string s in parse_ini.getlabels(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\_" + _ttype + ".ini")))
             {
                 if (!ommit.Contains(s) && s.Contains(_ctype.Ini))
                 {
@@ -317,17 +323,17 @@ namespace JRunner.Classes
 
         private void copyXLUsb()
         {
-            if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xl_usb\xam.xex")))
+            if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xl_usb\xam.xex")))
             {
-                if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex")))
+                if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex")))
                 {
-                    File.Move(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex.tmp"));
+                    File.Move(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex.tmp"));
                 }
 
-                File.Copy(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xl_usb\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex"), true);
+                File.Copy(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xl_usb\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex"), true);
 
-                string buildIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\_" + variables.ttyp.ToString() + ".ini");
-                string xlUsbIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xl_usb\_" + variables.ttyp.ToString() + ".ini");
+                string buildIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\_" + variables.ttyp.ToString() + ".ini");
+                string xlUsbIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xl_usb\_" + variables.ttyp.ToString() + ".ini");
                 if (File.Exists(xlUsbIni))
                 {
                     if (File.Exists(buildIni))
@@ -348,17 +354,17 @@ namespace JRunner.Classes
 
         private void copyXLHdd()
         {
-            if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xl_hdd\xam.xex")))
+            if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xl_hdd\xam.xex")))
             {
-                if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex")))
+                if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex")))
                 {
-                    File.Move(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex.tmp"));
+                    File.Move(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex.tmp"));
                 }
 
-                File.Copy(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xl_hdd\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex"), true);
+                File.Copy(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xl_hdd\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex"), true);
 
-                string buildIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\_" + variables.ttyp.ToString() + ".ini");
-                string xlHddIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xl_hdd\_" + variables.ttyp.ToString() + ".ini");
+                string buildIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\_" + variables.ttyp.ToString() + ".ini");
+                string xlHddIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xl_hdd\_" + variables.ttyp.ToString() + ".ini");
                 if (File.Exists(xlHddIni))
                 {
                     if (File.Exists(buildIni))
@@ -379,17 +385,17 @@ namespace JRunner.Classes
 
         private void copyXLBoth()
         {
-            if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xl_both\xam.xex")))
+            if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xl_both\xam.xex")))
             {
-                if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex")))
+                if (File.Exists(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex")))
                 {
-                    File.Move(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex.tmp"));
+                    File.Move(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex.tmp"));
                 }
 
-                File.Copy(Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xl_both\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xam.xex"), true);
+                File.Copy(Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xl_both\xam.xex"), Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xam.xex"), true);
 
-                string buildIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\_" + variables.ttyp.ToString() + ".ini");
-                string xlBothIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\xl_both\_" + variables.ttyp.ToString() + ".ini");
+                string buildIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\_" + variables.ttyp.ToString() + ".ini");
+                string xlBothIni = Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\xl_both\_" + variables.ttyp.ToString() + ".ini");
                 if (File.Exists(xlBothIni))
                 {
                     if (File.Exists(buildIni))
@@ -415,7 +421,7 @@ namespace JRunner.Classes
         {
             try
             {
-                string binFolder = Path.Combine(variables.update_path, _dash + @"\bin");
+                string binFolder = Path.Combine(variables.update_path, _dashFolder + @"\bin");
                 string destPath = Path.Combine(binFolder, "remap_bootanim_17559.bin");
 
                 if (File.Exists(destPath)) return;
@@ -450,23 +456,23 @@ namespace JRunner.Classes
         {
             if (_DLpatches && _includeLaunch)
             {
-                if (!File.Exists(Path.Combine(variables.launchpath, _dash + @"\launch.ini")))
+                if (!File.Exists(Path.Combine(variables.launchpath, _dashFolder + @"\launch.ini")))
                 {
                     if (File.Exists(Path.Combine(variables.launchpath, "launch.ini")))
-                        System.IO.File.Copy(Path.Combine(variables.launchpath, "launch.ini"), Path.Combine(variables.launchpath, _dash + @"\launch.ini"), true);
+                        System.IO.File.Copy(Path.Combine(variables.launchpath, "launch.ini"), Path.Combine(variables.launchpath, _dashFolder + @"\launch.ini"), true);
                     else if (File.Exists(Path.Combine(variables.launchpath, "launch_default.ini")))
-                        System.IO.File.Copy(Path.Combine(variables.launchpath, @"launch_default.ini"), Path.Combine(variables.launchpath, _dash + @"\launch.ini"), true);
+                        System.IO.File.Copy(Path.Combine(variables.launchpath, @"launch_default.ini"), Path.Combine(variables.launchpath, _dashFolder + @"\launch.ini"), true);
                 }
             }
             edittheini();
         }
         void edittheini()
         {
-            if (variables.debugme) Console.WriteLine(_dash);
+            if (variables.debugme) Console.WriteLine(_dashFolder);
             foreach (variables.hacktypes type in Enum.GetValues(typeof(variables.hacktypes)))
             {
                 if (type == variables.hacktypes.retail || type == variables.hacktypes.nothing) continue;
-                string file = Path.Combine(variables.pathforit, @"xeBuild\" + _dash + @"\_" + type + ".ini");
+                string file = Path.Combine(variables.pathforit, @"xeBuild\" + _dashFolder + @"\_" + type + ".ini");
                 string[] writepatches = { @"..\launch.xex", @"..\lhelper.xex", @"..\launch.ini" };
                 string[] writepatches2 = { @"..\launch.xex", @"..\lhelper.xex" };
                 string[] empty = { };
@@ -535,7 +541,7 @@ namespace JRunner.Classes
 
             if (_ctype.ID == -1) return XebuildError.noconsole;
             if (_dash == 0) return XebuildError.nodash;
-            string ini = (variables.launchpath + @"\" + _dash + @"\_" + _ttype + ".ini");
+            string ini = (variables.launchpath + @"\" + _dashFolder + @"\_" + _ttype + ".ini");
             string ctypebtldr = _ctype.Ini + "bl";
             if (ctypebtldr == "xenonbl" || ctypebtldr == "zephyrbl") ctypebtldr = "falconbl";
             if (!File.Exists(ini)) return XebuildError.noinis;
@@ -599,7 +605,7 @@ namespace JRunner.Classes
                 parse_ini.edit_ini(Path.Combine(variables.pathforit, @"xeBuild\data\options.ini"), edit, delete);
             }
 
-            Console.WriteLine("Kernel Selected: {0}", _dash);
+            Console.WriteLine("Kernel Selected: {0}", _dashFolder);
 
 
             variables.xefolder = Path.Combine(Directory.GetParent(variables.outfolder).FullName, _nand.ki.serial);
@@ -693,7 +699,7 @@ namespace JRunner.Classes
             }
             if (variables.debugme) arguments += " -v";
             arguments += " -noenter";
-            arguments += " -f " + _dash;
+            arguments += " -f " + _dashFolder;
             arguments += " -d data";
             arguments += " \"" + variables.xefolder + "\\" + variables.nandflash + "\" ";
 
@@ -857,9 +863,10 @@ namespace JRunner.Classes
         ////////////////////////////////////////////////
 
 
-        public void Uloadvariables(int dash, variables.hacktypes ttype, List<String> patches, bool altoptions, bool nowrite, bool noava, bool clean, bool noreeb, bool DLpatches, bool includeLaunch)
+        public void Uloadvariables(int dash, string dashFolder, variables.hacktypes ttype, List<String> patches, bool altoptions, bool nowrite, bool noava, bool clean, bool noreeb, bool DLpatches, bool includeLaunch)
         {
             this._dash = dash;
+            this._dashFolder = string.IsNullOrEmpty(dashFolder) ? dash.ToString() : dashFolder;
             this._ttype = ttype;
             this._patches = patches;
             this._nowrite = nowrite;
@@ -883,7 +890,7 @@ namespace JRunner.Classes
             Console.WriteLine("Load Files Initiliazation Finished");
             checkDashLaunch();
 
-            Console.WriteLine("Started Updating Console to {0}", _dash);
+            Console.WriteLine("Started Updating Console to {0}", _dashFolder);
             variables.xefolder = variables.outfolder;
 
             return result;
@@ -904,7 +911,7 @@ namespace JRunner.Classes
             if (_clean) arguments += " -clean";
             if (_noreeb) arguments += " -noreeb";
             arguments += " -noenter";
-            arguments += " -f " + _dash;
+            arguments += " -f " + _dashFolder;
             arguments += " -d ";
             arguments += "\"" + variables.outfolder + "\"";
 
