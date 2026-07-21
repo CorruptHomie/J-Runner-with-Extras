@@ -350,6 +350,10 @@ namespace JRunner.Panels
             }
 
             checkWBXdkBuild();
+            // Keep RGH3 availability in sync when switching dash folders (e.g. 17489 <->
+            // 17489_RGL) without re-clicking the glitch type radio button - checkWBXdkBuild
+            // above can flip chkXdkBuild.Checked, and checkRgh3 depends on that flag.
+            checkRgh3(variables.boardtype);
             checkDashSpecificPatches();
             updateCommand();
             setComboCB();
@@ -564,7 +568,14 @@ namespace JRunner.Panels
         bool chkWB4GEn = true;
         public void checkWBXdkBuild()
         {
-            if (rbtnGlitch2m.Checked && variables.dashversion == 17489 && File.Exists(variables.pathforit + @"\xeBuild\17489\!XDKbuild Only!.txt"))
+            // 17489-family kernels (plain "17489" or a variant folder like "17489_RGL") can be
+            // marked XDK-build-only via !XDKbuild Only!.txt. This used to only be checked for
+            // Glitch2m, leaving Glitch2 unable to build this profile at all, and the path was
+            // hardcoded to the plain "17489" folder even though variants live in their own
+            // folder (see check_dash() in MainForm.cs) - so it never matched "17489_RGL" no
+            // matter which glitch type was selected. Check both glitch types against the
+            // actual selected dash folder instead.
+            if ((rbtnGlitch2.Checked || rbtnGlitch2m.Checked) && variables.dashversion == 17489 && comboDash.SelectedValue != null && File.Exists(Path.Combine(variables.update_path, comboDash.SelectedValue + @"\!XDKbuild Only!.txt")))
             {
                 chkWB.Visible = false;
                 chkWB.Checked = false;
@@ -817,7 +828,14 @@ namespace JRunner.Panels
                 Rgh3Label.Visible = Rgh3Label2.Visible = Rgh3Mhz.Visible = false;
             }
 
-            if (board.Contains("Xenon") || board.Contains("Zephyr") || board.Contains("Jasper SB") || board.Contains("Trinity BB") || chkXdkBuild.Checked)
+            // chkXdkBuild ordinarily means a genuine devkit-format build with no glitch hardware
+            // involved, so RGH3 timing is irrelevant and gets blanket-disabled below. 17489/
+            // 17489_RGL is the exception: checkWBXdkBuild() force-checks chkXdkBuild there
+            // specifically so Glitch2/Glitch2m can RGH3-glitch a non-XDK console into an XDK
+            // one, so RGH3 needs to stay selectable in that one case instead of being disabled
+            // out from under it.
+            bool xdkConversionViaRgh3 = variables.dashversion == 17489 && (rbtnGlitch2.Checked || rbtnGlitch2m.Checked);
+            if (board.Contains("Xenon") || board.Contains("Zephyr") || board.Contains("Jasper SB") || board.Contains("Trinity BB") || (chkXdkBuild.Checked && !xdkConversionViaRgh3))
             {
                 chkRgh3.Checked = false;
                 chkRgh3.Enabled = false;
