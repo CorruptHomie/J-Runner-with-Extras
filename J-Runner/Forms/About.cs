@@ -12,13 +12,14 @@ namespace JRunner.Forms
                                     "DaCukiMonsta: Nand Info Improvements/Bugfixes",
                                     "DrSchottky, Visual Studio: RGH2 to 3",
                                     "Element18592: xFlasher Hardware",
-                                    "Josh/Octal450: J-Runner Premium \nMain Development",
+                                    "Josh/X360Tools/Octal450: J-Runner/J-Runner Pro/With Extras \nMain Development",
                                     "Mena:\nGeneral Dev, xFlasher Speedup,\nMatrix Hex Flashing, CPU Key Gen",
                                     "Nick Stefanou: Original J-Runner \nDevelopment and Software",
                                     "Orpheus: Updates to KV Info/Bugfixes",
                                     "SGCSam: 6717/9199 XeBuild Patches",
                                     "Xvistaman2005: XDKbuild",
                                     "Cheez: DirtyPico",
+                                    "ThisIsCheez: DirtyPico360",
         };
         static int contribloc = 0;
         [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]

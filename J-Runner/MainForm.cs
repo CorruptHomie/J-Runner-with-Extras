@@ -102,14 +102,70 @@ namespace JRunner
             mainForm = this;
             versionToolStripMenuItem.Text = "V" + variables.version;
 
+            _writer = new TextBoxStreamWriter(txtConsole);
+            Console.SetOut(_writer);
+
+            // BH
+            if (InvokeRequired)
+            {
+                this.Invoke(new EventHandler(MainForm_Load), new object[] { sender, e });
+                return;
+            }
+
+            // ---- Update system ----
+            // Forced full update/restore - via /fullupdate, /restorefiles, or the missing
+            // common/xeBuild folders prompt in Program.cs - skips the version check entirely
+            // and goes straight to downloading + installing.
+            if (Upd.deleteFolders || Upd.runFullUpdate)
+            {
+                Hide();
+                Upd.startFull();
+                return;
+            }
+
+            if (!Upd.noUpdateChk && variables.autoCheckUpdates)
+            {
+                Hide();
+                Upd.check();
+                if (Upd.checkSuccess && !Upd.upToDate)
+                {
+                    using (UpdateAvailable ua = new UpdateAvailable())
+                    {
+                        ua.ShowDialog(this);
+                    }
+                    if (Upd.allowUpdate)
+                    {
+                        UpdChangelog cl = new UpdChangelog();
+                        cl.showChangelog(Upd.changelog);
+                        cl.ShowDialog(this);
+                        return; // cl's own Commit/Cancel handlers call startMainForm() or Upd.startFull()
+                    }
+                }
+                // check() failed, found nothing newer, or the user skipped - continue normally.
+            }
+
+            startMainForm();
+        }
+
+        // Everything MainForm_Load used to do unconditionally now lives here, so the update
+        // flow above can run first (with the window hidden) and only reveal/initialize the
+        // real UI once it's decided nothing else needs to happen first. Also called directly
+        // by UpdChangelog when the user declines an update after reviewing the changelog.
+        private static bool _mainFormStarted = false;
+
+        public void startMainForm(bool skipUpdateCheck = true)
+        {
+            ShowInTaskbar = true;
+            Show();
+
             // Make sure we're on top
             bool top = TopMost;
             TopMost = true; // Bring to front
             TopMost = top; // Set it back
             Activate();
 
-            _writer = new TextBoxStreamWriter(txtConsole);
-            Console.SetOut(_writer);
+            if (_mainFormStarted) return; // already fully initialized - just reveal the window
+            _mainFormStarted = true;
 
             //// BH
             if (variables.location != new Point(0, 0))
@@ -120,13 +176,6 @@ namespace JRunner
                 {
                     this.DesktopLocation = new Point(100, 100);
                 }
-            }
-
-            // BH
-            if (InvokeRequired)
-            {
-                this.Invoke(new EventHandler(MainForm_Load), new object[] { sender, e });
-                return;
             }
 
             ContextMenuStrip trayContext = new ContextMenuStrip();
@@ -2254,9 +2303,23 @@ namespace JRunner
                 updateProgress((progressBar.Maximum / 4) * 3); // 75%
 
                 if (variables.debugme) Console.WriteLine("----------------------");
-                variables.ctyp = variables.cunts[0];
-                variables.ctyp = Nand.Nand.getConsole(nand, variables.flashconfig);
-                xPanel.BeginInvoke(new Action(() => xPanel.setMBname(variables.ctyp.Text)));
+                if (variables.skipConsoleRedetect)
+                {
+                    // We're re-parsing our own build output (see XeBuildPanel.xeExitActual /
+                    // xe_xeUExit), not a fresh dump. The build patched CB/kernel (and possibly
+                    // SMC) data for the target dashboard, so identifyConsole() would be reading
+                    // post-patch signatures rather than the real board and can misdetect it
+                    // (e.g. a Jasper NAND built for dash 17489 lands in Trinity's CB_A range).
+                    // The physical board didn't change, so just keep what we already knew.
+                    variables.skipConsoleRedetect = false;
+                    if (variables.debugme) Console.WriteLine("Skipped console re-detection (post-build reload)");
+                }
+                else
+                {
+                    variables.ctyp = variables.cunts[0];
+                    variables.ctyp = Nand.Nand.getConsole(nand, variables.flashconfig);
+                    xPanel.BeginInvoke(new Action(() => xPanel.setMBname(variables.ctyp.Text)));
+                }
                 variables.jtagable = false;
                 variables.rghable = true;
 
@@ -3049,6 +3112,44 @@ namespace JRunner
                 "F6 - Timing Assistant\n" +
                 "CTRL+H - Shortcuts",
                 "Shortcuts", MessageBoxButtons.OK, MessageBoxIcon.Question);
+        }
+
+        private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            Upd.check();
+            Cursor.Current = Cursors.Default;
+
+            if (!Upd.checkSuccess)
+            {
+                MessageBox.Show("Could not check for updates: " + Upd.failedReason, "Check for Updates", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (Upd.upToDate)
+            {
+                MessageBox.Show("You're already running the latest version (" + variables.version + ").", "Check for Updates", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (UpdateAvailable ua = new UpdateAvailable())
+            {
+                ua.ShowDialog(this);
+            }
+            if (Upd.allowUpdate)
+            {
+                UpdChangelog cl = new UpdChangelog();
+                cl.showChangelog(Upd.changelog);
+                cl.ShowDialog(this);
+            }
+        }
+
+        private void restoreFilesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (RestoreFiles rf = new RestoreFiles())
+            {
+                rf.ShowDialog(this);
+            }
         }
 
         #endregion
@@ -4959,6 +5060,12 @@ namespace JRunner
                         case "MinimizeToTray":
                             x.write(name, variables.minimizetotray.ToString());
                             break;
+                        case "AutoCheckUpdates":
+                            x.write(name, variables.autoCheckUpdates.ToString());
+                            break;
+                        case "PrereleaseUpdates":
+                            x.write(name, variables.checkPrereleaseUpdates.ToString());
+                            break;
                         case "SlimPreferSrgh":
                             x.write(name, variables.slimprefersrgh.ToString());
                             break;
@@ -5166,6 +5273,16 @@ namespace JRunner
                             bvalue = false;
                             if (!bool.TryParse(val, out bvalue)) bvalue = false;
                             variables.minimizetotray = bvalue;
+                            break;
+                        case "AutoCheckUpdates":
+                            bvalue = true;
+                            if (!bool.TryParse(val, out bvalue)) bvalue = true;
+                            variables.autoCheckUpdates = bvalue;
+                            break;
+                        case "PrereleaseUpdates":
+                            bvalue = false;
+                            if (!bool.TryParse(val, out bvalue)) bvalue = false;
+                            variables.checkPrereleaseUpdates = bvalue;
                             break;
                         case "SlimPreferSrgh":
                             bvalue = false;

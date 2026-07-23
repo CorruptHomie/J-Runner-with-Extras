@@ -29,7 +29,7 @@ namespace JRunner
             catch (Exception ex)
             {
                 if (variables.debugMode) Console.WriteLine(ex.ToString());
-                Console.WriteLine("Failed: An unexpected error occurred while converting to RGH3");
+                Console.WriteLine("Failed: An unexpected error occurred while converting to RGH3 (" + ex.Message + ")");
                 Console.WriteLine("");
                 return;
             }
@@ -64,6 +64,8 @@ namespace JRunner
                     return "The image is either already RGH3, or an unsupported image type";
                 case Classes.RGH_CONVERT_ERROR.ERROR_FLASH_CBB_DECRYPT_FAILED:
                     return "Failed to decrypt CB_B - double check the CPU key";
+                case Classes.RGH_CONVERT_ERROR.ERROR_INVALID_FLASH_BOOTLOADERS:
+                    return "Could not find valid CB_A/CB_B bootloaders in the built image - this dashboard build's CB layout isn't supported for RGH3 conversion";
                 default:
                     return "Unknown error (" + error + ")";
             }
@@ -106,7 +108,7 @@ namespace JRunner
             catch (Exception ex)
             {
                 if (variables.debugMode) Console.WriteLine(ex.ToString());
-                Console.WriteLine("Failed: An unexpected error occurred while converting to RGH3");
+                Console.WriteLine("Failed: An unexpected error occurred while converting to RGH3 (" + ex.Message + ")");
                 Console.WriteLine("");
                 return;
             }

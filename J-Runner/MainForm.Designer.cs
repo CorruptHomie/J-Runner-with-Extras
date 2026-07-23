@@ -140,6 +140,8 @@ namespace JRunner
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportIssueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.shortcutsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.checkForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.restoreFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.newSessionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1095,6 +1097,8 @@ namespace JRunner
             this.aboutToolStripMenuItem,
             this.reportIssueToolStripMenuItem,
             this.shortcutsToolStripMenuItem,
+            this.checkForUpdatesToolStripMenuItem,
+            this.restoreFilesToolStripMenuItem,
             this.toolStripMenuItem4,
             this.newSessionToolStripMenuItem,
             this.restartToolStripMenuItem,
@@ -1126,6 +1130,20 @@ namespace JRunner
             this.shortcutsToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.shortcutsToolStripMenuItem.Text = "Shortcuts";
             this.shortcutsToolStripMenuItem.Click += new System.EventHandler(this.shortcutsToolStripMenuItem_Click);
+            // 
+            // checkForUpdatesToolStripMenuItem
+            // 
+            this.checkForUpdatesToolStripMenuItem.Name = "checkForUpdatesToolStripMenuItem";
+            this.checkForUpdatesToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.checkForUpdatesToolStripMenuItem.Text = "Check for Updates";
+            this.checkForUpdatesToolStripMenuItem.Click += new System.EventHandler(this.checkForUpdatesToolStripMenuItem_Click);
+            // 
+            // restoreFilesToolStripMenuItem
+            // 
+            this.restoreFilesToolStripMenuItem.Name = "restoreFilesToolStripMenuItem";
+            this.restoreFilesToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.restoreFilesToolStripMenuItem.Text = "Restore Files…";
+            this.restoreFilesToolStripMenuItem.Click += new System.EventHandler(this.restoreFilesToolStripMenuItem_Click);
             // 
             // toolStripMenuItem4
             // 
@@ -1509,6 +1527,8 @@ namespace JRunner
         private Button btnNewSession;
         private ToolStripMenuItem newSessionToolStripMenuItem;
         private ToolStripMenuItem shortcutsToolStripMenuItem;
+        private ToolStripMenuItem checkForUpdatesToolStripMenuItem;
+        private ToolStripMenuItem restoreFilesToolStripMenuItem;
         private ToolStripMenuItem versionToolStripMenuItem;
         private ToolStripMenuItem checkSecdataToolStripMenuItem;
         private ToolStripMenuItem xValueToolStripMenuItem;

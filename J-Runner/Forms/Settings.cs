@@ -38,6 +38,8 @@ namespace JRunner.Forms
             discordRPCEnable.Checked = variables.discordrpc;
             timingOnKeypressEnable.Checked = variables.timingonkeypress;
             minimizeToSystemTray.Checked = variables.minimizetotray;
+            autoCheckUpdatesChk.Checked = variables.autoCheckUpdates;
+            checkPrereleaseUpdatesChk.Checked = variables.checkPrereleaseUpdates;
             almovebut.Checked = !variables.allmove;
             //if (MainForm.mainForm.device == 4 && variables.boardtype == null) buttonDeviceGroup.Visible = true;
             if (variables.soundcompare != "") chksuccom.Checked = true;
@@ -240,6 +242,16 @@ namespace JRunner.Forms
         private void minimizeToSystemTray_CheckedChanged(object sender, EventArgs e)
         {
             variables.minimizetotray = minimizeToSystemTray.Checked;
+        }
+
+        private void autoCheckUpdatesChk_CheckedChanged(object sender, EventArgs e)
+        {
+            variables.autoCheckUpdates = autoCheckUpdatesChk.Checked;
+        }
+
+        private void checkPrereleaseUpdatesChk_CheckedChanged(object sender, EventArgs e)
+        {
+            variables.checkPrereleaseUpdates = checkPrereleaseUpdatesChk.Checked;
         }
 
         private void SlimPreferSrgh_CheckedChanged(object sender, EventArgs e)

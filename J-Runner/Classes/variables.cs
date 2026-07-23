@@ -92,11 +92,25 @@ namespace JRunner
             MODEJR,
             MODEFW
         }
-        public static string version = "3.2.1";
+        public enum Windows
+        {
+            XP,
+            Vista,
+            Win7,
+            Win8,
+            Win81,
+            W10_11
+        }
+        public static string version = "3.2.1 Final";
+        // Referenced by Classes/StaticVersion.cs (Ver.Split('.') expects 4 parts). That class
+        // isn't used anywhere else in the app; this just keeps it compiling.
+        public const string staticversion = "1.0.0.0";
         public static string build = "3103." + GetLinkerTime(Assembly.GetExecutingAssembly()).ToString("yyMMdd.HHmm");
         public static bool iswriting;
         public static bool isscanningip = false;
         public static JR_MODE current_mode = JR_MODE.MODEJR;
+        public static Windows currentOS;
+        public static bool isWinXP = false;
         public const string DEMON_GUID_STRING = "{667FDEE3-5049-5F51-E600-B9240B372D25}";
         public const string BOOTLOADER_GUID_STRING = "{a5dcbf10-6530-11d2-901f-00c04fb951ed}";
         public static string boardtype;
@@ -142,6 +156,8 @@ namespace JRunner
         public static bool discordrpc = true;
         public static bool timingonkeypress = false;
         public static bool minimizetotray = false;
+        public static bool autoCheckUpdates = true;
+        public static bool checkPrereleaseUpdates = false;
         public static bool slimprefersrgh = false;
         public static bool mtxUsbMode = false;
         public static Color logbackground = Color.Black;
@@ -149,7 +165,7 @@ namespace JRunner
         public static string[] settings = { "xebuild", "FileChecks", "location", "COMPort", "Errorsound", "Comparesound", "Successsound", "Delay",
                                           "DashLaunchE", "IP", "NoReads", "IPStart", "IPEnd", "XebuildName", "dashlaunch", "preferredDash", "KeepFiles", "WorkingDir",
                                           "LPTport", "Server", "AutoExtract", "AllMove", "Modder", "DiscordRPC", "TimingOnKeypress", "LogBackground", "LogText",
-                                          "MinimizeToTray", "SlimPreferSrgh", "MtxUsbMode"};
+                                          "MinimizeToTray", "SlimPreferSrgh", "MtxUsbMode", "AutoCheckUpdates", "PrereleaseUpdates"};
 
         #region
 
@@ -301,6 +317,13 @@ namespace JRunner
         public static string xefolder = "";
         public static string FindFolder = "";
         public static bool rgh2 = false, xefinished = false;
+        // Set right before XeBuildPanel points nand_init() at a freshly built image (see
+        // xeExitActual/xe_xeUExit). A build patches CB/kernel (and sometimes SMC) data to
+        // match the target dashboard, so re-running board-type auto-detection on the output
+        // would read post-patch signatures instead of the real board - e.g. a Jasper NAND
+        // built for dash 17489 picks up a CB_A version in Trinity's range and gets misdetected
+        // as "Trinity BB". nandinit() checks this once, skips re-detection, then clears it.
+        public static bool skipConsoleRedetect = false;
         public static bool rgh1able = true;
         public static int dashversion = 0;
         public static bool copiedSMC = false;

@@ -22,7 +22,8 @@ namespace JRunner.Classes
         ERROR_INVALID_FLASH_LENGTH,
         ERROR_INVALID_FLASH_BLOCK_TYPE,
         ERROR_XELL_NOT_FOUND,
-        ERROR_FLASH_CBB_DECRYPT_FAILED
+        ERROR_FLASH_CBB_DECRYPT_FAILED,
+        ERROR_INVALID_FLASH_BOOTLOADERS
     };
 
     public class RGH2to3
@@ -322,22 +323,42 @@ namespace JRunner.Classes
             loaderOffs = U32ReadBE(patchFlashData, 8);
 
             // flash CB_A
+            if ((long)loaderOffs + 16 > patchFlashData.Length)
+            {
+                return RGH_CONVERT_ERROR.ERROR_INVALID_FLASH_BOOTLOADERS;
+            }
             loaderName = U16ReadBE(patchFlashData, (int)loaderOffs);
             loaderVer = U16ReadBE(patchFlashData, (int)(loaderOffs + 2));
             loaderFlags = U32ReadBE(patchFlashData, (int)(loaderOffs + 4));
             loaderEntry = U32ReadBE(patchFlashData, (int)(loaderOffs + 8));
             loaderSize = U32ReadBE(patchFlashData, (int)(loaderOffs + 12));
             uint flashCbaOffs = loaderOffs;
+            // A corrupt/unexpected header here (e.g. a dashboard build whose CB layout this
+            // template doesn't recognize) previously read as a huge or tiny loaderSize, which
+            // then threw a raw BitConverter/array exception several steps later instead of a
+            // clear, specific failure - validate it against the buffer we actually have.
+            if (loaderSize < 0x20 || (long)flashCbaOffs + loaderSize > patchFlashData.Length)
+            {
+                return RGH_CONVERT_ERROR.ERROR_INVALID_FLASH_BOOTLOADERS;
+            }
             byte[] flashCba = patchFlashData.Skip((int)flashCbaOffs).Take((int)loaderSize).ToArray();
             loaderOffs += loaderSize;
 
             // flash CB_B
+            if ((long)loaderOffs + 16 > patchFlashData.Length)
+            {
+                return RGH_CONVERT_ERROR.ERROR_INVALID_FLASH_BOOTLOADERS;
+            }
             loaderName = U16ReadBE(patchFlashData, (int)loaderOffs);
             loaderVer = U16ReadBE(patchFlashData, (int)(loaderOffs + 2));
             loaderFlags = U32ReadBE(patchFlashData, (int)(loaderOffs + 4));
             loaderEntry = U32ReadBE(patchFlashData, (int)(loaderOffs + 8));
             loaderSize = U32ReadBE(patchFlashData, (int)(loaderOffs + 12));
             uint flashCbbOffs = loaderOffs;
+            if (loaderSize < 0x20 || (long)flashCbbOffs + loaderSize > patchFlashData.Length)
+            {
+                return RGH_CONVERT_ERROR.ERROR_INVALID_FLASH_BOOTLOADERS;
+            }
             byte[] flashCbb = patchFlashData.Skip((int)flashCbbOffs).Take((int)loaderSize).ToArray();
             // loaderOffs += loaderSize;
 

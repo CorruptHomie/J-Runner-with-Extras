@@ -1507,6 +1507,7 @@ namespace JRunner.Panels
                 Console.WriteLine("Saved to {0}", variables.xefolder);
                 Console.WriteLine("Image is Ready");
                 variables.filename1 = Path.Combine(variables.xefolder, variables.nandflash);
+                variables.skipConsoleRedetect = true; // output has patched CB/SMC data, not a new board
                 updateSourc(variables.filename1);
                 //Process.Start(variables.xefolder);
             }
@@ -1660,6 +1661,7 @@ namespace JRunner.Panels
                 Console.WriteLine("Saved to {0}", variables.xefolder);
                 Console.WriteLine("Image is Ready");
                 variables.filename1 = Path.Combine(variables.xefolder, variables.nandflash);
+                variables.skipConsoleRedetect = true; // output has patched CB/SMC data, not a new board
                 updateSourc(variables.filename1);
                 //Process.Start(variables.xefolder);
             }

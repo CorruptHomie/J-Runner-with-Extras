@@ -78,6 +78,8 @@
             this.label10 = new System.Windows.Forms.Label();
             this.logDefault = new System.Windows.Forms.Button();
             this.minimizeToSystemTray = new System.Windows.Forms.CheckBox();
+            this.autoCheckUpdatesChk = new System.Windows.Forms.CheckBox();
+            this.checkPrereleaseUpdatesChk = new System.Windows.Forms.CheckBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.SlimPreferSrgh = new System.Windows.Forms.RadioButton();
             this.SlimPreferRgh12 = new System.Windows.Forms.RadioButton();
@@ -543,6 +545,28 @@
             this.minimizeToSystemTray.UseVisualStyleBackColor = true;
             this.minimizeToSystemTray.CheckedChanged += new System.EventHandler(this.minimizeToSystemTray_CheckedChanged);
             // 
+            // autoCheckUpdatesChk
+            // 
+            this.autoCheckUpdatesChk.AutoSize = true;
+            this.autoCheckUpdatesChk.Location = new System.Drawing.Point(18, 353);
+            this.autoCheckUpdatesChk.Name = "autoCheckUpdatesChk";
+            this.autoCheckUpdatesChk.Size = new System.Drawing.Size(133, 17);
+            this.autoCheckUpdatesChk.TabIndex = 51;
+            this.autoCheckUpdatesChk.Text = "Automatically check for updates";
+            this.autoCheckUpdatesChk.UseVisualStyleBackColor = true;
+            this.autoCheckUpdatesChk.CheckedChanged += new System.EventHandler(this.autoCheckUpdatesChk_CheckedChanged);
+            // 
+            // checkPrereleaseUpdatesChk
+            // 
+            this.checkPrereleaseUpdatesChk.AutoSize = true;
+            this.checkPrereleaseUpdatesChk.Location = new System.Drawing.Point(18, 376);
+            this.checkPrereleaseUpdatesChk.Name = "checkPrereleaseUpdatesChk";
+            this.checkPrereleaseUpdatesChk.Size = new System.Drawing.Size(133, 17);
+            this.checkPrereleaseUpdatesChk.TabIndex = 52;
+            this.checkPrereleaseUpdatesChk.Text = "Check for pre-release (beta) updates";
+            this.checkPrereleaseUpdatesChk.UseVisualStyleBackColor = true;
+            this.checkPrereleaseUpdatesChk.CheckedChanged += new System.EventHandler(this.checkPrereleaseUpdatesChk_CheckedChanged);
+            // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.SlimPreferSrgh);
@@ -585,6 +609,8 @@
             this.ControlBox = false;
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.minimizeToSystemTray);
+            this.Controls.Add(this.autoCheckUpdatesChk);
+            this.Controls.Add(this.checkPrereleaseUpdatesChk);
             this.Controls.Add(this.logDefault);
             this.Controls.Add(this.logTextCustom);
             this.Controls.Add(this.logTextBlack);
@@ -679,6 +705,8 @@
         private System.Windows.Forms.CheckBox chksuccess;
         private System.Windows.Forms.CheckBox chkerror;
         private System.Windows.Forms.CheckBox minimizeToSystemTray;
+        private System.Windows.Forms.CheckBox autoCheckUpdatesChk;
+        private System.Windows.Forms.CheckBox checkPrereleaseUpdatesChk;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.RadioButton SlimPreferSrgh;
         private System.Windows.Forms.RadioButton SlimPreferRgh12;

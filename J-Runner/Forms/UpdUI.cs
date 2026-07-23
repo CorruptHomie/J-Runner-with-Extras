@@ -41,20 +41,26 @@ namespace JRunner
 
         public void installMode()
         {
-            updateProgressBar.BeginInvoke((Action)(() => updateProgressBar.Style = ProgressBarStyle.Marquee));
-            UpdatePage.Text = "Installing Update...";
-            UpdatePage.AllowCancel = false;
+            updateProgressBar.BeginInvoke((Action)(() =>
+            {
+                updateProgressBar.Style = ProgressBarStyle.Marquee;
+                UpdatePage.Text = "Installing Update...";
+                UpdatePage.AllowCancel = false;
+            }));
         }
 
         public void showSuccess()
         {
-            UpdateWizard.NextPage(SuccessPage);
+            updateProgressBar.BeginInvoke((Action)(() => UpdateWizard.NextPage(SuccessPage)));
         }
 
         public void showFailed()
         {
-            FailedReason.Text = Upd.failedReason;
-            UpdateWizard.NextPage(FailedPage);
+            updateProgressBar.BeginInvoke((Action)(() =>
+            {
+                FailedReason.Text = Upd.failedReason;
+                UpdateWizard.NextPage(FailedPage);
+            }));
         }
 
         private void DownloadButton_Click(object sender, EventArgs e)

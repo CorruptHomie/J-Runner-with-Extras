@@ -37,7 +37,7 @@ namespace JRunner
             this.FailedPage = new AeroWizard.WizardPage();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.FailedReason = new System.Windows.Forms.Label();
-            this.DownloadButton = new UI.CommandLink();
+            this.DownloadButton = new UI.SplitButton();
             this.label1 = new System.Windows.Forms.Label();
             this.SuccessPage = new AeroWizard.WizardPage();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -78,7 +78,7 @@ namespace JRunner
             // 
             // pictureBox3
             // 
-            this.pictureBox3.Image = global::JRunner.Properties.Resources.JR2;
+            this.pictureBox3.Image = global::JRunner.Properties.Resources.JR;
             this.pictureBox3.Location = new System.Drawing.Point(2, 33);
             this.pictureBox3.Name = "pictureBox3";
             this.pictureBox3.Size = new System.Drawing.Size(569, 281);
@@ -110,7 +110,7 @@ namespace JRunner
             // 
             // pictureBox2
             // 
-            this.pictureBox2.Image = global::JRunner.Properties.Resources.rederror;
+            this.pictureBox2.Image = global::JRunner.Properties.Resources.bad;
             this.pictureBox2.Location = new System.Drawing.Point(2, 148);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(569, 166);
@@ -213,7 +213,7 @@ namespace JRunner
         private AeroWizard.WizardPage UpdatePage;
         private System.Windows.Forms.ProgressBar updateProgressBar;
         private AeroWizard.WizardPage FailedPage;
-        private UI.CommandLink DownloadButton;
+        private UI.SplitButton DownloadButton;
         private System.Windows.Forms.Label label1;
         private AeroWizard.WizardPage SuccessPage;
         private System.Windows.Forms.PictureBox pictureBox1;

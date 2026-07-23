@@ -152,6 +152,7 @@
   <ItemGroup>
     <Compile Include="Classes\Mtx-Usb.cs" />
     <Compile Include="Classes\NativeMethods.cs" />
+    <Compile Include="Classes\Program.cs" />
     <Compile Include="Classes\PicoFlasher.cs" />
     <Compile Include="Classes\RC4.cs" />
     <Compile Include="Classes\RGH2to3.cs" />
@@ -196,6 +197,30 @@
     </Compile>
     <Compile Include="Forms\CreateDonorNand.Designer.cs">
       <DependentUpon>CreateDonorNand.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\UpdateAvailable.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdateAvailable.Designer.cs">
+      <DependentUpon>UpdateAvailable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\UpdChangelog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdChangelog.Designer.cs">
+      <DependentUpon>UpdChangelog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\UpdUI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UpdUI.Designer.cs">
+      <DependentUpon>UpdUI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\RestoreFiles.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\RestoreFiles.Designer.cs">
+      <DependentUpon>RestoreFiles.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\customCB.cs">
       <SubType>Form</SubType>
@@ -280,18 +305,6 @@
     </Compile>
     <Compile Include="Forms\Timing.Designer.cs">
       <DependentUpon>Timing.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\UpdateCheck.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\UpdateCheck.Designer.cs">
-      <DependentUpon>UpdateCheck.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\UpdateFailed.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\UpdateFailed.Designer.cs">
-      <DependentUpon>UpdateFailed.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\XB1HDD.cs">
       <SubType>Form</SubType>
@@ -554,7 +567,6 @@
     <Compile Include="Nand\BadBlock.cs" />
     <Compile Include="Nand\Nand.cs" />
     <Compile Include="Functions\parse_ini.cs" />
-    <Compile Include="Functions\Program.cs" />
     <Compile Include="Forms\POST.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -616,18 +628,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Classes\variables.cs" />
-    <Compile Include="Forms\UpdateSuccess.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\UpdateSuccess.Designer.cs">
-      <DependentUpon>UpdateSuccess.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\UpdateDownload.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\UpdateDownload.Designer.cs">
-      <DependentUpon>UpdateDownload.cs</DependentUpon>
-    </Compile>
     <Compile Include="WinUSB\DeviceManagement.cs" />
     <Compile Include="WinUSB\DeviceManagementApi.cs" />
     <Compile Include="WinUSB\FileIOApi.cs" />
@@ -654,6 +654,22 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\CreateDonorNand.resx">
       <DependentUpon>CreateDonorNand.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\UpdateAvailable.resx">
+      <DependentUpon>UpdateAvailable.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\UpdChangelog.resx">
+      <DependentUpon>UpdChangelog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\UpdUI.resx">
+      <DependentUpon>UpdUI.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\RestoreFiles.resx">
+      <DependentUpon>RestoreFiles.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\customCB.resx">
@@ -697,12 +713,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Timing.resx">
       <DependentUpon>Timing.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\UpdateCheck.resx">
-      <DependentUpon>UpdateCheck.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\UpdateFailed.resx">
-      <DependentUpon>UpdateFailed.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\XB1HDD.resx">
       <DependentUpon>XB1HDD.cs</DependentUpon>
@@ -811,12 +821,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\UpdateSuccess.resx">
-      <DependentUpon>UpdateSuccess.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\UpdateDownload.resx">
-      <DependentUpon>UpdateDownload.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config">
       <SubType>Designer</SubType>

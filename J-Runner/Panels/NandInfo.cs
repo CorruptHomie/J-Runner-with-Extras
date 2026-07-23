@@ -67,7 +67,7 @@ namespace JRunner.Panels
             tabControl1.SelectedTab = tabPage1;
         }
 
-        public void populateInfo()
+        public void populateInfo(bool skipConsoleRedetect = false)
         {
             if (nand.ok)
             {
@@ -116,11 +116,20 @@ namespace JRunner.Panels
                     label2bl.Visible = true;
                 }
 
-                string name = Nand.Nand.getConsoleName(nand, variables.flashconfig);
-                textBoxConsole.Text = name;
+                // 'name' is also referenced below (outside this block) - default to whatever's
+                // already shown so that path stays meaningful when we skip re-detection.
+                string name = textBoxConsole.Text;
+                if (!skipConsoleRedetect)
+                {
+                    // Only skipped right after reloading our own build output, where CB/SMC
+                    // data reflects the patched dashboard rather than the physical board (see
+                    // MainForm.nandinit()) - otherwise this runs exactly as it always did.
+                    name = Nand.Nand.getConsoleName(nand, variables.flashconfig);
+                    textBoxConsole.Text = name;
 
-                // KV Info
-                txtconsole.Text = name;
+                    // KV Info
+                    txtconsole.Text = name;
+                }
 
                 if (!String.IsNullOrWhiteSpace(nand._cpukey) && nand.ki.serial.Length > 0)
                 {
@@ -222,7 +231,11 @@ namespace JRunner.Panels
         public void setNand(Nand.PrivateN Nand)
         {
             this.nand = Nand;
-            this.BeginInvoke(new Action(() => populateInfo()));
+            // Captured now (synchronously, on the caller's thread) rather than re-read inside
+            // populateInfo() later: MainForm.nandinit() clears variables.skipConsoleRedetect
+            // right after this call returns, which would otherwise race the BeginInvoke below.
+            bool skipRedetect = variables.skipConsoleRedetect;
+            this.BeginInvoke(new Action(() => populateInfo(skipRedetect)));
         }
 
         delegate void ShowCpuKeyTab();

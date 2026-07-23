@@ -32,6 +32,7 @@ namespace JRunner
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UpdateAvailable));
             this.SuccessWizard = new AeroWizard.WizardControl();
             this.SuccessPage = new AeroWizard.WizardPage();
+            this.lblMessage = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.SuccessWizard)).BeginInit();
             this.SuspendLayout();
             // 
@@ -51,11 +52,21 @@ namespace JRunner
             // SuccessPage
             // 
             this.SuccessPage.AllowBack = false;
+            this.SuccessPage.Controls.Add(this.lblMessage);
             this.SuccessPage.IsFinishPage = true;
             this.SuccessPage.Name = "SuccessPage";
             this.SuccessPage.Size = new System.Drawing.Size(507, 247);
             this.SuccessPage.TabIndex = 0;
             this.SuccessPage.Text = "Updates Available";
+            // 
+            // lblMessage
+            // 
+            this.lblMessage.AutoSize = true;
+            this.lblMessage.Location = new System.Drawing.Point(3, 3);
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Size = new System.Drawing.Size(0, 13);
+            this.lblMessage.TabIndex = 0;
+            this.lblMessage.Text = "A new version is available.";
             // 
             // UpdateAvailable
             // 
@@ -81,5 +92,6 @@ namespace JRunner
 
         private AeroWizard.WizardControl SuccessWizard;
         private AeroWizard.WizardPage SuccessPage;
+        private System.Windows.Forms.Label lblMessage;
     }
 }
