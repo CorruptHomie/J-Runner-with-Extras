@@ -101,10 +101,11 @@ namespace JRunner
             Win81,
             W10_11
         }
-        public static string version = "3.2.1 Final";
-        // Referenced by Classes/StaticVersion.cs (Ver.Split('.') expects 4 parts). That class
-        // isn't used anywhere else in the app; this just keeps it compiling.
-        public const string staticversion = "1.0.0.0";
+        public static string version = "4.0.0pre1";
+        // Referenced by Classes/StaticVersion.cs. StaticVersion parses this with a regex
+        // (major.minor.build + free-form pre-release tag) rather than Split('.'), so a
+        // qualifier like "pre1" no longer needs to be a 4th numeric component.
+        public const string staticversion = "4.0.0pre1";
         public static string build = "3103." + GetLinkerTime(Assembly.GetExecutingAssembly()).ToString("yyMMdd.HHmm");
         public static bool iswriting;
         public static bool isscanningip = false;
@@ -131,7 +132,7 @@ namespace JRunner
         public static string superDevKey = "55555555555555555555555555D9AEE2";
         public static string outfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "output");
         public static string nanddumpfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "NaND dumps");
-        public static string updatednandfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Updated NaNDs");
+        public static string updatedflashfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Updated flash");
         public static string AppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "J-Runner Premium");
         public static string tempfile = "";
         public static string cpkey = "";
@@ -158,6 +159,7 @@ namespace JRunner
         public static bool minimizetotray = false;
         public static bool autoCheckUpdates = true;
         public static bool checkPrereleaseUpdates = false;
+        public static bool animationsEnabled = true;
         public static bool slimprefersrgh = false;
         public static bool mtxUsbMode = false;
         public static Color logbackground = Color.Black;
@@ -165,7 +167,7 @@ namespace JRunner
         public static string[] settings = { "xebuild", "FileChecks", "location", "COMPort", "Errorsound", "Comparesound", "Successsound", "Delay",
                                           "DashLaunchE", "IP", "NoReads", "IPStart", "IPEnd", "XebuildName", "dashlaunch", "preferredDash", "KeepFiles", "WorkingDir",
                                           "LPTport", "Server", "AutoExtract", "AllMove", "Modder", "DiscordRPC", "TimingOnKeypress", "LogBackground", "LogText",
-                                          "MinimizeToTray", "SlimPreferSrgh", "MtxUsbMode", "AutoCheckUpdates", "PrereleaseUpdates"};
+                                          "MinimizeToTray", "SlimPreferSrgh", "MtxUsbMode", "AutoCheckUpdates", "PrereleaseUpdates", "AnimationsEnabled"};
 
         #region
 

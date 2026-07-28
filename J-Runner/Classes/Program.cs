@@ -46,6 +46,9 @@ namespace JRunner
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
+                // Global dark styling for every MenuStrip, ContextMenuStrip and StatusStrip
+                // in the app. Must be set before any form is constructed.
+                ToolStripManager.Renderer = new UI.JRunnerToolStripRenderer();
 
                 // Determine current Windows version
                 if (Environment.OSVersion.Version.Major >= 10) variables.currentOS = variables.Windows.W10_11;

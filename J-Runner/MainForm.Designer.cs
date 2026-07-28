@@ -44,7 +44,7 @@ namespace JRunner
             this.txtConsole = new System.Windows.Forms.TextBox();
             this.txtCPUKey = new System.Windows.Forms.TextBox();
             this.lblCpuKey = new System.Windows.Forms.Label();
-            this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.progressBar = new UI.XboxFillProgressBar();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.btnIPGetCPU = new UI.SplitButton();
@@ -112,6 +112,7 @@ namespace JRunner
             this.toolStripSeparatorRgh3 = new System.Windows.Forms.ToolStripSeparator();
             this.convertToRGH3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.enableDevGLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.programGlitchChipToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.kVViewerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateCpuKeyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.experimentalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -166,6 +167,7 @@ namespace JRunner
             this.injectXeLLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparatorXeLL = new System.Windows.Forms.ToolStripSeparator();
             this.customizeThemeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.xellCustomizerWebToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.xFlasherToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.installDriversToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.flashOpenXeniumToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -791,6 +793,7 @@ namespace JRunner
             this.toolStripSeparatorRgh3,
             this.convertToRGH3ToolStripMenuItem,
             this.enableDevGLToolStripMenuItem,
+            this.programGlitchChipToolStripMenuItem,
             this.kVViewerToolStripMenuItem,
             this.generateCpuKeyToolStripMenuItem,
             this.experimentalToolStripMenuItem});
@@ -885,6 +888,13 @@ namespace JRunner
             this.enableDevGLToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
             this.enableDevGLToolStripMenuItem.Text = "Enable DevGL";
             this.enableDevGLToolStripMenuItem.Click += new System.EventHandler(this.enableDevGLToolStripMenuItem_Click);
+            //
+            // programGlitchChipToolStripMenuItem
+            //
+            this.programGlitchChipToolStripMenuItem.Name = "programGlitchChipToolStripMenuItem";
+            this.programGlitchChipToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
+            this.programGlitchChipToolStripMenuItem.Text = "Program Glitch Chip (RPicoRGH)...";
+            this.programGlitchChipToolStripMenuItem.Click += new System.EventHandler(this.programGlitchChipToolStripMenuItem_Click);
             //
             // kVViewerToolStripMenuItem
             //
@@ -1289,7 +1299,8 @@ namespace JRunner
             this.loadJTAGXeLLToolStripMenuItem,
             this.injectXeLLToolStripMenuItem,
             this.toolStripSeparatorXeLL,
-            this.customizeThemeToolStripMenuItem});
+            this.customizeThemeToolStripMenuItem,
+            this.xellCustomizerWebToolStripMenuItem});
             this.xeLLToolStripMenuItem.Name = "xeLLToolStripMenuItem";
             this.xeLLToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
             this.xeLLToolStripMenuItem.Text = "XeLL";
@@ -1324,8 +1335,15 @@ namespace JRunner
             //
             this.customizeThemeToolStripMenuItem.Name = "customizeThemeToolStripMenuItem";
             this.customizeThemeToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
-            this.customizeThemeToolStripMenuItem.Text = "Customize Theme";
+            this.customizeThemeToolStripMenuItem.Text = "Customize Theme (Quick)";
             this.customizeThemeToolStripMenuItem.Click += new System.EventHandler(this.customizeThemeToolStripMenuItem_Click);
+            //
+            // xellCustomizerWebToolStripMenuItem
+            //
+            this.xellCustomizerWebToolStripMenuItem.Name = "xellCustomizerWebToolStripMenuItem";
+            this.xellCustomizerWebToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.xellCustomizerWebToolStripMenuItem.Text = "XeLL Customizer (Web)";
+            this.xellCustomizerWebToolStripMenuItem.Click += new System.EventHandler(this.xellCustomizerWebToolStripMenuItem_Click);
             // 
             // xFlasherToolStripMenuItem
             // 
@@ -1535,6 +1553,7 @@ namespace JRunner
         private ToolStripSeparator toolStripSeparatorRgh3;
         private ToolStripMenuItem convertToRGH3ToolStripMenuItem;
         private ToolStripMenuItem enableDevGLToolStripMenuItem;
+        private ToolStripMenuItem programGlitchChipToolStripMenuItem;
         private ToolStripMenuItem kVViewerToolStripMenuItem;
         private ToolStripMenuItem generateCpuKeyToolStripMenuItem;
         private ToolStripMenuItem experimentalToolStripMenuItem;
@@ -1571,6 +1590,7 @@ namespace JRunner
         private ToolStripMenuItem injectXeLLToolStripMenuItem;
         private ToolStripSeparator toolStripSeparatorXeLL;
         private ToolStripMenuItem customizeThemeToolStripMenuItem;
+        private ToolStripMenuItem xellCustomizerWebToolStripMenuItem;
         private ToolStripMenuItem mTXUSBFirmwareUtilityToolStripMenuItem;
         private ToolStripMenuItem corona4GBToolStripMenuItem;
         private ToolStripMenuItem jRPBLToolStripMenuItem;

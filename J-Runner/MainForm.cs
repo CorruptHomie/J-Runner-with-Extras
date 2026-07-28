@@ -51,6 +51,7 @@ namespace JRunner
         public static Nand.PrivateN nand = new Nand.PrivateN();
         public PicoFlasher picoflasher = new PicoFlasher();
         public DirtyPico dirtypico = new DirtyPico();
+        public RPicoRGH rpicorgh = new RPicoRGH();
         public xFlasher xflasher = new xFlasher();
         public Mtx_Usb mtx_usb = new Mtx_Usb();
         public xdkbuild XDKbuild = new xdkbuild();
@@ -84,6 +85,7 @@ namespace JRunner
         public MainForm()
         {
             InitializeComponent();
+            SetupCustomChrome();
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             pnlInfo.Controls.Add(nandInfo);
             listInfo.Add(nandInfo);
@@ -209,6 +211,12 @@ namespace JRunner
                 else if (File.Exists(dirtypico.svfPath)) File.Delete(dirtypico.svfPath);
             }
             catch { }
+
+            // Runs last in one-time init, after nandInfo/nTools/xPanel (added in the
+            // MainForm() constructor) and everything settings()/deviceinit() above touch -
+            // so the recursive walk actually reaches every real control instead of running
+            // too early and only ever seeing MainForm's own top-level ones.
+            UI.Theme.ApplyTheme(this);
         }
 
         private void showApplication()
@@ -251,7 +259,7 @@ namespace JRunner
             try
             {
                 if (!Directory.Exists(variables.nanddumpfolder)) Directory.CreateDirectory(variables.nanddumpfolder);
-                if (!Directory.Exists(variables.updatednandfolder)) Directory.CreateDirectory(variables.updatednandfolder);
+                if (!Directory.Exists(variables.updatedflashfolder)) Directory.CreateDirectory(variables.updatedflashfolder);
             }
             catch (Exception ex)
             {
@@ -514,6 +522,7 @@ namespace JRunner
         {
             savesettings();
             saveToLog();
+            XellCustomizerWeb.Shutdown();
         }
 
         private void saveToLog()
@@ -1399,8 +1408,11 @@ namespace JRunner
                 }
                 else
                 {
+                    if (!UI.ThemedDialogs.ConfirmFlash(this)) return;
                     try
                     {
+                        ((UI.XboxFillProgressBar)progressBar).IsFlashing = true;
+                        ShowFlashOverlay();
                         ThreadStart starter = delegate { writenand(false); };
                         new Thread(starter).Start();
                     }
@@ -1416,8 +1428,11 @@ namespace JRunner
                 }
                 else
                 {
+                    if (!UI.ThemedDialogs.ConfirmFlash(this)) return;
                     try
                     {
+                        ((UI.XboxFillProgressBar)progressBar).IsFlashing = true;
+                        ShowFlashOverlay();
                         ThreadStart starter = delegate { writenand(true, writelength); };
                         new Thread(starter).Start();
                     }
@@ -1555,72 +1570,87 @@ namespace JRunner
         /// <param name="ecc"></param>
         void writenand(bool ecc, int writelength = 0)
         {
-            if (String.IsNullOrWhiteSpace(variables.filename1)) loadfile(ref variables.filename1, ref this.txtFilePath1, true);
-            if (String.IsNullOrWhiteSpace(variables.filename1)) return;
-            if (!File.Exists(variables.filename1)) return;
-            if (DemoN.DemonDetected)
+            try
             {
-                demon.write(variables.filename1);
-                if (Path.GetExtension(variables.filename1) == ".ecc")
+                if (String.IsNullOrWhiteSpace(variables.filename1)) loadfile(ref variables.filename1, ref this.txtFilePath1, true);
+                if (String.IsNullOrWhiteSpace(variables.filename1)) return;
+                if (!File.Exists(variables.filename1)) return;
+                if (DemoN.DemonDetected)
                 {
-                    if (variables.tempfile != "")
+                    demon.write(variables.filename1);
+                    if (Path.GetExtension(variables.filename1) == ".ecc")
                     {
-                        variables.filename1 = variables.tempfile;
-                        txtFilePath1.Text = variables.tempfile;
+                        if (variables.tempfile != "")
+                        {
+                            variables.filename1 = variables.tempfile;
+                            txtFilePath1.Text = variables.tempfile;
+                        }
                     }
-                }
-            }
-            else
-            {
-                //if (textBox2.Text != "008A3020" && textBox2.Text != "00AA3020") ctypeselected = 0;
-
-                double len = new FileInfo(variables.filename1).Length;
-                if (variables.debugme) Console.WriteLine("File Length = {0} | Expected 69206016 for a 64MB nand", len);
-                if ((variables.ctyp.ID == 6 || variables.ctyp.ID == 7) && (len == 69206016))
-                {
-                    variables.nandsizex = Nandsize.S64;
-                }
-                else if (variables.ctyp.ID == 0)
-                {
-                    variables.nandsizex = Nandsize.S16;
                 }
                 else
                 {
-                    variables.nandsizex = variables.ctyp.Nsize;
-                }
+                    //if (textBox2.Text != "008A3020" && textBox2.Text != "00AA3020") ctypeselected = 0;
 
-                if (Path.GetExtension(variables.filename1) == ".ecc")
-                {
-                    if (!ecc)
+                    double len = new FileInfo(variables.filename1).Length;
+                    if (variables.debugme) Console.WriteLine("File Length = {0} | Expected 69206016 for a 64MB nand", len);
+                    if ((variables.ctyp.ID == 6 || variables.ctyp.ID == 7) && (len == 69206016))
                     {
-                        Console.WriteLine("You need an .bin image");
-                        return;
+                        variables.nandsizex = Nandsize.S64;
                     }
-                    NandX.Errors result = NandX.Errors.None;
-
-                    if (!usingVNand) result = nandx.write(variables.filename1, variables.nandsizex, 0, 0x50, true, true);
-                    else vnand.write_v2(variables.filename1, 0, 0x50, true, true);
-
-                    Thread.Sleep(500);
-                    if (variables.tempfile != "" && result == NandX.Errors.None)
+                    else if (variables.ctyp.ID == 0)
                     {
-                        variables.filename1 = variables.tempfile;
-                        txtFilePath1.Text = variables.tempfile;
+                        variables.nandsizex = Nandsize.S16;
                     }
-                }
-                else if (Path.GetExtension(variables.filename1) == ".bin")
-                {
-                    if (ecc)
+                    else
                     {
-                        Console.WriteLine("You need an .ecc image");
-                        return;
+                        variables.nandsizex = variables.ctyp.Nsize;
                     }
 
-                    if (!usingVNand) nandx.write(variables.filename1, variables.nandsizex, 0, writelength);
-                    else vnand.write_v2(variables.filename1, 0, writelength);
+                    if (Path.GetExtension(variables.filename1) == ".ecc")
+                    {
+                        if (!ecc)
+                        {
+                            Console.WriteLine("You need an .bin image");
+                            return;
+                        }
+                        NandX.Errors result = NandX.Errors.None;
 
-                    //NandX.write(ref txtBlocks, ref progressBar1, variables.filename1, variables.nandsizex, 0, 0);
+                        if (!usingVNand) result = nandx.write(variables.filename1, variables.nandsizex, 0, 0x50, true, true);
+                        else vnand.write_v2(variables.filename1, 0, 0x50, true, true);
+
+                        Thread.Sleep(500);
+                        if (variables.tempfile != "" && result == NandX.Errors.None)
+                        {
+                            variables.filename1 = variables.tempfile;
+                            txtFilePath1.Text = variables.tempfile;
+                        }
+                        if (result == NandX.Errors.None) this.Invoke(new Action(() => { HideFlashOverlay(); UI.ThemedDialogs.ShowFlashComplete(this); }));
+                    }
+                    else if (Path.GetExtension(variables.filename1) == ".bin")
+                    {
+                        if (ecc)
+                        {
+                            Console.WriteLine("You need an .ecc image");
+                            return;
+                        }
+
+                        NandX.Errors binResult = NandX.Errors.None;
+                        if (!usingVNand) binResult = nandx.write(variables.filename1, variables.nandsizex, 0, writelength);
+                        else vnand.write_v2(variables.filename1, 0, writelength);
+
+                        if (binResult == NandX.Errors.None) this.Invoke(new Action(() => { HideFlashOverlay(); UI.ThemedDialogs.ShowFlashComplete(this); }));
+
+                        //NandX.write(ref txtBlocks, ref progressBar1, variables.filename1, variables.nandsizex, 0, 0);
+                    }
                 }
+            }
+            finally
+            {
+                // Unconditional, regardless of which branch ran or whether it succeeded -
+                // otherwise a failed or JTAG/Demon write would leave the shared progress
+                // bar stuck animating for every later read/build that reuses it.
+                this.Invoke(new Action(() => ((UI.XboxFillProgressBar)progressBar).IsFlashing = false));
+                HideFlashOverlay();
             }
         }
         void writefusion()
@@ -1710,7 +1740,7 @@ namespace JRunner
         {
             if (variables.reading) return;
             Thread.Sleep(2000);
-            variables.xefolder = Path.Combine(variables.updatednandfolder, nand.ki.serial);
+            variables.xefolder = Path.Combine(variables.updatedflashfolder, nand.ki.serial);
 
             //updateS((variables.filename1.Replace(variables.outfolder, variables.xefolder)));
             Console.WriteLine("Moving all files from output folder to {0}", variables.xefolder);
@@ -3405,6 +3435,11 @@ namespace JRunner
             }
         }
 
+        private void xellCustomizerWebToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            XellCustomizerWeb.LaunchOrFocus();
+        }
+
         private void customizeThemeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // These are the exact same two files moveXell() in Classes/xebuild.cs and
@@ -3762,6 +3797,12 @@ namespace JRunner
             {
                 cPUKeyToolsToolStripMenuItem_Click(sender, e);
             }
+        }
+
+        private void programGlitchChipToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Forms.GlitchChipProgrammer dlg = new Forms.GlitchChipProgrammer(rpicorgh);
+            dlg.Show(this);
         }
 
         private void enableDevGLToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4682,8 +4723,30 @@ namespace JRunner
 
         #region Demon
         bool showingdemon = false;
+
+        // Custom window chrome (see MainForm.Chrome.cs) needs first refusal on
+        // WM_NCHITTEST so it can turn the fake title bar / window edges into
+        // drag and resize handles. A partial class can only define WndProc
+        // once, so that logic is folded in here rather than in Chrome.cs.
         protected override void WndProc(ref Message m)
         {
+            const int WM_NCHITTEST = 0x0084;
+            const int HTCLIENT = 1;
+
+            if (m.Msg == WM_NCHITTEST)
+            {
+                base.WndProc(ref m);
+                if ((int)m.Result == HTCLIENT)
+                {
+                    int lp = m.LParam.ToInt32();
+                    Point screen = new Point((short)(lp & 0xFFFF), (short)((lp >> 16) & 0xFFFF));
+                    Point client = PointToClient(screen);
+                    int hit = HitTestChrome(client);
+                    if (hit != 0) m.Result = (IntPtr)hit;
+                }
+                return;
+            }
+
             try
             {
                 // The OnDeviceChange routine processes WM_DEVICECHANGE messages.
@@ -5066,6 +5129,9 @@ namespace JRunner
                         case "PrereleaseUpdates":
                             x.write(name, variables.checkPrereleaseUpdates.ToString());
                             break;
+                        case "AnimationsEnabled":
+                            x.write(name, variables.animationsEnabled.ToString());
+                            break;
                         case "SlimPreferSrgh":
                             x.write(name, variables.slimprefersrgh.ToString());
                             break;
@@ -5283,6 +5349,11 @@ namespace JRunner
                             bvalue = false;
                             if (!bool.TryParse(val, out bvalue)) bvalue = false;
                             variables.checkPrereleaseUpdates = bvalue;
+                            break;
+                        case "AnimationsEnabled":
+                            bvalue = true;
+                            if (!bool.TryParse(val, out bvalue)) bvalue = true;
+                            variables.animationsEnabled = bvalue;
                             break;
                         case "SlimPreferSrgh":
                             bvalue = false;

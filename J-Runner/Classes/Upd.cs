@@ -77,7 +77,9 @@ namespace JRunner
         public static bool WantsPrereleaseChannel()
         {
             return variables.checkPrereleaseUpdates
-                || variables.version.IndexOf("Pre-Release", StringComparison.OrdinalIgnoreCase) >= 0;
+                || variables.version.IndexOf("Pre-Release", StringComparison.OrdinalIgnoreCase) >= 0
+                || variables.version.IndexOf("pre", StringComparison.OrdinalIgnoreCase) >= 0
+                || variables.version.IndexOf("beta", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static bool TryFindAssetUrl(List<GhAsset> assets, out string url)
