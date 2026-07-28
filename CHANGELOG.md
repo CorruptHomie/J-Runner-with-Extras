@@ -17,7 +17,7 @@ install Node dependencies on first launch.
 
 
 
-\# Does not work or does not work properly!
+# Does not work or does not work properly!
 
  Replaced the broken 0% progress bar with a standard themed bar and introduced a full-
 window animated Xbox logo overlay during actual NAND flashes.
