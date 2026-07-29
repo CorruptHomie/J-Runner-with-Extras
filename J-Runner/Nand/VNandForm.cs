@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Windows.Forms;
@@ -16,6 +16,7 @@ namespace JRunner.Nand
         public VNandForm()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             this.AcceptButton = btnCancel;
         }
 

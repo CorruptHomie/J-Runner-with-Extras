@@ -1,4 +1,4 @@
-﻿using LibUsbDotNet;
+using LibUsbDotNet;
 using LibUsbDotNet.Main;
 using System;
 using System.ComponentModel;
@@ -15,6 +15,7 @@ namespace JRunner.Forms
         public DemonCom()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)

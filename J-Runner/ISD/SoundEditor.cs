@@ -1,4 +1,4 @@
-﻿using EricOulashin;
+using EricOulashin;
 using LibUsbDotNet.DeviceNotify;
 using System;
 using System.Diagnostics;
@@ -18,6 +18,7 @@ namespace JRunner.Forms
         public SoundEditor()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
         void log(string text)
         {

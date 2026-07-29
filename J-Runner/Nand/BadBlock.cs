@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -305,7 +305,7 @@ namespace JRunner.Nand
                 return filename;
             }
 
-            if (!stealth) if (MessageBox.Show("Bad Blocks have been found.\nRemap?", "Remap", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
+            if (!stealth) if (UI.Msg.Show("Bad Blocks have been found.\nRemap?", "Remap", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1)
                 == DialogResult.No) return filename;
 
             image = remapbadblocks(image, badblocks, remappedblocks, bigblock);

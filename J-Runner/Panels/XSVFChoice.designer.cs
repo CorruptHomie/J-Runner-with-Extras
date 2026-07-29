@@ -1,4 +1,4 @@
-﻿namespace JRunner.Panels
+namespace JRunner.Panels
 {
     partial class XSVFChoice
     {
@@ -30,7 +30,7 @@
         {
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnProgram = new System.Windows.Forms.Button();
-            this.TimingTabs = new System.Windows.Forms.TabControl();
+            this.TimingTabs = new UI.DarkTabControl();
             this.Rgh12Timings = new System.Windows.Forms.TabPage();
             this.label1 = new System.Windows.Forms.Label();
             this.Rgh12TcSelectGroup = new System.Windows.Forms.GroupBox();
@@ -1384,7 +1384,7 @@
         #endregion
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnProgram;
-        private System.Windows.Forms.TabControl TimingTabs;
+        private UI.DarkTabControl TimingTabs;
         private System.Windows.Forms.TabPage Rgh12Timings;
         private System.Windows.Forms.TabPage SrghTimings;
         private System.Windows.Forms.TabPage MiscTimings;

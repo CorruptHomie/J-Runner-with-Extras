@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -12,6 +12,7 @@ namespace JRunner
         public patch()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             this.AcceptButton = btnOK;
             this.CancelButton = btnCancel;
             btnOK.DialogResult = DialogResult.OK;

@@ -1,4 +1,4 @@
-﻿using System.Windows.Forms;
+using System.Windows.Forms;
 
 namespace JRunner.Forms
 {
@@ -7,6 +7,7 @@ namespace JRunner.Forms
         public ShowPanel()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         public void addPanel(Control c)

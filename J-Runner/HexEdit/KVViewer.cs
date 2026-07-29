@@ -1,4 +1,4 @@
-﻿using Be.Windows.Forms;
+using Be.Windows.Forms;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,6 +15,7 @@ namespace JRunner.HexEdit
         public KVViewer(byte[] bytes)
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             if (bytes != null)
             {
                 try

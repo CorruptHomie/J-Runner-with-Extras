@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using RenameRegistryKey;
 using System;
 using System.Collections.Generic;
@@ -33,6 +33,7 @@ namespace JRunner
         {
             this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private void cpukeydb_Load(object sender, EventArgs e)
@@ -218,7 +219,7 @@ namespace JRunner
             catch (Exception ex)
             {
                 if (variables.debugme) Console.WriteLine(ex.ToString());
-                MessageBox.Show("Failed to delete the CPU Key entry:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Failed to delete the CPU Key entry:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -323,7 +324,7 @@ namespace JRunner
             {
                 if (proc != null) proc.Dispose();
             }
-            MessageBox.Show("Export is completed.");
+            UI.Msg.Show("Export is completed.");
         }
 
         enum STATES
@@ -812,7 +813,7 @@ namespace JRunner
             long crc = 0;
             if (String.IsNullOrWhiteSpace(txtSearch.Text))
             {
-                if (MessageBox.Show("NO cpukey in searchbox. Use a dump?", "Search", MessageBoxButtons.YesNo) != System.Windows.Forms.DialogResult.Yes) return;
+                if (UI.Msg.Show("NO cpukey in searchbox. Use a dump?", "Search", MessageBoxButtons.YesNo) != System.Windows.Forms.DialogResult.Yes) return;
                 kv = true;
             }
 

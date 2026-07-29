@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Net;
 using System.Windows.Forms;
@@ -10,6 +10,7 @@ namespace JRunner
         public UpdUI()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             UpdateWizard.Cancelling += WizardCancelled;
             UpdateWizard.Finished += WizardFinished;
         }

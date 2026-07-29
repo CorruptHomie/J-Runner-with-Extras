@@ -1,4 +1,4 @@
-﻿using DiskManagement;
+using DiskManagement;
 using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
@@ -238,7 +238,7 @@ namespace JRunner.Panels
 
             if (File.Exists(filename))
             {
-                if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press OK to continue", "File Already Exists", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+                if (DialogResult.Cancel == UI.Msg.Show("File already exists, it will be DELETED! Press OK to continue", "File Already Exists", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                 {
                     Console.WriteLine("Cancelled");
                     Console.WriteLine("");
@@ -539,7 +539,7 @@ namespace JRunner.Panels
             if (listView1.SelectedItems.Count == 0) return;
             string ldrive = listView1.SelectedItems[0].SubItems[1].Text;
             if (listView1.SelectedItems[0].SubItems[2].Text != "Removable") { Console.WriteLine("Must be a removable type"); return; }
-            if (MessageBox.Show("You are about to write to " + ldrive + ". Continue?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
+            if (UI.Msg.Show("You are about to write to " + ldrive + ". Continue?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
 
             var diskGeometry = DiskGeometry.FromDevice(@"\\.\" + ldrive.Replace("\\", ""));
             uint track = diskGeometry.BytesPerSector * (diskGeometry.Sector + 1);
@@ -803,7 +803,7 @@ namespace JRunner.Panels
             if (listView1.SelectedItems.Count == 0) return;
             string ldrive = listView1.SelectedItems[0].SubItems[1].Text;
             if (listView1.SelectedItems[0].SubItems[2].Text != "Removable") { Console.WriteLine("Must be a removable type"); return; }
-            if (MessageBox.Show("You are about to erase " + ldrive + ". Continue?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
+            if (UI.Msg.Show("You are about to erase " + ldrive + ". Continue?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
 
             var diskGeometry = DiskGeometry.FromDevice(@"\\.\" + ldrive.Replace("\\", ""));
             uint track = diskGeometry.BytesPerSector * (diskGeometry.Sector + 1);

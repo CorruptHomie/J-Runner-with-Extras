@@ -1,4 +1,4 @@
-﻿using CommPort;
+using CommPort;
 using LibUsbDotNet;
 using LibUsbDotNet.Main;
 using System;
@@ -116,6 +116,7 @@ namespace JRunner
         public POST()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             //#if Dev 
             //            PhatBut.Enabled = true;
             //            CorBut.Visible = true;
@@ -1820,7 +1821,7 @@ namespace JRunner
                     File.WriteAllText(saveFileDialog2.FileName, txtOutput.Text);
                 }
                 Clipboard.SetText("[CODE]" + txtOutput.Text + "[/CODE]");
-                MessageBox.Show("Post Out window contents copied to Clipboard & Prepared for pasting to the forum as [CODE][/CODE].", "For TX Forum Use");
+                UI.Msg.Show("Post Out window contents copied to Clipboard & Prepared for pasting to the forum as [CODE][/CODE].", "For TX Forum Use");
             }
         }
 

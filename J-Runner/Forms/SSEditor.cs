@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +15,7 @@ namespace JRunner
         public SlimSounds()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
         private void radioButton_CheckedChanged(object sender, EventArgs e)
         {

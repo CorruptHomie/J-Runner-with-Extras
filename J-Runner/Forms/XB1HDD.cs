@@ -1,4 +1,4 @@
-﻿using DiskManagement;
+using DiskManagement;
 using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
@@ -54,6 +54,7 @@ namespace JRunner.Forms
         public XB1HDD()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private void XB1HDD_Load(object sender, EventArgs e)
@@ -279,8 +280,8 @@ namespace JRunner.Forms
         private void btnStart_Click(object sender, EventArgs e)
         {
             if (listView1.SelectedItems.Count == 0) return;
-            if (MessageBox.Show("This will erase your hard disk, or maybe fuck it up too.\nALL files on it will be deleted.\nAre you REALLY sure you want to procceed?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == System.Windows.Forms.DialogResult.No) return;
-            if (MessageBox.Show("The actions performed CANNOT be reversed!\nAre you SURE you want to convert " + listView1.SelectedItems[0].SubItems[1].Text + " to an Xbox ONE Disk?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == System.Windows.Forms.DialogResult.No) return;
+            if (UI.Msg.Show("This will erase your hard disk, or maybe fuck it up too.\nALL files on it will be deleted.\nAre you REALLY sure you want to procceed?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == System.Windows.Forms.DialogResult.No) return;
+            if (UI.Msg.Show("The actions performed CANNOT be reversed!\nAre you SURE you want to convert " + listView1.SelectedItems[0].SubItems[1].Text + " to an Xbox ONE Disk?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == System.Windows.Forms.DialogResult.No) return;
             new Thread(doBusiness).Start();
         }
 

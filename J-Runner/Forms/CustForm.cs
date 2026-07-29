@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace JRunner.Forms
@@ -8,6 +8,7 @@ namespace JRunner.Forms
         public custform()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private void button2_Click(object sender, EventArgs e)

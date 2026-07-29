@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -10,6 +10,7 @@ namespace JRunner.Forms
         public OpenXenium()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             OpenXeniumWizard.Cancelling += WizardCancelled;
             OpenXeniumWizard.Finished += WizardFinished;
             OpenXeniumPage.Commit += OpenXenium_Next;
@@ -35,12 +36,12 @@ namespace JRunner.Forms
             else if (MainForm.mainForm.device == MainForm.DEVICE.XFLASHER_EMMC)
             {
                 e.Cancel = true;
-                MessageBox.Show("Unable to program OpenXenium in eMMC mode\n\nPlease switch to SPI mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Unable to program OpenXenium in eMMC mode\n\nPlease switch to SPI mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else
             {
                 e.Cancel = true;
-                MessageBox.Show("Please connect an xFlasher in SPI Mode!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Please connect an xFlasher in SPI Mode!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

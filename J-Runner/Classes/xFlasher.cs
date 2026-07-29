@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Media;
@@ -50,13 +50,13 @@ namespace JRunner
                 else if (Environment.OSVersion.ServicePack == "Service Pack 2") return true; // Vista SP2
                 else // Vista RTM/SP1
                 {
-                    MessageBox.Show("This version of Windows is not supported\n\nxFlasher requires Microsoft Windows Vista Service Pack 2 or later", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("This version of Windows is not supported\n\nxFlasher requires Microsoft Windows Vista Service Pack 2 or later", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
             }
             else // XP and older
             {
-                MessageBox.Show("This version of Windows is not supported\n\nxFlasher requires Microsoft Windows Vista Service Pack 2 or later", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("This version of Windows is not supported\n\nxFlasher requires Microsoft Windows Vista Service Pack 2 or later", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
@@ -185,7 +185,7 @@ namespace JRunner
                     if (auto)
                     {
                         Console.WriteLine("");
-                        MessageBox.Show("Unable to read/write eMMC type console in SPI mode\n\nPlease switch to eMMC mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        UI.Msg.Show("Unable to read/write eMMC type console in SPI mode\n\nPlease switch to eMMC mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return 1;
                     }
                 }
@@ -301,7 +301,7 @@ namespace JRunner
                         variables.filename = variables.nanddumpfolder + "\\nanddump" + i + ".bin";
                         if (File.Exists(variables.filename))
                         {
-                            if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
+                            if (DialogResult.Cancel == UI.Msg.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
                             {
                                 Console.WriteLine("xFlasher: Cancelled");
                                 Console.WriteLine("");
@@ -430,7 +430,7 @@ namespace JRunner
 
                     if (File.Exists(filename))
                     {
-                        if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
+                        if (DialogResult.Cancel == UI.Msg.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
                         {
                             Console.WriteLine("xFlasher: Cancelled");
                             Console.WriteLine("");
@@ -559,7 +559,7 @@ namespace JRunner
             double len = new FileInfo(variables.filename1).Length;
             if (len == 50331648)
             {
-                MessageBox.Show("Unable to write eMMC type image in SPI mode\n\nPlease switch to eMMC mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Unable to write eMMC type image in SPI mode\n\nPlease switch to eMMC mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             else if (len == 553648128)
@@ -589,7 +589,7 @@ namespace JRunner
             }
             else
             {
-                MessageBox.Show("Nand is not a valid size", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Nand is not a valid size", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -638,7 +638,7 @@ namespace JRunner
                         {
                             if (size != 16)
                             {
-                                if (DialogResult.No == MessageBox.Show("You are attempting to write a " + size + "MB Nand to a board with a 16MB Flash Config.\n\nAre you sure that you want to do that?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+                                if (DialogResult.No == UI.Msg.Show("You are attempting to write a " + size + "MB Nand to a board with a 16MB Flash Config.\n\nAre you sure that you want to do that?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
                                 {
                                     Console.WriteLine("xFlasher: Cancelled");
                                     Console.WriteLine("");
@@ -650,7 +650,7 @@ namespace JRunner
                         {
                             if (size != 64)
                             {
-                                if (DialogResult.No == MessageBox.Show("You are attempting to write a " + size + "MB Nand to a board with a 64MB Flash Config.\n\nAre you sure that you want to do that?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+                                if (DialogResult.No == UI.Msg.Show("You are attempting to write a " + size + "MB Nand to a board with a 64MB Flash Config.\n\nAre you sure that you want to do that?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
                                 {
                                     Console.WriteLine("xFlasher: Cancelled");
                                     Console.WriteLine("");
@@ -662,7 +662,7 @@ namespace JRunner
                         {
                             if (size == 16)
                             {
-                                if (DialogResult.No == MessageBox.Show("You are attempting to write a " + size + "MB Nand to a board with a 64/256/512MB Flash Config.\n\nAre you sure that you want to do the things?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+                                if (DialogResult.No == UI.Msg.Show("You are attempting to write a " + size + "MB Nand to a board with a 64/256/512MB Flash Config.\n\nAre you sure that you want to do the things?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
                                 {
                                     Console.WriteLine("xFlasher: Cancelled");
                                     Console.WriteLine("");
@@ -672,7 +672,7 @@ namespace JRunner
                         }
                         else
                         {
-                            if (DialogResult.No == MessageBox.Show("I think the correct size is " + size + "MB.\n\nDo you want to continue as " + size + "MB?", "Unrecognized Flash Config", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+                            if (DialogResult.No == UI.Msg.Show("I think the correct size is " + size + "MB.\n\nDo you want to continue as " + size + "MB?", "Unrecognized Flash Config", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
                             {
                                 MainForm.mainForm.BeginInvoke((Action)(() => MainForm.mainForm.xFlasherNandSelShow(2))); // Ask
                                 return;

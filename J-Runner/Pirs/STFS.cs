@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
@@ -13,6 +13,7 @@ namespace JRunner.Pirs
         public STFS(string filename, string ini)
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             p = new Pirs(filename, true);
             foreach (PirsEntry a in p.getList())
             {

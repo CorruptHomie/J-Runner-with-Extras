@@ -1,4 +1,4 @@
-﻿using CommPort;
+using CommPort;
 using System;
 using System.IO;
 using System.Windows.Forms;
@@ -13,6 +13,7 @@ namespace JRunner.Forms
         public Comport()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private void Comport_Load(object sender, EventArgs e)
@@ -34,7 +35,7 @@ namespace JRunner.Forms
                 cboStop.SelectedIndex = 1;
                 cboData.SelectedIndex = 1;
             }
-            catch (System.ArgumentOutOfRangeException) { MessageBox.Show("No COM ports were found"); }
+            catch (System.ArgumentOutOfRangeException) { UI.Msg.Show("No COM ports were found"); }
             catch (Exception ex) { Console.WriteLine(ex.ToString()); }
         }
 

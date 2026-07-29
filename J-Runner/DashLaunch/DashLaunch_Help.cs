@@ -1,4 +1,4 @@
-﻿using System.Windows.Forms;
+using System.Windows.Forms;
 
 namespace JRunner
 {
@@ -7,6 +7,7 @@ namespace JRunner
         public DashLaunch_Help()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
     }
 }

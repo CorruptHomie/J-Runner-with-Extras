@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -39,6 +39,7 @@ namespace JRunner
         public IP()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
 
             btnGetCpu.DialogResult = DialogResult.OK;
             /*IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();

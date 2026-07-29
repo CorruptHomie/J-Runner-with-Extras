@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -101,11 +101,11 @@ namespace JRunner
             Win81,
             W10_11
         }
-        public static string version = "4.0.0pre1";
+        public static string version = "4.0.0devpre2";
         // Referenced by Classes/StaticVersion.cs. StaticVersion parses this with a regex
         // (major.minor.build + free-form pre-release tag) rather than Split('.'), so a
         // qualifier like "pre1" no longer needs to be a 4th numeric component.
-        public const string staticversion = "4.0.0pre1";
+        public const string staticversion = "4.0.0devpre2";
         public static string build = "3103." + GetLinkerTime(Assembly.GetExecutingAssembly()).ToString("yyMMdd.HHmm");
         public static bool iswriting;
         public static bool isscanningip = false;
@@ -160,6 +160,14 @@ namespace JRunner
         public static bool autoCheckUpdates = true;
         public static bool checkPrereleaseUpdates = false;
         public static bool animationsEnabled = true;
+
+        // Which GitHub release stream the updater follows. Empty means "not chosen yet" -
+        // Upd.ResolveDefaultChannel() then derives it from the running build's own version
+        // string, so a dev build defaults to Dev rather than silently watching the stable
+        // channel. This build's "4.0.0devpre2" contains "dev", so it defaults to Dev -
+        // which matches any build cut from the dev branch, prerelease or not (see
+        // Upd.MatchesChannel). Persisted as the setting "UpdateChannel".
+        public static string updateChannel = "";
         public static bool slimprefersrgh = false;
         public static bool mtxUsbMode = false;
         public static Color logbackground = Color.Black;
@@ -167,7 +175,7 @@ namespace JRunner
         public static string[] settings = { "xebuild", "FileChecks", "location", "COMPort", "Errorsound", "Comparesound", "Successsound", "Delay",
                                           "DashLaunchE", "IP", "NoReads", "IPStart", "IPEnd", "XebuildName", "dashlaunch", "preferredDash", "KeepFiles", "WorkingDir",
                                           "LPTport", "Server", "AutoExtract", "AllMove", "Modder", "DiscordRPC", "TimingOnKeypress", "LogBackground", "LogText",
-                                          "MinimizeToTray", "SlimPreferSrgh", "MtxUsbMode", "AutoCheckUpdates", "PrereleaseUpdates", "AnimationsEnabled"};
+                                          "MinimizeToTray", "SlimPreferSrgh", "MtxUsbMode", "AutoCheckUpdates", "PrereleaseUpdates", "AnimationsEnabled", "UpdateChannel"};
 
         #region
 

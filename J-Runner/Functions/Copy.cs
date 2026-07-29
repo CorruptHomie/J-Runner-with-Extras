@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -12,6 +12,7 @@ namespace JRunner.Functions
         public Copy(string source, string destination)
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             _source = source;
             _destination = destination;
         }

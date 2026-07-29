@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -104,7 +104,7 @@ namespace JRunner
 
             if (ports.Count <= 0)
             {
-                MessageBox.Show("Can't find PicoFlasher com port\n\nUpdate the PicoFlasher firmware and check your drivers", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Can't find PicoFlasher com port\n\nUpdate the PicoFlasher firmware and check your drivers", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
 
@@ -130,7 +130,7 @@ namespace JRunner
                 if (version != 3)
                 {
                     serial.Close();
-                    MessageBox.Show("PicoFlasher firmware is too old\n\nUpdate the PicoFlasher firmware to continue", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("PicoFlasher firmware is too old\n\nUpdate the PicoFlasher firmware to continue", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return null;
                 }
             }
@@ -139,7 +139,7 @@ namespace JRunner
                 // Port can still be settling right after a fresh plug-in (open failure, or a timeout
                 // waiting on the version reply) - fail gracefully instead of an unhandled crash.
                 if (serial.IsOpen) serial.Close();
-                MessageBox.Show("Couldn't talk to the PicoFlasher (" + ex.Message + ")\n\nUnplug and replug the device, then try again", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Couldn't talk to the PicoFlasher (" + ex.Message + ")\n\nUnplug and replug the device, then try again", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
 
@@ -431,7 +431,7 @@ namespace JRunner
 
                 if (flashsize == 268435456 || flashsize == 536870912)
                 {
-                    DialogResult bbdr = MessageBox.Show("A big block nand has been detected\n\nDo you want to dump only the system partition? (recommended)", "Nand Dump Size", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                    DialogResult bbdr = UI.Msg.Show("A big block nand has been detected\n\nDo you want to dump only the system partition? (recommended)", "Nand Dump Size", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
                     if (bbdr == DialogResult.Cancel)
                     {
@@ -449,7 +449,7 @@ namespace JRunner
                     variables.filename = variables.nanddumpfolder + "\\nanddump" + (i + 1) + ".bin";
                     if (File.Exists(variables.filename))
                     {
-                        if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
+                        if (DialogResult.Cancel == UI.Msg.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
                         {
                             Console.WriteLine("Cancelled");
                             Console.WriteLine("");
@@ -663,7 +663,7 @@ namespace JRunner
                     variables.filename = variables.nanddumpfolder + "\\nanddump" + (i + 1) + ".bin";
                     if (File.Exists(variables.filename))
                     {
-                        if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
+                        if (DialogResult.Cancel == UI.Msg.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
                         {
                             Console.WriteLine("Cancelled");
                             Console.WriteLine("");
@@ -962,7 +962,7 @@ namespace JRunner
 
             if (File.Exists(filename))
             {
-                if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
+                if (DialogResult.Cancel == UI.Msg.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
                 {
                     Console.WriteLine("Cancelled");
                     Console.WriteLine("");

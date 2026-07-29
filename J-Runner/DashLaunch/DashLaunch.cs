@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -13,6 +13,7 @@ namespace JRunner
         public DashLaunch()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             string defaultpath = Path.Combine(variables.launchpath, "launch_default.ini");
             if (File.Exists(defaultpath))
             {
@@ -194,13 +195,13 @@ namespace JRunner
         {
             string defaultpath = Path.Combine(variables.launchpath, "launch.ini");
             saveDL(defaultpath);
-            MessageBox.Show("Launch.ini Creation Completed Successfully");
+            UI.Msg.Show("Launch.ini Creation Completed Successfully");
         }
         void btn_Save_Click(object sender, System.EventArgs e)
         {
             string defaultpath = Path.Combine(variables.launchpath, @"launch_default.ini");
             saveDL(defaultpath);
-            MessageBox.Show("Settings saved successfuly");
+            UI.Msg.Show("Settings saved successfuly");
         }
 
         void linkLabel1_Click(object sender, System.EventArgs e)

@@ -1,4 +1,4 @@
-﻿using LibUsbDotNet;
+using LibUsbDotNet;
 using LibUsbDotNet.Main;
 using System;
 using System.Collections.Generic;
@@ -1338,7 +1338,7 @@ namespace JRunner
                     if (sendXSVF(protected_id, MyUsbDevice, writer) == 1)
                     {
                         //Console.WriteLine("Protection check");
-                        if (DialogResult.No == MessageBox.Show("Factory fw sign detected, writing this device is a one way process, and cant be reversed.\n Do you wish to proceed?", "Protected", MessageBoxButtons.YesNo, MessageBoxIcon.Information))
+                        if (DialogResult.No == UI.Msg.Show("Factory fw sign detected, writing this device is a one way process, and cant be reversed.\n Do you wish to proceed?", "Protected", MessageBoxButtons.YesNo, MessageBoxIcon.Information))
                         {
                             return Errors.GeneralError;
                         };

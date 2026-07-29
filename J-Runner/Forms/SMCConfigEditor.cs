@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -37,6 +37,7 @@ namespace JRunner.Forms
         public SMCConfigEditor()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             try
             {
                 smc_config = Nand.Nand.getConfigValues(Nand.Nand.getsmcconfig(variables.filename1, out block_offset), block_offset);
@@ -203,7 +204,7 @@ namespace JRunner.Forms
             catch (Exception ex)
             {
                 if (variables.debugMode) Console.WriteLine(ex.ToString());
-                MessageBox.Show("SMC Config could not be loaded\n\nIt might be corrupt\n\n" + ex.GetType(), "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("SMC Config could not be loaded\n\nIt might be corrupt\n\n" + ex.GetType(), "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
         }
@@ -350,7 +351,7 @@ namespace JRunner.Forms
             {
                 Console.WriteLine(ex.Message);
                 if (variables.debugMode) Console.WriteLine(ex.ToString());
-                MessageBox.Show("SMC Config could not be saved\n\nSome values might be set incorrectly", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("SMC Config could not be saved\n\nSome values might be set incorrectly", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
         }
@@ -388,7 +389,7 @@ namespace JRunner.Forms
         {
             if (loaded && !chkcpufanspeed.Checked)
             {
-                if (DialogResult.No == MessageBox.Show("Setting a fixed fan speed will prevent the SMC from being able to adjust the fan speed\n\nThis may cause SERIOUS DAMAGE to the Xbox\n\nIf you absolutely must, it is STRONGLY suggested to simply lower the fan targets (below) instead\n\nAre you sure you want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+                if (DialogResult.No == UI.Msg.Show("Setting a fixed fan speed will prevent the SMC from being able to adjust the fan speed\n\nThis may cause SERIOUS DAMAGE to the Xbox\n\nIf you absolutely must, it is STRONGLY suggested to simply lower the fan targets (below) instead\n\nAre you sure you want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
                 {
                     chkcpufanspeed.Checked = true;
                     return;
@@ -412,7 +413,7 @@ namespace JRunner.Forms
         {
             if (loaded && !chkgpufanspeed.Checked)
             {
-                if (DialogResult.No == MessageBox.Show("Setting a fixed fan speed will prevent the SMC from being able to adjust the fan speed\n\nThis may cause SERIOUS DAMAGE to the Xbox\n\nIf you absolutely must, it is STRONGLY suggested to simply lower the fan targets (below) instead\n\nAre you sure you want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
+                if (DialogResult.No == UI.Msg.Show("Setting a fixed fan speed will prevent the SMC from being able to adjust the fan speed\n\nThis may cause SERIOUS DAMAGE to the Xbox\n\nIf you absolutely must, it is STRONGLY suggested to simply lower the fan targets (below) instead\n\nAre you sure you want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning))
                 {
                     chkgpufanspeed.Checked = true;
                     return;
@@ -497,7 +498,7 @@ namespace JRunner.Forms
 
             if (val > 127)
             {
-                MessageBox.Show("Temp value must be less than 128", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Temp value must be less than 128", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             else return true;
@@ -624,7 +625,7 @@ namespace JRunner.Forms
         {
             if (save)
             {
-                DialogResult mbr = MessageBox.Show("Do you want to save changes to the SMC Config?", "Unsaved Changes", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult mbr = UI.Msg.Show("Do you want to save changes to the SMC Config?", "Unsaved Changes", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 
                 if (mbr == DialogResult.Yes)
                 {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace JRunner.Forms
@@ -8,6 +8,7 @@ namespace JRunner.Forms
         public CustomXebuild()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
         }
 

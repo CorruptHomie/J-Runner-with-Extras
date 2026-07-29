@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 
@@ -120,7 +120,7 @@ namespace JRunner.Nand
                                 {
                                     if (patch.name != "XLHDD" && patch.name != "XLUSB")
                                     {
-                                        MessageBox.Show(patch.messageBox, "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                                        UI.Msg.Show(patch.messageBox, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                     }
                                 }
 
@@ -185,7 +185,7 @@ namespace JRunner.Nand
                 variables.foundXlUsb = false;
 
                 Console.WriteLine("Nand includes Both XL patches");
-                if (!variables.noPatchWarnings) MessageBox.Show("This NAND has Both XL patches applied\n\nUSBs not formatted via FATXplorer, and all USB memory units, will no longer work\n\nIf you don't want this, generate an image without the Both XL checked under \"Patches/Drive Patches\"", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (!variables.noPatchWarnings) UI.Msg.Show("This NAND has Both XL patches applied\n\nUSBs not formatted via FATXplorer, and all USB memory units, will no longer work\n\nIf you don't want this, generate an image without the Both XL checked under \"Patches/Drive Patches\"", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else if (variables.foundXlHdd)
             {
@@ -212,7 +212,7 @@ namespace JRunner.Nand
 
             if (ntable.patchTable[index].name == patchName)
             {
-                if (!variables.noPatchWarnings) MessageBox.Show(ntable.patchTable[index].messageBox, "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (!variables.noPatchWarnings) UI.Msg.Show(ntable.patchTable[index].messageBox, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
     }

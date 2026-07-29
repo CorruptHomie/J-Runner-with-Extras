@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -16,6 +16,7 @@ namespace JRunner
         public PictureViewer(List<string> mylist)
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             list = mylist;
             this.Text = "Picture Viewer - " + (i + 1) + "  out of " + mylist.Count;
             try

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -6,53 +7,50 @@ using System.Windows.Forms;
 namespace UI
 {
     // Central dark-grey palette + a recursive "reskin whatever's already there" pass.
-    // JRunner's forms are large, hand-positioned legacy WinForms layouts (MainForm.cs alone
-    // is 150+ named controls) - rebuilding every one as a bespoke owner-drawn control isn't
-    // something that can be done reliably without a Windows machine to render and check it
-    // on. Recoloring the existing controls in place, plus a handful of purpose-built
-    // replacements for the pieces the user specifically called out (title bar, progress
-    // bar, menus, confirm/complete dialogs), gets the whole app to a consistent dark theme
-    // without touching every individual Designer.cs by hand.
+    // JRunner's forms are large, hand-positioned legacy WinForms layouts, so rather than
+    // rebuilding every control this recolours the existing ones in place and owner-draws
+    // the handful of control types WinForms gives no usable colour properties for.
     public static class Theme
     {
         // ---- Palette ----
-        public static readonly Color WindowBg = Color.FromArgb(22, 22, 25);      // outermost background
-        public static readonly Color PanelBg = Color.FromArgb(30, 30, 34);       // group boxes, panels
-        public static readonly Color RaisedBg = Color.FromArgb(45, 45, 51);      // buttons, inputs
-        public static readonly Color HoverBg = Color.FromArgb(60, 60, 67);       // hover state
-        public static readonly Color PressedBg = Color.FromArgb(36, 36, 41);     // pressed state
+        public static readonly Color WindowBg = Color.FromArgb(22, 22, 25);
+        public static readonly Color PanelBg = Color.FromArgb(30, 30, 34);
+        public static readonly Color RaisedBg = Color.FromArgb(45, 45, 51);
+        public static readonly Color HoverBg = Color.FromArgb(60, 60, 67);
+        public static readonly Color PressedBg = Color.FromArgb(36, 36, 41);
         public static readonly Color Border = Color.FromArgb(62, 62, 69);
         public static readonly Color BorderSubtle = Color.FromArgb(46, 46, 52);
-        public static readonly Color FieldBg = Color.FromArgb(17, 17, 19);       // text boxes, lists, tracks
+        public static readonly Color FieldBg = Color.FromArgb(17, 17, 19);
         public static readonly Color TextPrimary = Color.FromArgb(232, 232, 235);
         public static readonly Color TextSecondary = Color.FromArgb(150, 150, 158);
-        public static readonly Color Accent = Color.FromArgb(116, 199, 87);      // Xbox-logo green
+        public static readonly Color TextDisabled = Color.FromArgb(110, 110, 118);
+        public static readonly Color Accent = Color.FromArgb(116, 199, 87);
         public static readonly Color AccentDim = Color.FromArgb(70, 128, 55);
         public static readonly Color Danger = Color.FromArgb(214, 90, 80);
-        public static readonly Color ChromeButton = Color.FromArgb(160, 160, 166); // "slightly lighter grey" window glyphs
-        public static readonly Color ChromeButtonHover = Color.FromArgb(205, 205, 210);
+        public static readonly Color ChromeButton = Color.FromArgb(186, 186, 193);
+        public static readonly Color ChromeButtonHover = Color.FromArgb(240, 240, 245);
 
-        // Toggled from Settings ("Enable animations"). Every animated piece (fill progress,
-        // dialog entrance, title bar glyph hover) reads this and, when false, jumps straight
-        // to the end state instead of interpolating - same visuals, no motion.
+        // Controls tagged with this are skipped by ApplyTheme. The theme pass runs after
+        // the title bar is built, and the generic Label/Panel cases would otherwise
+        // overwrite the chrome buttons' deliberate grey and the separator hairline.
+        public const string SkipTag = "ui.theme.skip";
+
+        // Toggled from Settings ("Enable animations"). Only the flashing progress bar
+        // animates; everything else is instant.
         public static bool AnimationsEnabled
         {
             get { return JRunner.variables.animationsEnabled; }
         }
 
-        // Controls tagged with this are left alone by ApplyTheme. Needed because the
-        // theme pass runs after the title bar is built, and the generic Label/Panel cases
-        // below would otherwise overwrite the chrome buttons' deliberate grey and the
-        // separator hairline's colour.
-        public const string SkipTag = "ui.theme.skip";
-
+        // Used only by controls this code creates itself. Deliberately NOT applied to
+        // existing designer controls - the designer sized every button, group box and tab
+        // for its original font, and forcing a different one on them re-wraps their text
+        // and clips it ("Program Timing File" losing "File", etc).
         public static readonly Font UiFont = new Font("Segoe UI", 9F);
         public static readonly Font UiFontBold = new Font("Segoe UI", 9F, FontStyle.Bold);
 
         /// <summary>
-        /// Recursively themes a control and everything under it. Safe to call on a whole
-        /// Form (typically from its constructor, after InitializeComponent) or on a single
-        /// dynamically-created panel.
+        /// Recursively themes a control and everything under it.
         /// </summary>
         public static void ApplyTheme(Control root)
         {
@@ -68,10 +66,6 @@ namespace UI
             {
                 if (c.Tag as string == SkipTag) continue;
                 StyleControl(c);
-                // MenuStrip/ContextMenuStrip/StatusStrip items are themed globally through
-                // JRunnerToolStripRenderer (see UI/JRunnerToolStripRenderer.cs) rather than
-                // walked here - ToolStrip's own Controls collection doesn't contain its
-                // items anyway.
                 if (c.HasChildren) ApplyTheme(c);
             }
         }
@@ -85,6 +79,8 @@ namespace UI
                     break;
 
                 case UI.SplitButton sb:
+                    // Left with WinForms' own flat rendering - it draws a dropdown arrow
+                    // and split divider that owner-drawing would have to reimplement.
                     sb.BackColor = RaisedBg;
                     sb.ForeColor = TextPrimary;
                     sb.FlatStyle = FlatStyle.Flat;
@@ -92,70 +88,97 @@ namespace UI
                     sb.FlatAppearance.BorderSize = 1;
                     sb.FlatAppearance.MouseOverBackColor = HoverBg;
                     sb.FlatAppearance.MouseDownBackColor = PressedBg;
-                    sb.Font = UiFont;
                     break;
 
                 case TextBoxBase tb:
+                    NativeDark.Apply(tb);
                     tb.BackColor = FieldBg;
                     tb.ForeColor = TextPrimary;
-                    tb.BorderStyle = BorderStyle.FixedSingle;
+                    // RichTextBox draws FixedSingle in a system colour that shows up as a
+                    // bright white frame against a dark form, so it goes borderless and the
+                    // surrounding surface provides the edge instead.
+                    tb.BorderStyle = tb is RichTextBox ? BorderStyle.None : BorderStyle.FixedSingle;
+                    break;
+
+                case ComboBox cbx:
+                    // A DropDownList combo paints its closed display area from system
+                    // colours and ignores BackColor entirely - that's the white "Kernel
+                    // Version" box. Owner-drawing is the only thing that reaches it, and it
+                    // covers the dropped-down list items as well.
+                    NativeDark.Apply(cbx);
+                    cbx.FlatStyle = FlatStyle.Flat;
+                    cbx.BackColor = FieldBg;
+                    cbx.ForeColor = TextPrimary;
+                    if (cbx.DrawMode != DrawMode.OwnerDrawFixed)
+                    {
+                        cbx.DrawMode = DrawMode.OwnerDrawFixed;
+                        cbx.DrawItem -= ComboBox_DrawItem;
+                        cbx.DrawItem += ComboBox_DrawItem;
+                    }
                     break;
 
                 case ListControl lc:
+                    NativeDark.Apply(lc);
                     lc.BackColor = FieldBg;
                     lc.ForeColor = TextPrimary;
-                    if (lc is ComboBox cb) cb.FlatStyle = FlatStyle.Flat;
                     break;
 
                 case DataGridView dgv:
+                    // Every one of these has to be set, not just DefaultCellStyle. The
+                    // designer assigns whole DataGridViewCellStyle objects built from
+                    // SystemColors - Window (white) for the default cells,
+                    // GradientActiveCaption (pale blue) for alternating rows, and Highlight
+                    // for selection, which follows the user's Windows accent colour and is
+                    // why the selected cell came out green. Row and alternating-row styles
+                    // take precedence over DefaultCellStyle, so theming only the latter
+                    // left the grid looking untouched.
+                    NativeDark.Apply(dgv);
                     dgv.BackgroundColor = PanelBg;
-                    dgv.GridColor = Border;
+                    dgv.GridColor = BorderSubtle;
                     dgv.ForeColor = TextPrimary;
-                    dgv.DefaultCellStyle.BackColor = FieldBg;
-                    dgv.DefaultCellStyle.ForeColor = TextPrimary;
-                    dgv.DefaultCellStyle.SelectionBackColor = AccentDim;
-                    dgv.ColumnHeadersDefaultCellStyle.BackColor = RaisedBg;
-                    dgv.ColumnHeadersDefaultCellStyle.ForeColor = TextPrimary;
-                    dgv.EnableHeadersVisualStyles = false;
                     dgv.BorderStyle = BorderStyle.None;
+                    dgv.EnableHeadersVisualStyles = false;
+                    dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+                    dgv.RowHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+
+                    StyleGridCells(dgv.DefaultCellStyle, FieldBg);
+                    StyleGridCells(dgv.RowsDefaultCellStyle, FieldBg);
+                    // Kept a touch lighter so the zebra striping still reads.
+                    StyleGridCells(dgv.AlternatingRowsDefaultCellStyle, Color.FromArgb(26, 26, 30));
+
+                    StyleGridCells(dgv.ColumnHeadersDefaultCellStyle, RaisedBg);
+                    dgv.ColumnHeadersDefaultCellStyle.SelectionBackColor = RaisedBg;
+                    dgv.ColumnHeadersDefaultCellStyle.SelectionForeColor = TextPrimary;
+
+                    StyleGridCells(dgv.RowHeadersDefaultCellStyle, RaisedBg);
+                    dgv.RowHeadersDefaultCellStyle.ForeColor = TextSecondary;
+                    dgv.RowHeadersDefaultCellStyle.SelectionBackColor = HoverBg;
+                    dgv.RowHeadersDefaultCellStyle.SelectionForeColor = TextPrimary;
                     break;
 
                 case GroupBox gb:
                     gb.BackColor = PanelBg;
                     gb.ForeColor = TextSecondary;
-                    gb.Font = UiFont;
                     // GroupBox draws its own etched 3D border from system colours, which
-                    // reads as a bright line on a dark background. Painting over it is the
-                    // only way to change it - GroupBox has no FlatStyle.
+                    // reads as a bright line on a dark background, and offers no FlatStyle.
                     gb.Paint -= GroupBox_Paint;
                     gb.Paint += GroupBox_Paint;
                     break;
 
-                case Panel p:
-                    // Leave alone: panels carrying a deliberate light background for
-                    // embedded diagrams/images, and hairline separator panels whose colour
-                    // is the whole point of them.
-                    if (p.BackColor != Color.White && p.Height > 2 && p.Width > 2) p.BackColor = PanelBg;
-                    break;
-
-                case Label lbl:
-                    lbl.ForeColor = TextPrimary;
-                    break;
-
                 case CheckBox chk:
                     chk.ForeColor = TextPrimary;
-                    chk.Font = UiFont;
                     chk.FlatStyle = FlatStyle.Flat;
-                    chk.FlatAppearance.CheckedBackColor = Accent;
-                    chk.FlatAppearance.BorderColor = Border;
+                    chk.FlatAppearance.BorderSize = 0;
+                    chk.Paint -= CheckBox_Paint;
+                    chk.Paint += CheckBox_Paint;
                     break;
 
                 case RadioButton rb:
                     rb.ForeColor = TextPrimary;
-                    rb.Font = UiFont;
                     rb.FlatStyle = FlatStyle.Flat;
-                    rb.FlatAppearance.CheckedBackColor = Accent;
-                    rb.FlatAppearance.BorderColor = Border;
+                    rb.FlatAppearance.BorderSize = 0;
+                    rb.Paint -= RadioButton_Paint;
+                    rb.Paint += RadioButton_Paint;
                     break;
 
                 case NumericUpDown nud:
@@ -165,21 +188,28 @@ namespace UI
                     break;
 
                 case StatusStrip ss:
-                    // Background comes from JRunnerToolStripRenderer, but each item still
-                    // carries the default near-black system fore colour, which is unreadable
-                    // once the strip goes dark.
                     ss.BackColor = PanelBg;
                     foreach (ToolStripItem item in ss.Items) item.ForeColor = TextPrimary;
                     break;
 
+                // DarkTabControl paints its own tabs and frame; only plain TabControls
+                // need the DrawItem hookup here.
+                case DarkTabControl dtc:
+                    // Catches the tab strip's scroll-arrow buttons, which Windows creates
+                    // as their own child window when the tabs overflow.
+                    NativeDark.Apply(dtc);
+                    foreach (TabPage dp in dtc.TabPages)
+                    {
+                        dp.BackColor = PanelBg;
+                        dp.ForeColor = TextPrimary;
+                    }
+                    break;
+
                 case TabControl tc:
-                    tc.Font = UiFont;
                     if (tc.DrawMode != TabDrawMode.OwnerDrawFixed)
                     {
                         // WinForms draws tab headers with system colours and offers no
-                        // colour properties for them, so they stay light no matter what
-                        // BackColor is set - owner-drawing them is the only way to make
-                        // them match the rest of the theme.
+                        // colour properties for them - owner-drawing is the only option.
                         tc.DrawMode = TabDrawMode.OwnerDrawFixed;
                         tc.DrawItem -= TabControl_DrawItem;
                         tc.DrawItem += TabControl_DrawItem;
@@ -191,12 +221,275 @@ namespace UI
                     }
                     break;
 
+                case UserControl uc:
+                    // UserControl isn't a Panel and had no case, so panels like NandTools /
+                    // XeBuildPanel / NandInfo kept SystemColors.Control - a light grey that
+                    // shows through anywhere their children don't cover.
+                    uc.BackColor = PanelBg;
+                    uc.ForeColor = TextPrimary;
+                    break;
+
+                case PictureBox pb:
+                    // Left to whatever owns it - device images are drawn on their own card.
+                    break;
+
+                case Panel sp when sp.AutoScroll:
+                    NativeDark.Apply(sp);
+                    sp.BackColor = PanelBg;
+                    break;
+
+                case Panel p:
+                    // Only hairline separators are left alone - their colour is the point.
+                    // The white-panel exemption that used to be here was protecting nothing
+                    // (no Panel in the project is white; the white surfaces were AeroWizard
+                    // controls, handled below) and was leaving light patches behind.
+                    if (p.Height > 2 && p.Width > 2) p.BackColor = PanelBg;
+                    break;
+
+                case Label lbl:
+                    lbl.ForeColor = TextPrimary;
+                    break;
+
                 case ProgressBar pgb:
-                    // XboxFillProgressBar (a ProgressBar subclass) paints itself; nothing to
-                    // set here for a plain ProgressBar beyond leaving the OS chrome alone.
+                    // XboxFillProgressBar paints itself.
+                    break;
+
+                default:
+                    // AeroWizard.WizardControl / WizardPage - a third-party control used by
+                    // Report Issue, Restore Files, Create Donor, Keyvault Decrypter and the
+                    // whole update wizard chain. Its page area is set to white in the
+                    // designers, which is what left those windows light. Matched by
+                    // namespace rather than type so this doesn't take a compile-time
+                    // dependency on the assembly.
+                    if (c.GetType().Namespace == "AeroWizard")
+                    {
+                        c.BackColor = PanelBg;
+                        c.ForeColor = TextPrimary;
+                        StyleThirdPartyBackColors(c);
+                    }
                     break;
             }
         }
+
+        // AeroWizard is a compiled NuGet dependency that paints its own header and content
+        // area, and WizardControl ignores BackColor for those - which is why the page went
+        // dark but the surround stayed white. There's no documented way to recolour them,
+        // so this sets any additional "...BackColor" property the control happens to
+        // expose. Best-effort by design: if the assembly has none, nothing happens.
+        private static void StyleThirdPartyBackColors(Control c)
+        {
+            try
+            {
+                foreach (System.Reflection.PropertyInfo pi in c.GetType().GetProperties())
+                {
+                    if (!pi.CanWrite || pi.PropertyType != typeof(Color)) continue;
+                    if (!pi.Name.EndsWith("BackColor", StringComparison.Ordinal)) continue;
+                    if (pi.Name == "BackColor") continue;   // already set above
+                    pi.SetValue(c, PanelBg, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (JRunner.variables.debugme) Console.WriteLine("Theme: " + ex.Message);
+            }
+        }
+
+        private static void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            ComboBox cb = (ComboBox)sender;
+            bool selected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+
+            using (SolidBrush bg = new SolidBrush(selected ? AccentDim : FieldBg))
+                e.Graphics.FillRectangle(bg, e.Bounds);
+
+            if (e.Index >= 0 && e.Index < cb.Items.Count)
+            {
+                TextRenderer.DrawText(e.Graphics, cb.GetItemText(cb.Items[e.Index]), cb.Font, e.Bounds,
+                    cb.Enabled ? TextPrimary : TextDisabled,
+                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
+            }
+        }
+
+        private static void StyleGridCells(DataGridViewCellStyle style, Color back)
+        {
+            if (style == null) return;
+            style.BackColor = back;
+            style.ForeColor = TextPrimary;
+            style.SelectionBackColor = AccentDim;
+            style.SelectionForeColor = TextPrimary;
+        }
+
+        // ---- Buttons -------------------------------------------------------------
+        // Previously these were clipped to a rounded Region. Regions aren't antialiased,
+        // so the corners came out visibly jagged. Owner-drawing gives smooth corners and
+        // full control over the disabled/hover/pressed states.
+
+        private class BtnState { public bool Hover; public bool Down; }
+        private static readonly Dictionary<Button, BtnState> _btnStates = new Dictionary<Button, BtnState>();
+
+        private static void StyleButton(Button btn)
+        {
+            // A button with neither text nor image is a colour swatch, not a button -
+            // Settings' log-colour picker is a row of these. Repainting them in the theme
+            // colour would erase the only thing they convey, so they keep their fill and
+            // just get a flat border.
+            if (string.IsNullOrEmpty(btn.Text) && btn.Image == null)
+            {
+                btn.FlatStyle = FlatStyle.Flat;
+                btn.FlatAppearance.BorderColor = Border;
+                btn.FlatAppearance.BorderSize = 1;
+                return;
+            }
+
+            btn.ForeColor = TextPrimary;
+            btn.BackColor = RaisedBg;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+
+            // Buttons carrying an image keep WinForms' own rendering - owner-drawing them
+            // would mean reimplementing image/text layout for no real gain.
+            if (btn.Image != null)
+            {
+                btn.FlatAppearance.BorderColor = Border;
+                btn.FlatAppearance.BorderSize = 1;
+                btn.FlatAppearance.MouseOverBackColor = HoverBg;
+                btn.FlatAppearance.MouseDownBackColor = PressedBg;
+                return;
+            }
+
+            // Suppress the built-in hover/press fills; the Paint handler draws them.
+            btn.FlatAppearance.MouseOverBackColor = RaisedBg;
+            btn.FlatAppearance.MouseDownBackColor = RaisedBg;
+
+            if (_btnStates.ContainsKey(btn)) return;
+
+            BtnState st = new BtnState();
+            _btnStates[btn] = st;
+            btn.MouseEnter += (s, e) => { st.Hover = true; btn.Invalidate(); };
+            btn.MouseLeave += (s, e) => { st.Hover = false; st.Down = false; btn.Invalidate(); };
+            btn.MouseDown += (s, e) => { st.Down = true; btn.Invalidate(); };
+            btn.MouseUp += (s, e) => { st.Down = false; btn.Invalidate(); };
+            btn.EnabledChanged += (s, e) => btn.Invalidate();
+            btn.Paint += Button_Paint;
+        }
+
+        private static void Button_Paint(object sender, PaintEventArgs e)
+        {
+            Button b = (Button)sender;
+            if (b.Width < 6 || b.Height < 6) return;
+
+            BtnState st;
+            if (!_btnStates.TryGetValue(b, out st)) st = new BtnState();
+
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Repaint the parent's colour first so the rounded corners blend instead of
+            // leaving the button's own square fill showing through.
+            using (SolidBrush parent = new SolidBrush(b.Parent != null ? b.Parent.BackColor : WindowBg))
+                g.FillRectangle(parent, b.ClientRectangle);
+
+            Color fill = !b.Enabled ? PanelBg : st.Down ? PressedBg : st.Hover ? HoverBg : RaisedBg;
+            Color line = !b.Enabled ? BorderSubtle : st.Hover ? Border : BorderSubtle;
+            int radius = Math.Max(3, Math.Min(8, b.Height / 5));
+
+            using (GraphicsPath path = MessageDialog.RoundedPath(new Rectangle(0, 0, b.Width - 1, b.Height - 1), radius))
+            using (SolidBrush fb = new SolidBrush(fill))
+            using (Pen pen = new Pen(line))
+            {
+                g.FillPath(fb, path);
+                g.DrawPath(pen, path);
+            }
+
+            TextRenderer.DrawText(g, b.Text, b.Font, b.ClientRectangle,
+                b.Enabled ? TextPrimary : TextDisabled,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak);
+        }
+
+        // ---- Check boxes / radio buttons -----------------------------------------
+        // The system-drawn glyphs are near-white blocks on a dark surface and their
+        // checked state is almost impossible to read, so both are drawn here instead.
+
+        // Only the glyph itself is repainted - the caption is left exactly as WinForms
+        // drew it. Drawing the caption here was what truncated it: these controls are
+        // AutoSize, so their width is whatever the native glyph+text layout needed, and
+        // re-laying the text out even slightly differently pushed it past the edge. Native
+        // text also keeps font, alignment and disabled-greying correct for free.
+        //
+        // 13px is the native glyph size; the strip is 15px so the repaint fully covers it
+        // without reaching the caption, which starts at x=16.
+        private const int GlyphSize = 13;
+        private const int GlyphStrip = 15;
+
+        private static Rectangle GlyphRect(Control c)
+        {
+            return new Rectangle(0, Math.Max(0, (c.Height - GlyphSize) / 2), GlyphSize, GlyphSize);
+        }
+
+        // Wipes just the glyph strip back to the parent colour, leaving the natively-drawn
+        // caption to the right of it untouched.
+        private static void ClearGlyphStrip(Graphics g, Control c)
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            using (SolidBrush parent = new SolidBrush(c.Parent != null ? c.Parent.BackColor : PanelBg))
+                g.FillRectangle(parent, new Rectangle(0, 0, GlyphStrip, c.Height));
+        }
+
+        private static void RadioButton_Paint(object sender, PaintEventArgs e)
+        {
+            RadioButton rb = (RadioButton)sender;
+            Graphics g = e.Graphics;
+            ClearGlyphStrip(g, rb);
+
+            Rectangle box = GlyphRect(rb);
+            using (SolidBrush bg = new SolidBrush(rb.Enabled ? FieldBg : PanelBg))
+            using (Pen pen = new Pen(rb.Checked ? Accent : Border))
+            {
+                g.FillEllipse(bg, box);
+                g.DrawEllipse(pen, box);
+            }
+
+            if (rb.Checked)
+            {
+                using (SolidBrush a = new SolidBrush(rb.Enabled ? Accent : TextDisabled))
+                    g.FillEllipse(a, Rectangle.Inflate(box, -4, -4));
+            }
+        }
+
+        private static void CheckBox_Paint(object sender, PaintEventArgs e)
+        {
+            CheckBox chk = (CheckBox)sender;
+            Graphics g = e.Graphics;
+            ClearGlyphStrip(g, chk);
+
+            Rectangle box = GlyphRect(chk);
+            using (GraphicsPath path = MessageDialog.RoundedPath(box, 3))
+            using (SolidBrush bg = new SolidBrush(chk.Checked && chk.Enabled ? Accent : FieldBg))
+            using (Pen pen = new Pen(chk.Checked && chk.Enabled ? Accent : Border))
+            {
+                g.FillPath(bg, path);
+                g.DrawPath(pen, path);
+            }
+
+            if (chk.Checked)
+            {
+                // Tick drawn as two strokes rather than a glyph font, so it scales with the
+                // box and stays crisp.
+                using (Pen tick = new Pen(chk.Enabled ? Color.FromArgb(20, 24, 18) : TextDisabled, 2f))
+                {
+                    tick.StartCap = LineCap.Round;
+                    tick.EndCap = LineCap.Round;
+                    g.DrawLines(tick, new[]
+                    {
+                        new Point(box.Left + 3, box.Top + 6),
+                        new Point(box.Left + 5, box.Top + 9),
+                        new Point(box.Left + 10, box.Top + 4),
+                    });
+                }
+            }
+        }
+
+        // ---- Tabs / group boxes ---------------------------------------------------
 
         private static void TabControl_DrawItem(object sender, DrawItemEventArgs e)
         {
@@ -216,9 +509,9 @@ namespace UI
                     e.Graphics.FillRectangle(a, r.Left, r.Bottom - 2, r.Width, 2);
             }
 
-            TextRenderer.DrawText(e.Graphics, page.Text, UiFont, r,
+            TextRenderer.DrawText(e.Graphics, page.Text, tc.Font, r,
                 selected ? TextPrimary : TextSecondary,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
         }
 
         private static void GroupBox_Paint(object sender, PaintEventArgs e)
@@ -232,78 +525,25 @@ namespace UI
             using (SolidBrush bg = new SolidBrush(gb.BackColor))
                 g.FillRectangle(bg, gb.ClientRectangle);
 
-            int top = string.IsNullOrEmpty(gb.Text) ? 0 : gb.Font.Height / 2;
+            bool titled = !string.IsNullOrEmpty(gb.Text);
+            Size ts = titled ? TextRenderer.MeasureText(gb.Text, gb.Font) : Size.Empty;
+            int top = titled ? ts.Height / 2 : 0;
+
             Rectangle border = new Rectangle(0, top, gb.Width - 1, gb.Height - top - 1);
-            if (border.Width > 2 && border.Height > 2)
+            if (border.Width > 4 && border.Height > 4)
             {
                 using (GraphicsPath p = MessageDialog.RoundedPath(border, 6))
-                using (Pen pen = new Pen(Border))
+                using (Pen pen = new Pen(BorderSubtle))
                     g.DrawPath(pen, p);
             }
 
-            if (!string.IsNullOrEmpty(gb.Text))
+            if (titled)
             {
-                Size ts = TextRenderer.MeasureText(gb.Text, gb.Font);
-                using (SolidBrush bg = new SolidBrush(gb.BackColor))
-                    g.FillRectangle(bg, new Rectangle(10, 0, ts.Width + 6, ts.Height));
-                TextRenderer.DrawText(g, gb.Text, gb.Font, new Point(12, 0), TextSecondary);
+                // Punch a gap in the border line for the caption, then draw it.
+                using (SolidBrush bg2 = new SolidBrush(gb.BackColor))
+                    g.FillRectangle(bg2, new Rectangle(9, top - 1, ts.Width + 6, ts.Height + 2));
+                TextRenderer.DrawText(g, gb.Text, gb.Font, new Point(11, 0), TextSecondary);
             }
-        }
-
-        // Flat-style theming for ordinary buttons, mirroring the SplitButton case above
-        // (same palette, same flat border/hover/pressed states) so every push button reads
-        // consistently regardless of which control type it actually is.
-        private static void StyleButton(Button btn)
-        {
-            btn.BackColor = RaisedBg;
-            btn.ForeColor = TextPrimary;
-            btn.FlatStyle = FlatStyle.Flat;
-            // Border is drawn in Button_Paint instead - the built-in flat border is a hard
-            // rectangle and would sit outside the rounded region below.
-            btn.FlatAppearance.BorderSize = 0;
-            btn.FlatAppearance.MouseOverBackColor = HoverBg;
-            btn.FlatAppearance.MouseDownBackColor = PressedBg;
-            btn.Font = UiFont;
-            RoundButton(btn);
-        }
-
-        // Clipping each button to a rounded region keeps WinForms' own flat fill (and its
-        // hover/pressed colours, which are already the ones we want) while losing the hard
-        // 90-degree corners that make a stock WinForms form look dated.
-        private static void RoundButton(Button btn)
-        {
-            btn.Resize -= Button_Resize;
-            btn.Resize += Button_Resize;
-            btn.Paint -= Button_Paint;
-            btn.Paint += Button_Paint;
-            UpdateButtonRegion(btn);
-        }
-
-        private static void Button_Resize(object sender, EventArgs e)
-        {
-            UpdateButtonRegion((Button)sender);
-        }
-
-        private static int ButtonRadius(Control b)
-        {
-            return Math.Max(3, Math.Min(9, b.Height / 4));
-        }
-
-        private static void UpdateButtonRegion(Button b)
-        {
-            if (b.Width < 6 || b.Height < 6) return;
-            using (GraphicsPath p = MessageDialog.RoundedPath(new Rectangle(0, 0, b.Width, b.Height), ButtonRadius(b)))
-                b.Region = new Region(p);
-        }
-
-        private static void Button_Paint(object sender, PaintEventArgs e)
-        {
-            Button b = (Button)sender;
-            if (b.Width < 6 || b.Height < 6) return;
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            using (GraphicsPath p = MessageDialog.RoundedPath(new Rectangle(0, 0, b.Width - 1, b.Height - 1), ButtonRadius(b)))
-            using (Pen pen = new Pen(b.Enabled ? Border : BorderSubtle))
-                e.Graphics.DrawPath(pen, p);
         }
     }
 }

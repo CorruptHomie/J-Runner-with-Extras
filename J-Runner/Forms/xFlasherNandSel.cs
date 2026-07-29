@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace JRunner.Forms
@@ -12,6 +12,7 @@ namespace JRunner.Forms
         public xFlasherNandSel()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private void btn16_Click(object sender, EventArgs e)

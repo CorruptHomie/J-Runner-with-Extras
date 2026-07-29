@@ -10,7 +10,7 @@ namespace UI
     /// <summary>
     /// Small dark, rounded, borderless modal used for the two dialogs the user specifically
     /// asked for (flash confirmation, flash-complete reminder) and reusable anywhere else in
-    /// the app that wants a themed MessageBox.Show() replacement.
+    /// the app that wants a themed UI.Msg.Show() replacement.
     /// </summary>
     [System.ComponentModel.DesignerCategory("")]
     public class MessageDialog : Form

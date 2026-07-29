@@ -1,4 +1,4 @@
-﻿namespace JRunner
+namespace JRunner
 {
     partial class DashLaunch
     {
@@ -127,7 +127,7 @@
             this.Dumpfile = new System.Windows.Forms.TextBox();
             this.checkBox39 = new System.Windows.Forms.CheckBox();
             this.checkBox40 = new System.Windows.Forms.CheckBox();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabControl1 = new UI.DarkTabControl();
             this.tabSettings = new System.Windows.Forms.TabPage();
             this.tabPaths = new System.Windows.Forms.TabPage();
             this.tabPlugins = new System.Windows.Forms.TabPage();
@@ -1596,7 +1596,7 @@
         private System.Windows.Forms.CheckBox checkBox33;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.CheckBox checkBox34;
-        private System.Windows.Forms.TabControl tabControl1;
+        private UI.DarkTabControl tabControl1;
         private System.Windows.Forms.TabPage tabSettings;
         private System.Windows.Forms.TabPage tabPaths;
         private System.Windows.Forms.TabPage tabPlugins;

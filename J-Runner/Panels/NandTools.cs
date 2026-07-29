@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Media;
 using System.Threading;
 using System.Windows.Forms;
@@ -11,6 +13,7 @@ namespace JRunner.Panels
         public NandTools()
         {
             InitializeComponent();
+            SetupDeviceCard();
         }
 
         public NandTools(string lptport)
@@ -75,9 +78,82 @@ namespace JRunner.Panels
             return btnWriteECC.Text;
         }
 
+        // The connected-flasher photos are dark boards shot on transparent/white, so on a
+        // dark panel they were invisible. Rather than sitting them on a white rectangle -
+        // which punched a hole straight through the colour palette - the picture box is
+        // drawn as a soft grey card and the photo is composited onto it with a modest
+        // brightness lift, so every device reads clearly and nothing leaves the palette.
+        private Image _deviceImage;
+
+        private void SetupDeviceCard()
+        {
+            pBoxDevice.BackColor = Color.Transparent;
+            pBoxDevice.Paint += DeviceCard_Paint;
+        }
+
         public void setImage(Image m)
         {
-            pBoxDevice.Image = m;
+            _deviceImage = m;
+            // Kept null so PictureBox doesn't draw the raw photo underneath the card.
+            pBoxDevice.Image = null;
+            pBoxDevice.Invalidate();
+        }
+
+        private void DeviceCard_Paint(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            Rectangle bounds = pBoxDevice.ClientRectangle;
+            if (bounds.Width < 8 || bounds.Height < 8) return;
+
+            using (SolidBrush parent = new SolidBrush(UI.Theme.PanelBg))
+                g.FillRectangle(parent, bounds);
+
+            Rectangle card = new Rectangle(bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
+            using (GraphicsPath path = UI.MessageDialog.RoundedPath(card, 8))
+            using (LinearGradientBrush fill = new LinearGradientBrush(
+                       card, Color.FromArgb(104, 107, 116), Color.FromArgb(66, 68, 76), 90f))
+            using (Pen edge = new Pen(UI.Theme.Border))
+            {
+                g.FillPath(fill, path);
+                g.DrawPath(edge, path);
+            }
+
+            if (_deviceImage == null)
+            {
+                TextRenderer.DrawText(g, "No flasher detected", UI.Theme.UiFont, bounds,
+                    Color.FromArgb(196, 199, 206),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                return;
+            }
+
+            // Fit (never upscale past the card) and centre.
+            Rectangle inner = Rectangle.Inflate(card, -10, -10);
+            float scale = Math.Min((float)inner.Width / _deviceImage.Width,
+                                   (float)inner.Height / _deviceImage.Height);
+            int w = Math.Max(1, (int)(_deviceImage.Width * scale));
+            int h = Math.Max(1, (int)(_deviceImage.Height * scale));
+            Rectangle dest = new Rectangle(inner.X + (inner.Width - w) / 2,
+                                           inner.Y + (inner.Height - h) / 2, w, h);
+
+            // Slight lift so very dark boards separate from the card without washing out
+            // the lighter device photos.
+            ColorMatrix cm = new ColorMatrix(new float[][]
+            {
+                new float[] {1.12f, 0, 0, 0, 0},
+                new float[] {0, 1.12f, 0, 0, 0},
+                new float[] {0, 0, 1.12f, 0, 0},
+                new float[] {0, 0, 0, 1, 0},
+                new float[] {0.04f, 0.04f, 0.04f, 0, 1},
+            });
+            using (ImageAttributes attr = new ImageAttributes())
+            {
+                attr.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                g.DrawImage(_deviceImage, dest, 0, 0, _deviceImage.Width, _deviceImage.Height,
+                            GraphicsUnit.Pixel, attr);
+            }
         }
 
         public delegate void ClickedRead();
@@ -179,19 +255,19 @@ namespace JRunner.Panels
         {
             if (eeCount == 5)
             {
-                MessageBox.Show("Wtf are you doing!?!?!", "Confusion!", MessageBoxButtons.OK, MessageBoxIcon.Question);
+                UI.Msg.Show("Wtf are you doing!?!?!", "Confusion!", MessageBoxButtons.OK, MessageBoxIcon.Question);
             }
             else if (eeCount == 8)
             {
-                MessageBox.Show("#%&@ Stop doing that!!!!!", "#%&@", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("#%&@ Stop doing that!!!!!", "#%&@", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else if (eeCount == 10)
             {
-                MessageBox.Show("Cut that shit out!!!!!", "You're Annoying!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Cut that shit out!!!!!", "You're Annoying!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else if (eeCount == 12)
             {
-                MessageBox.Show("CLICK ME AGAIN!\nI DARE YOU!", "You Gon Get It", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("CLICK ME AGAIN!\nI DARE YOU!", "You Gon Get It", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else if (eeCount == 13)
             {

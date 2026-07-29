@@ -1,4 +1,4 @@
-﻿using System.Windows.Forms;
+using System.Windows.Forms;
 
 
 namespace JRunner
@@ -166,7 +166,6 @@ namespace JRunner
             this.loadJTAGXeLLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.injectXeLLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparatorXeLL = new System.Windows.Forms.ToolStripSeparator();
-            this.customizeThemeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.xellCustomizerWebToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.xFlasherToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.installDriversToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1299,7 +1298,6 @@ namespace JRunner
             this.loadJTAGXeLLToolStripMenuItem,
             this.injectXeLLToolStripMenuItem,
             this.toolStripSeparatorXeLL,
-            this.customizeThemeToolStripMenuItem,
             this.xellCustomizerWebToolStripMenuItem});
             this.xeLLToolStripMenuItem.Name = "xeLLToolStripMenuItem";
             this.xeLLToolStripMenuItem.Size = new System.Drawing.Size(218, 22);
@@ -1331,18 +1329,11 @@ namespace JRunner
             this.toolStripSeparatorXeLL.Name = "toolStripSeparatorXeLL";
             this.toolStripSeparatorXeLL.Size = new System.Drawing.Size(167, 6);
             //
-            // customizeThemeToolStripMenuItem
-            //
-            this.customizeThemeToolStripMenuItem.Name = "customizeThemeToolStripMenuItem";
-            this.customizeThemeToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
-            this.customizeThemeToolStripMenuItem.Text = "Customize Theme (Quick)";
-            this.customizeThemeToolStripMenuItem.Click += new System.EventHandler(this.customizeThemeToolStripMenuItem_Click);
-            //
             // xellCustomizerWebToolStripMenuItem
             //
             this.xellCustomizerWebToolStripMenuItem.Name = "xellCustomizerWebToolStripMenuItem";
             this.xellCustomizerWebToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
-            this.xellCustomizerWebToolStripMenuItem.Text = "XeLL Customizer (Web)";
+            this.xellCustomizerWebToolStripMenuItem.Text = "XeLL Customizer";
             this.xellCustomizerWebToolStripMenuItem.Click += new System.EventHandler(this.xellCustomizerWebToolStripMenuItem_Click);
             // 
             // xFlasherToolStripMenuItem
@@ -1589,7 +1580,6 @@ namespace JRunner
         private ToolStripMenuItem loadJTAGXeLLToolStripMenuItem;
         private ToolStripMenuItem injectXeLLToolStripMenuItem;
         private ToolStripSeparator toolStripSeparatorXeLL;
-        private ToolStripMenuItem customizeThemeToolStripMenuItem;
         private ToolStripMenuItem xellCustomizerWebToolStripMenuItem;
         private ToolStripMenuItem mTXUSBFirmwareUtilityToolStripMenuItem;
         private ToolStripMenuItem corona4GBToolStripMenuItem;

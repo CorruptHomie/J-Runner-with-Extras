@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -21,6 +21,7 @@ namespace JRunner
         public ConsoleSelect()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
 
             btnXenon.DialogResult = DialogResult.OK;
             btnXenon64.DialogResult = DialogResult.OK;

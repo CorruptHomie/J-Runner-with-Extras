@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
@@ -171,11 +171,11 @@ namespace JRunner.Forms
             DialogResult d;
             if (variables.discordrpc)
             {
-                d = MessageBox.Show("J-Runner must be restarted to enable DiscordRPC!" + Environment.NewLine + Environment.NewLine + "Do you want to restart J-Runner now?", "DiscordRPC", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                d = UI.Msg.Show("J-Runner must be restarted to enable DiscordRPC!" + Environment.NewLine + Environment.NewLine + "Do you want to restart J-Runner now?", "DiscordRPC", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
             else
             {
-                d = MessageBox.Show("J-Runner must be restarted to disable DiscordRPC!" + Environment.NewLine + Environment.NewLine + "Do you want to restart J-Runner now?", "DiscordRPC", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                d = UI.Msg.Show("J-Runner must be restarted to disable DiscordRPC!" + Environment.NewLine + Environment.NewLine + "Do you want to restart J-Runner now?", "DiscordRPC", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
             if (d == DialogResult.Yes)
             {

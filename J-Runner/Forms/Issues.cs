@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 
@@ -9,6 +9,7 @@ namespace JRunner
         public Issues()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             IssueWizard.Cancelling += WizardCancelled;
             IssueWizard.Finished += WizardFinished;
         }

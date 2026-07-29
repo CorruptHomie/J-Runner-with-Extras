@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -20,6 +20,7 @@ namespace JRunner
         public Splash()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             Region = Region.FromHrgn(RoundCorner(0, 0, Width, Height, 21, 21));
         }
     }

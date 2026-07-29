@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace JRunner.Forms
@@ -9,6 +9,7 @@ namespace JRunner.Forms
         public Timing()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             instructionLabel.Hide();
         }
 

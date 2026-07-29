@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -240,7 +240,7 @@ namespace JRunner
                     Console.WriteLine(((Demon_Switch)flas).ToString());
                     if (nand[0] != flas)
                     {
-                        if (DialogResult.Cancel == MessageBox.Show(((Demon_Switch)flas).ToString() + " Nand is selected, Proceed?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+                        if (DialogResult.Cancel == UI.Msg.Show(((Demon_Switch)flas).ToString() + " Nand is selected, Proceed?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                         {
                             Console.WriteLine("Cancelled");
                             Console.WriteLine("");
@@ -380,7 +380,7 @@ namespace JRunner
                 Console.WriteLine(((Demon_Switch)flas).ToString());
                 if (nand[0] != flas)
                 {
-                    if (DialogResult.Cancel == MessageBox.Show(((Demon_Switch)flas).ToString() + " Nand is selected, Proceed?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+                    if (DialogResult.Cancel == UI.Msg.Show(((Demon_Switch)flas).ToString() + " Nand is selected, Proceed?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                     {
                         Console.WriteLine("Cancelled");
                         Console.WriteLine("");
@@ -525,7 +525,7 @@ namespace JRunner
                 Console.WriteLine(((Demon_Switch)flas).ToString());
                 if (nand[0] != flas)
                 {
-                    if (DialogResult.Cancel == MessageBox.Show(((Demon_Switch)flas).ToString() + " Nand is selected, Proceed?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+                    if (DialogResult.Cancel == UI.Msg.Show(((Demon_Switch)flas).ToString() + " Nand is selected, Proceed?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                     {
                         Console.WriteLine("Cancelled");
                         Console.WriteLine("");
@@ -960,7 +960,7 @@ namespace JRunner
                 get_external_flash(true);
                 if (flash != tmpflash)
                 {
-                    if (DialogResult.Cancel == MessageBox.Show(flash + " Nand is selected, Proceed?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+                    if (DialogResult.Cancel == UI.Msg.Show(flash + " Nand is selected, Proceed?", "Continue?", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                     {
                         Console.WriteLine("Cancelled");
                         Console.WriteLine("");

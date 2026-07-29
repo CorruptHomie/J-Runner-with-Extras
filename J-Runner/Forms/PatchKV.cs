@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -13,6 +13,7 @@ namespace JRunner
         public PatchKV()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             this.AcceptButton = btnOK;
             this.CancelButton = btnCancel;
             btnOK.DialogResult = DialogResult.OK;
@@ -49,7 +50,7 @@ namespace JRunner
 
                 if (txtSerial.TextLength == 0)
                 {
-                    MessageBox.Show("Could not open KV for editing\n\nMake sure the correct CPU Key is entered", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("Could not open KV for editing\n\nMake sure the correct CPU Key is entered", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.DialogResult = DialogResult.None;
                     this.Close();
                     return;
@@ -66,7 +67,7 @@ namespace JRunner
                 DateTime mfrTest;
                 if (!DateTime.TryParseExact(txtMfrDate.Text, "MM-dd-yy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out mfrTest))
                 {
-                    MessageBox.Show("MFR Date is not in MM-DD-YY format", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("MFR Date is not in MM-DD-YY format", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.DialogResult = DialogResult.None;
                     return;
                 }
