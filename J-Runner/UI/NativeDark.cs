@@ -30,6 +30,14 @@ namespace UI
         [DllImport("user32.dll")]
         private static extern bool EnumChildWindows(IntPtr hWnd, EnumWindowsProc callback, IntPtr lParam);
 
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hWnd, int attribute, ref int value, int size);
+
+        // 20 on Windows 10 2004+ and Windows 11; 19 on the 1809-1909 builds where it was
+        // still undocumented. Try the current one, fall back to the old one.
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE_LEGACY = 19;
+
         private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
         private const int APPMODE_ALLOW_DARK = 1;
@@ -55,6 +63,44 @@ namespace UI
             {
                 if (JRunner.variables.debugme) Console.WriteLine("NativeDark: " + ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Darkens a window's title bar. The caption is drawn by the window manager, not by
+        /// WinForms, so no BackColor reaches it - a form with a native border keeps a white
+        /// title bar on an otherwise dark window until DWM is told otherwise. No-op on a
+        /// borderless form, and on Windows versions predating the attribute.
+        /// </summary>
+        public static void EnableDarkTitleBar(Form form)
+        {
+            if (form == null) return;
+            try
+            {
+                if (!form.IsHandleCreated)
+                {
+                    form.HandleCreated -= OnFormHandleCreated;
+                    form.HandleCreated += OnFormHandleCreated;
+                    return;
+                }
+                ApplyDarkTitleBar(form.Handle);
+            }
+            catch (Exception ex)
+            {
+                if (JRunner.variables.debugme) Console.WriteLine("NativeDark: " + ex.Message);
+            }
+        }
+
+        private static void OnFormHandleCreated(object sender, EventArgs e)
+        {
+            Form f = sender as Form;
+            if (f != null) { try { ApplyDarkTitleBar(f.Handle); } catch { } }
+        }
+
+        private static void ApplyDarkTitleBar(IntPtr hWnd)
+        {
+            int on = 1;
+            if (DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref on, sizeof(int)) != 0)
+                DwmSetWindowAttribute(hWnd, DWMWA_USE_IMMERSIVE_DARK_MODE_LEGACY, ref on, sizeof(int));
         }
 
         /// <summary>

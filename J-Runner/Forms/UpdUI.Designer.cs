@@ -1,4 +1,4 @@
-﻿
+
 namespace JRunner
 {
     partial class UpdUI
@@ -30,16 +30,16 @@ namespace JRunner
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UpdUI));
-            this.UpdateWizard = new AeroWizard.WizardControl();
-            this.UpdatePage = new AeroWizard.WizardPage();
+            this.UpdateWizard = new UI.ThemedWizard();
+            this.UpdatePage = new UI.ThemedWizardPage();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.updateProgressBar = new System.Windows.Forms.ProgressBar();
-            this.FailedPage = new AeroWizard.WizardPage();
+            this.FailedPage = new UI.ThemedWizardPage();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.FailedReason = new System.Windows.Forms.Label();
             this.DownloadButton = new UI.SplitButton();
             this.label1 = new System.Windows.Forms.Label();
-            this.SuccessPage = new AeroWizard.WizardPage();
+            this.SuccessPage = new UI.ThemedWizardPage();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.UpdateWizard)).BeginInit();
@@ -209,13 +209,13 @@ namespace JRunner
 
         #endregion
 
-        private AeroWizard.WizardControl UpdateWizard;
-        private AeroWizard.WizardPage UpdatePage;
+        private UI.ThemedWizard UpdateWizard;
+        private UI.ThemedWizardPage UpdatePage;
         private System.Windows.Forms.ProgressBar updateProgressBar;
-        private AeroWizard.WizardPage FailedPage;
+        private UI.ThemedWizardPage FailedPage;
         private UI.SplitButton DownloadButton;
         private System.Windows.Forms.Label label1;
-        private AeroWizard.WizardPage SuccessPage;
+        private UI.ThemedWizardPage SuccessPage;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label FailedReason;

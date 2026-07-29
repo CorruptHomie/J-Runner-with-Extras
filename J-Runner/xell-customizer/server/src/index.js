@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 import { generateSchema } from "./schemas/index.js";
-import { generateBuild } from "./services/build.service.js";
+import { generateBuild, buildStatus, fetchLog, xellOutputDir } from "./services/build.service.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 2222;
@@ -30,7 +30,40 @@ app.use(
   }),
 );
 
-app.get("/health", (c) => c.json({ ok: true }));
+// Bumped whenever the API surface changes. J-Runner checks it, because a server left
+// running from an older build serves the *new* frontend straight off disk (serveStatic reads
+// per request) while missing the routes that frontend now calls - which surfaces as the
+// frontend trying to parse index.html as JSON.
+const API_VERSION = 3;
+
+app.get("/health", (c) => c.json({ ok: true, api: API_VERSION, output: xellOutputDir() }));
+
+// The frontend used to poll raw.githubusercontent for the upstream repo directly, which
+// stopped working the moment the build moved to a fork. It asks the server now, so the
+// repo comes from configuration and the finished build gets saved locally on the way past.
+app.get("/status", async (c) => {
+  const id = c.req.query("id");
+  const date = c.req.query("date");
+  if (!id || !date) return c.json({ error: "id and date are required" }, 400);
+  try {
+    return c.json(await buildStatus(date, id));
+  } catch (error) {
+    console.error(error);
+    return c.json({ error: error?.message || "status check failed" }, 500);
+  }
+});
+
+app.get("/log", async (c) => {
+  const id = c.req.query("id");
+  const date = c.req.query("date");
+  if (!id || !date) return c.text("id and date are required", 400);
+  try {
+    return c.text(await fetchLog(date, id));
+  } catch (error) {
+    console.error(error);
+    return c.text(`Couldn't retrieve the log: ${error?.message || error}`, 500);
+  }
+});
 
 app.post(
   "/generate",

@@ -101,11 +101,11 @@ namespace JRunner
             Win81,
             W10_11
         }
-        public static string version = "4.0.0devpre2";
+        public static string version = "4.0.0devpre3";
         // Referenced by Classes/StaticVersion.cs. StaticVersion parses this with a regex
         // (major.minor.build + free-form pre-release tag) rather than Split('.'), so a
         // qualifier like "pre1" no longer needs to be a 4th numeric component.
-        public const string staticversion = "4.0.0devpre2";
+        public const string staticversion = "4.0.0devpre3";
         public static string build = "3103." + GetLinkerTime(Assembly.GetExecutingAssembly()).ToString("yyMMdd.HHmm");
         public static bool iswriting;
         public static bool isscanningip = false;
@@ -164,7 +164,7 @@ namespace JRunner
         // Which GitHub release stream the updater follows. Empty means "not chosen yet" -
         // Upd.ResolveDefaultChannel() then derives it from the running build's own version
         // string, so a dev build defaults to Dev rather than silently watching the stable
-        // channel. This build's "4.0.0devpre2" contains "dev", so it defaults to Dev -
+        // channel. This build's "4.0.0devpre3" contains "dev", so it defaults to Dev -
         // which matches any build cut from the dev branch, prerelease or not (see
         // Upd.MatchesChannel). Persisted as the setting "UpdateChannel".
         public static string updateChannel = "";

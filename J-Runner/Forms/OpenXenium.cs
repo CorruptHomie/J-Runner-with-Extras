@@ -26,7 +26,7 @@ namespace JRunner.Forms
             this.Close();
         }
 
-        private void OpenXenium_Next(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void OpenXenium_Next(object sender, UI.WizardPageConfirmEventArgs e)
         {
             if (MainForm.mainForm.device == MainForm.DEVICE.XFLASHER_SPI)
             {

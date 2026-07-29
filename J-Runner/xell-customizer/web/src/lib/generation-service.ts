@@ -3,8 +3,6 @@
 // frontend from the same origin (see xell-customizer/server), so a relative path is both
 // correct and simpler - no origin to keep in sync with whatever port it's launched on.
 const API_BASE_URL = "";
-const GITHUB_BASE_URL =
-  "https://raw.githubusercontent.com/xell-worker/xell-builder/refs/heads/main";
 
 export interface GenerationParams {
   /** LibXenon-formatted BGR color */
@@ -26,6 +24,8 @@ export interface BuildStatus {
   filename?: string;
   downloadUrl?: string;
   logUrl?: string;
+  /** Local folder the finished build was saved to, when the server managed to fetch it. */
+  savedTo?: string | null;
 }
 
 /**
@@ -55,31 +55,39 @@ export const startGeneration = async (
 };
 
 /**
- * Polls GitHub for the build status of a generation job.
- * Folder path: YYYY/MMDD{id}/
+ * Polls the local server for the build status.
+ *
+ * This used to fetch raw.githubusercontent.com for xell-worker/xell-builder directly, with
+ * the repo hardcoded. That breaks as soon as the build runs anywhere else - a dispatch to
+ * your own fork commits the result to *your* repo, so polling upstream finds nothing and the
+ * generation just times out even though the build succeeded. The server knows which repo is
+ * configured, so it answers this instead - and saves the finished build locally while it's
+ * at it.
  */
 export const checkBuildStatus = async (
   id: string,
   date: string,
 ): Promise<BuildStatus> => {
-  const year = date.slice(0, 4);
-  const mmdd = date.slice(4, 8);
-  const folderUrl = `${GITHUB_BASE_URL}/${year}/${mmdd}/${id}`;
+  const response = await fetch(
+    `${API_BASE_URL}/status?id=${encodeURIComponent(id)}&date=${encodeURIComponent(date)}`,
+    { cache: "no-store" },
+  );
 
-  const logResponse = await fetch(`${folderUrl}/log.txt`);
-
-  if (!logResponse.ok) {
+  if (!response.ok) {
     return { ready: false };
   }
 
-  const filenameResponse = await fetch(`${folderUrl}/original-filename.txt`);
-
-  if (!filenameResponse.ok) {
-    return { ready: true, failed: true, logUrl: `${folderUrl}/log.txt` };
+  // A server left running from an older build serves this frontend straight off disk but
+  // doesn't have /status, so the request falls through to the SPA fallback and returns
+  // index.html. Parsing that as JSON is where "Unexpected token '<'" came from - say what's
+  // actually wrong instead.
+  const body = await response.text();
+  try {
+    return JSON.parse(body) as BuildStatus;
+  } catch {
+    throw new Error(
+      "The local XeLL Customizer server is out of date - it returned a page instead of JSON. " +
+        "Close J-Runner completely (so the old server exits) and reopen it.",
+    );
   }
-
-  const filename = (await filenameResponse.text()).trim();
-  const downloadUrl = `${folderUrl}/${id}.tar.gz`;
-
-  return { ready: true, failed: false, filename, downloadUrl };
 };

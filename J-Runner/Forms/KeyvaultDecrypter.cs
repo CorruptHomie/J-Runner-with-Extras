@@ -36,7 +36,7 @@ namespace JRunner.Forms
             else DecryptPage.AllowNext = false;
         }
 
-        private void DecryptNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void DecryptNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
             if (!Nand.Nand.VerifyKey(Oper.StringToByteArray(CpuKeyBox.Text)))
             {

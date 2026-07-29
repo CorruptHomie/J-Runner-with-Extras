@@ -31,7 +31,7 @@ namespace JRunner
             this.Close();
         }
 
-        private void RestoreNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void RestoreNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
             if (UI.Msg.Show("Are you sure that you want to restore files?\n\nAll files inside common and xeBuild will be deleted and replaced with clean versions!", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
             {

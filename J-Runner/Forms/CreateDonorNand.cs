@@ -73,7 +73,7 @@ namespace JRunner.Forms
         }
 
         // Prerequisites Page
-        private void PrereqNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void PrereqNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
             pullXeBuildVal();
 
@@ -138,12 +138,12 @@ namespace JRunner.Forms
         }
 
         // CPU Key and KV Page
-        private void CpuKvBack(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void CpuKvBack(object sender, UI.WizardPageConfirmEventArgs e)
         {
             forceFocus(false);
         }
 
-        private void CpuKvNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void CpuKvNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
             if (!Nand.Nand.VerifyKey(Oper.StringToByteArray(CpuKeyBox.Text)))
             {
@@ -326,7 +326,7 @@ namespace JRunner.Forms
         }
 
         // FCRT Page
-        private void FcrtNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void FcrtNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
             if (!DonorFcrt.Checked)
             {
@@ -424,7 +424,7 @@ namespace JRunner.Forms
         }
 
         // LDV and SMC Config Page
-        private void LdvSmcConfNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void LdvSmcConfNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
             ldv = Convert.ToInt32(Math.Round(LdvBox.Value, 0));
 

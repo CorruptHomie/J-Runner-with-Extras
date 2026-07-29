@@ -1,8 +1,8 @@
 import { createId } from "@paralleldrive/cuid2";
 import { HTTPException } from "hono/http-exception";
 import { Octokit } from "@octokit/rest";
-import AdmZip from "adm-zip";
 import fs from "node:fs";
+import zlib from "node:zlib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -26,12 +26,70 @@ const WORKFLOW = process.env.GITHUB_WORKFLOW || "build.yml";
 const REF = process.env.GITHUB_REF || "main";
 
 export function xellOutputDir() {
-  // Defaults to <app>/common/xell relative to this file (server/src/services ->
-  // ../../../../common/xell), matching where MainForm/xebuild read XeLL templates from.
   if (process.env.XELL_OUTPUT_DIR) return path.resolve(process.env.XELL_OUTPUT_DIR);
-  // fileURLToPath, not URL.pathname - on Windows the latter yields "/C:/..." with a
-  // leading slash, which is not a valid path.
-  return path.resolve(fileURLToPath(new URL("../../../../common/xell", import.meta.url)));
+  // "Custom XeLL images" beside the J-Runner executable. server/src/services is four
+  // levels down from the app root. fileURLToPath, not URL.pathname - on Windows the latter
+  // yields "/C:/..." with a leading slash, which isn't a valid path.
+  return path.resolve(fileURLToPath(new URL("../../../../Custom XeLL images", import.meta.url)));
+}
+
+// A bare 404 from the dispatch endpoint is ambiguous - it covers "repo not visible to this
+// token", "Actions disabled", "workflow missing" and "branch missing" alike, and GitHub
+// deliberately returns 404 rather than 403 for repos a fine-grained token isn't scoped to,
+// so it doesn't leak whether they exist. These checks tell them apart and say which it is.
+async function preflight(octokit) {
+  try {
+    await octokit.repos.get({ owner: OWNER, repo: REPO });
+  } catch (e) {
+    throw new HTTPException(404, {
+      message:
+        `Can't see ${OWNER}/${REPO} with this token.\n\n` +
+        `A fine-grained personal access token only reaches the repositories picked under ` +
+        `"Repository access" - granting permissions is a separate step from selecting which ` +
+        `repos they apply to, and GitHub returns 404 (not 403) for anything outside that ` +
+        `list. Check ${REPO} is in the token's selected repositories, and that GITHUB_OWNER ` +
+        `and GITHUB_REPO match your fork.`,
+    });
+  }
+
+  let workflow;
+  try {
+    const r = await octokit.actions.getWorkflow({ owner: OWNER, repo: REPO, workflow_id: WORKFLOW });
+    workflow = r.data;
+  } catch (e) {
+    let available = [];
+    try {
+      const l = await octokit.actions.listRepoWorkflows({ owner: OWNER, repo: REPO });
+      available = (l.data.workflows || []).map((w) => w.path.replace(/^.*\//, ""));
+    } catch { /* listing is only for a better message */ }
+
+    throw new HTTPException(404, {
+      message:
+        `${OWNER}/${REPO} is reachable, but workflow "${WORKFLOW}" isn't.\n\n` +
+        (available.length
+          ? `Workflows there: ${available.join(", ")}. Set GITHUB_WORKFLOW to one of those.`
+          : `No workflows are visible at all, which is what a fork looks like before its ` +
+            `Actions are enabled - GitHub disables them on new forks. Open the Actions tab ` +
+            `on ${OWNER}/${REPO} and enable workflows, then try again.`),
+    });
+  }
+
+  if (workflow.state !== "active") {
+    throw new HTTPException(409, {
+      message:
+        `Workflow "${WORKFLOW}" exists but its state is "${workflow.state}".\n\n` +
+        `Forks start with Actions disabled. Open the Actions tab on ${OWNER}/${REPO}, enable ` +
+        `workflows, and enable this one specifically if it's listed as disabled.`,
+    });
+  }
+
+  try {
+    await octokit.repos.getBranch({ owner: OWNER, repo: REPO, branch: REF });
+  } catch (e) {
+    throw new HTTPException(404, {
+      message: `Branch "${REF}" doesn't exist in ${OWNER}/${REPO}. Set GITHUB_REF to the branch the workflow lives on.`,
+    });
+  }
 }
 
 export async function generateBuild(input, ghToken) {
@@ -40,13 +98,26 @@ export async function generateBuild(input, ghToken) {
   const id = createId();
   const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
 
+  await preflight(octokit);
+
+  // background_color and foreground_color are declared `required: true` by the workflow, so
+  // a dispatch omitting either is rejected outright (422). The frontend treats them as
+  // optional, so fall back to the workflow's own declared defaults.
+  const inputs = {
+    id,
+    date,
+    background_color: "0xD8444E00",
+    foreground_color: "0xFFFFFF00",
+    ...Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined && v !== "")),
+  };
+
   try {
     await octokit.actions.createWorkflowDispatch({
       owner: OWNER,
       repo: REPO,
       ref: REF,
       workflow_id: WORKFLOW,
-      inputs: { id, date, ...input },
+      inputs,
     });
   } catch (error) {
     const status = error?.status;
@@ -61,86 +132,141 @@ export async function generateBuild(input, ghToken) {
     throw new HTTPException(status === 403 ? 403 : 418, { message });
   }
 
-  // Fire-and-forget: the frontend keeps its own progress UI, and this logs to stdout,
-  // which J-Runner pipes into its console window.
-  collectArtifact(octokit, id).catch((e) =>
-    console.error(`Artifact collection failed: ${e?.message || e}`),
-  );
-
   return { id, date };
 }
 
-async function collectArtifact(octokit, id) {
-  const runId = await waitForRun(octokit, id);
-  if (!runId) {
-    console.log("Could not identify the workflow run; skipping automatic download.");
-    return;
+// The build's second job commits its output into the repo at {year}/{mmdd}/{id}/ and pushes,
+// which is what the frontend was polling for - except it polled the hardcoded upstream repo,
+// so once the build moved to a fork nothing ever showed up and it timed out. Reported here
+// instead, against whichever repo is configured.
+function rawBase(date, id) {
+  const year = date.slice(0, 4);
+  const mmdd = date.slice(4, 8);
+  return `https://raw.githubusercontent.com/${OWNER}/${REPO}/refs/heads/${REF}/${year}/${mmdd}/${id}`;
+}
+
+// The build workflow fetches its own job log with
+//   curl -sL -H "Authorization: Bearer $TOKEN" .../actions/jobs/$ID/logs -o log.txt
+// That endpoint 302s to Azure Blob Storage, and -L re-sends the Authorization header to the
+// redirect target, which Azure rejects - so what gets committed as log.txt is an Azure
+// <Error><Code>BlobNotFound</Code> document rather than the log. It's harmless (the build
+// itself is fine, and log.txt existing is only used as the "published" signal) but opening
+// it shows XML instead of a log, so detect it rather than hand it to the user.
+function looksLikeStorageError(text) {
+  const head = (text || "").slice(0, 500);
+  return /<Error>/i.test(head) && /BlobNotFound|AuthenticationFailed|ResourceNotFound|InvalidQueryParameterValue/i.test(head);
+}
+
+export async function fetchLog(date, id) {
+  const res = await fetch(`${rawBase(date, id)}/log.txt`, { cache: "no-store" });
+  if (!res.ok) return "No log has been published for this build yet.";
+
+  const text = await res.text();
+  if (!looksLikeStorageError(text)) return text;
+
+  return [
+    "The build workflow didn't capture its log, so there's nothing to show here.",
+    "",
+    "What it committed instead is an Azure Blob Storage error. The workflow fetches its own",
+    "log with:",
+    "",
+    '    curl -sL -H "Authorization: Bearer $TOKEN" .../actions/jobs/$JOB_ID/logs -o log.txt',
+    "",
+    "That endpoint redirects to Azure, and -L re-sends the Authorization header to the",
+    "redirect target, which Azure rejects - so the error document lands in log.txt.",
+    "",
+    "The build itself is unaffected: this only concerns the log. To fix it in your fork,",
+    "resolve the redirect first and fetch the blob without the auth header, e.g.",
+    "",
+    '    URL=$(curl -s -o /dev/null -w \'%{redirect_url}\' \\',
+    '            -H "Authorization: Bearer $TOKEN" .../actions/jobs/$JOB_ID/logs)',
+    '    curl -s "$URL" -o /tmp/log.txt',
+    "",
+    "----- what the workflow actually committed -----",
+    "",
+    text.trim(),
+  ].join("\n");
+}
+
+export async function buildStatus(date, id) {
+  const base = rawBase(date, id);
+
+  const log = await fetch(`${base}/log.txt`, { cache: "no-store" });
+  if (!log.ok) return { ready: false };
+
+  // Served through this server rather than linking raw.githubusercontent directly, so an
+  // unusable log gets explained instead of dumping Azure's XML in a browser tab.
+  const logUrl = `/log?id=${encodeURIComponent(id)}&date=${encodeURIComponent(date)}`;
+
+  const nameRes = await fetch(`${base}/original-filename.txt`, { cache: "no-store" });
+  if (!nameRes.ok) return { ready: true, failed: true, logUrl };
+
+  const filename = (await nameRes.text()).trim();
+  const downloadUrl = `${base}/${id}.tar.gz`;
+
+  let savedTo = null;
+  try {
+    savedTo = await saveBuild(downloadUrl, filename, id);
+  } catch (e) {
+    console.error(`Couldn't save the build locally: ${e?.message || e}`);
   }
 
-  const conclusion = await waitForCompletion(octokit, runId);
-  if (conclusion !== "success") {
-    console.log(`Build finished with conclusion "${conclusion}"; nothing to download.`);
-    return;
-  }
+  return { ready: true, failed: false, filename, downloadUrl, logUrl, savedTo };
+}
 
-  const { data } = await octokit.actions.listWorkflowRunArtifacts({
-    owner: OWNER,
-    repo: REPO,
-    run_id: runId,
-  });
-  const artifact = data.artifacts?.[0];
-  if (!artifact) {
-    console.log("Build succeeded but produced no artifact.");
-    return;
-  }
+async function saveBuild(downloadUrl, filename, id) {
+  const outDir = path.join(xellOutputDir(), id);
+  const archivePath = path.join(outDir, filename || `${id}.tar.gz`);
+  if (fs.existsSync(archivePath)) return outDir;   // already fetched
 
-  const zip = await octokit.actions.downloadArtifact({
-    owner: OWNER,
-    repo: REPO,
-    artifact_id: artifact.id,
-    archive_format: "zip",
-  });
+  const res = await fetch(downloadUrl);
+  if (!res.ok) throw new Error(`download failed with ${res.status}`);
+  const buf = Buffer.from(await res.arrayBuffer());
 
-  const outDir = xellOutputDir();
   fs.mkdirSync(outDir, { recursive: true });
-  new AdmZip(Buffer.from(zip.data)).extractAllTo(outDir, true);
-  console.log(`Custom XeLL written to ${outDir}`);
+  fs.writeFileSync(archivePath, buf);
+
+  // Unpacked as well as kept, so the XeLL binaries are usable straight away without
+  // needing a tar tool on Windows. Done with the built-in zlib plus a minimal tar reader
+  // rather than another dependency.
+  let extracted = [];
+  try {
+    extracted = extractTarGz(buf, outDir);
+  } catch (e) {
+    console.error(`Archive saved but couldn't be unpacked: ${e?.message || e}`);
+  }
+
+  console.log(`Custom XeLL saved to ${outDir}${extracted.length ? ` (${extracted.join(", ")})` : ""}`);
+  return outDir;
 }
 
-async function waitForRun(octokit, id, attempts = 20) {
-  // The dispatch API doesn't return a run id, so match on the run whose name/head matches
-  // and that started after the dispatch. Poll briefly - the run takes a moment to appear.
-  for (let i = 0; i < attempts; i++) {
-    await sleep(3000);
-    const { data } = await octokit.actions.listWorkflowRuns({
-      owner: OWNER,
-      repo: REPO,
-      workflow_id: WORKFLOW,
-      per_page: 20,
-    });
-    const match = data.workflow_runs?.find((r) => JSON.stringify(r).includes(id));
-    if (match) return match.id;
-    if (i === 0 && data.workflow_runs?.length) {
-      // Fall back to the newest run if the id isn't echoed anywhere in the run payload.
-      const newest = data.workflow_runs[0];
-      if (Date.now() - new Date(newest.created_at).getTime() < 120000) return newest.id;
+// Minimal POSIX tar reader - 512-byte headers, octal size at offset 124, type flag at 156.
+// Names are flattened to their basename, which both suits the flat output folder and makes
+// path traversal out of it impossible.
+function extractTarGz(gz, destDir) {
+  const tar = zlib.gunzipSync(gz);
+  const written = [];
+  let off = 0;
+
+  while (off + 512 <= tar.length) {
+    const header = tar.subarray(off, off + 512);
+    const name = header.subarray(0, 100).toString("utf8").replace(/\0.*$/, "");
+    if (!name) break;   // trailing zero blocks mark the end
+
+    const size = parseInt(header.subarray(124, 136).toString("utf8").replace(/\0.*$/, "").trim(), 8) || 0;
+    const type = String.fromCharCode(header[156]);
+    off += 512;
+
+    if (type === "0" || type === "\0") {
+      const base = path.basename(name);
+      if (base && base !== "." && base !== "..") {
+        fs.writeFileSync(path.join(destDir, base), tar.subarray(off, off + size));
+        written.push(base);
+      }
     }
+    off += Math.ceil(size / 512) * 512;
   }
-  return null;
-}
-
-async function waitForCompletion(octokit, runId, attempts = 200) {
-  for (let i = 0; i < attempts; i++) {
-    const { data } = await octokit.actions.getWorkflowRun({
-      owner: OWNER,
-      repo: REPO,
-      run_id: runId,
-    });
-    if (data.status === "completed") return data.conclusion;
-    if (i % 10 === 0) console.log(`Build ${runId} is ${data.status}...`);
-    await sleep(5000);
-  }
-  return "timed_out";
+  return written;
 }
 
 function sleep(ms) {

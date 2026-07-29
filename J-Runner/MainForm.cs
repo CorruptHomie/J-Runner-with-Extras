@@ -3114,8 +3114,12 @@ namespace JRunner
 
         private void reportIssueToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Issues issues = new Issues();
-            issues.ShowDialog();
+            // Owner passed so the dialog centres on the main window - it's CenterParent, and
+            // without an owner that falls back to an arbitrary position.
+            using (Issues issues = new Issues())
+            {
+                issues.ShowDialog(this);
+            }
         }
 
         private void shortcutsToolStripMenuItem_Click(object sender, EventArgs e)

@@ -113,9 +113,6 @@
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AeroWizard, Version=2.2.9.0, Culture=neutral, PublicKeyToken=915e74f5d64b8f37, processorArchitecture=MSIL">
-      <HintPath>..\packages\AeroWizard.2.2.9\lib\net40\AeroWizard.dll</HintPath>
-    </Reference>
     <Reference Include="Costura, Version=6.2.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
       <HintPath>..\packages\Costura.Fody.6.2.0\lib\netstandard2.0\Costura.dll</HintPath>
     </Reference>
@@ -171,6 +168,7 @@
     <Compile Include="UI\JRunnerToolStripRenderer.cs" />
     <Compile Include="UI\XboxFillProgressBar.cs" />
     <Compile Include="UI\DarkTabControl.cs" />
+    <Compile Include="UI\ThemedWizard.cs" />
     <Compile Include="UI\NativeDark.cs" />
     <Compile Include="UI\Msg.cs" />
     <Compile Include="UI\MessageDialog.cs" />
@@ -278,9 +276,6 @@
     </Compile>
     <Compile Include="Forms\Issues.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Issues.Designer.cs">
-      <DependentUpon>Issues.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\KeyvaultDecrypter.cs">
       <SubType>Form</SubType>
@@ -701,9 +696,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\CPUKeyGen.resx">
       <DependentUpon>CPUKeyGen.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Issues.resx">
-      <DependentUpon>Issues.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\KeyvaultDecrypter.resx">
       <DependentUpon>KeyvaultDecrypter.cs</DependentUpon>

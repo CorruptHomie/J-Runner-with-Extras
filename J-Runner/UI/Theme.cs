@@ -60,6 +60,17 @@ namespace UI
             {
                 form.BackColor = WindowBg;
                 form.ForeColor = TextPrimary;
+
+                // Every form's designer baked its own copy of the old icon into its .resx
+                // as a binary blob, so replacing Project3.ico alone wouldn't have changed
+                // any of them. Assigning it here updates all of them at once - every form
+                // already runs through this method - without rewriting ~65 resource files.
+                try { form.Icon = JRunner.Properties.Resources.Project3; }
+                catch (Exception ex) { if (JRunner.variables.debugme) Console.WriteLine("Theme icon: " + ex.Message); }
+
+                // Forms with a native border keep a white caption otherwise - the title bar
+                // is drawn by the window manager, so nothing in managed code reaches it.
+                NativeDark.EnableDarkTitleBar(form);
             }
 
             foreach (Control c in root.Controls)
@@ -253,44 +264,6 @@ namespace UI
                 case ProgressBar pgb:
                     // XboxFillProgressBar paints itself.
                     break;
-
-                default:
-                    // AeroWizard.WizardControl / WizardPage - a third-party control used by
-                    // Report Issue, Restore Files, Create Donor, Keyvault Decrypter and the
-                    // whole update wizard chain. Its page area is set to white in the
-                    // designers, which is what left those windows light. Matched by
-                    // namespace rather than type so this doesn't take a compile-time
-                    // dependency on the assembly.
-                    if (c.GetType().Namespace == "AeroWizard")
-                    {
-                        c.BackColor = PanelBg;
-                        c.ForeColor = TextPrimary;
-                        StyleThirdPartyBackColors(c);
-                    }
-                    break;
-            }
-        }
-
-        // AeroWizard is a compiled NuGet dependency that paints its own header and content
-        // area, and WizardControl ignores BackColor for those - which is why the page went
-        // dark but the surround stayed white. There's no documented way to recolour them,
-        // so this sets any additional "...BackColor" property the control happens to
-        // expose. Best-effort by design: if the assembly has none, nothing happens.
-        private static void StyleThirdPartyBackColors(Control c)
-        {
-            try
-            {
-                foreach (System.Reflection.PropertyInfo pi in c.GetType().GetProperties())
-                {
-                    if (!pi.CanWrite || pi.PropertyType != typeof(Color)) continue;
-                    if (!pi.Name.EndsWith("BackColor", StringComparison.Ordinal)) continue;
-                    if (pi.Name == "BackColor") continue;   // already set above
-                    pi.SetValue(c, PanelBg, null);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (JRunner.variables.debugme) Console.WriteLine("Theme: " + ex.Message);
             }
         }
 

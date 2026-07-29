@@ -15,12 +15,12 @@ namespace JRunner
         private const int LegacyMenuStripHeight = 24;
         private const int TitleBarHeight = 36;
         private const int ChromeButtonWidth = 46;
-        private const int ResizeMargin = 6;
 
-        private enum ChromeGlyph { Minimize, Maximize, Close }
+        // Maximize is deliberately absent - the layout is absolutely positioned and doesn't
+        // reflow, so the window is fixed at its design size.
+        private enum ChromeGlyph { Minimize, Close }
 
         private Label _btnMinimize;
-        private Label _btnMaximize;
         private Label _btnClose;
         private Panel _titleSeparator;
 
@@ -54,26 +54,23 @@ namespace JRunner
                 Tag = UI.Theme.SkipTag,
             };
 
-            _btnMinimize = MakeChromeButton(ChromeGlyph.Minimize, ClientSize.Width - ChromeButtonWidth * 3);
-            _btnMaximize = MakeChromeButton(ChromeGlyph.Maximize, ClientSize.Width - ChromeButtonWidth * 2);
+            _btnMinimize = MakeChromeButton(ChromeGlyph.Minimize, ClientSize.Width - ChromeButtonWidth * 2);
             _btnClose = MakeChromeButton(ChromeGlyph.Close, ClientSize.Width - ChromeButtonWidth);
 
             _btnMinimize.Click += (s, e) => WindowState = FormWindowState.Minimized;
-            _btnMaximize.Click += (s, e) => ToggleMaximize();
             _btnClose.Click += (s, e) => Close();
 
             Controls.Add(_titleSeparator);
             Controls.Add(_btnMinimize);
-            Controls.Add(_btnMaximize);
             Controls.Add(_btnClose);
 
             _titleSeparator.BringToFront();
             _btnMinimize.BringToFront();
-            _btnMaximize.BringToFront();
             _btnClose.BringToFront();
             menuStrip1.BringToFront();
 
-            Resize += (s, e) => { if (_btnMaximize != null) _btnMaximize.Invalidate(); };
+            Resize += (s, e) => LayoutTitleBar();
+            LayoutTitleBar();
         }
 
         // Small post-designer layout corrections, applied once at startup alongside the
@@ -92,6 +89,20 @@ namespace JRunner
                 btnScanner.Location = new Point(6, 67);
                 btnScanner.Size = new Size(153, 26);
             }
+        }
+
+        // Anchors alone weren't enough here: the strip is sized in the constructor, before
+        // the form has its final client size, and right-aligned menu items (the version /
+        // About entry) were laying out against that stale width - so they sat off the edge
+        // until a resize recalculated everything.
+        private void LayoutTitleBar()
+        {
+            if (menuStrip1 == null) return;
+            int right = ChromeButtonWidth * 2;
+            menuStrip1.Bounds = new Rectangle(4, (TitleBarHeight - LegacyMenuStripHeight) / 2,
+                                              Math.Max(0, ClientSize.Width - 4 - right), LegacyMenuStripHeight);
+            if (_titleSeparator != null)
+                _titleSeparator.Bounds = new Rectangle(0, TitleBarHeight - 1, ClientSize.Width, 1);
         }
 
         private UI.FlashProgressOverlay _flashOverlay;
@@ -212,31 +223,12 @@ namespace JRunner
                         g.DrawLine(p, cx - r, cy, cx + r, cy);
                         break;
 
-                    case ChromeGlyph.Maximize:
-                        if (WindowState == FormWindowState.Maximized)
-                        {
-                            // Two offset rectangles, the standard "restore down" glyph.
-                            g.DrawRectangle(p, cx - r + 2, cy - r, r * 2 - 2, r * 2 - 2);
-                            g.DrawLine(p, cx - r, cy - r + 2, cx - r, cy + r);
-                            g.DrawLine(p, cx - r, cy + r, cx + r - 2, cy + r);
-                        }
-                        else
-                        {
-                            g.DrawRectangle(p, cx - r, cy - r, r * 2, r * 2);
-                        }
-                        break;
-
                     case ChromeGlyph.Close:
                         g.DrawLine(p, cx - r, cy - r, cx + r, cy + r);
                         g.DrawLine(p, cx + r, cy - r, cx - r, cy + r);
                         break;
                 }
             }
-        }
-
-        private void ToggleMaximize()
-        {
-            WindowState = WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
         }
 
         // One-time downward shift of the designer's absolutely-positioned layout to make
@@ -254,6 +246,14 @@ namespace JRunner
                 c.Top += offset;
             }
             ClientSize = new Size(ClientSize.Width, ClientSize.Height + offset);
+
+            // This layout is absolutely positioned - nothing reflows, so any size other than
+            // the design size either clips it or leaves dead space. Pinned rather than just
+            // floored, and the maximize button is gone for the same reason.
+            Size fixedSize = new Size(ClientSize.Width, ClientSize.Height);
+            MinimumSize = fixedSize;
+            MaximumSize = fixedSize;
+            MaximizeBox = false;
             ResumeLayout();
         }
 
@@ -275,26 +275,9 @@ namespace JRunner
         // was an ordinary client-area hit.
         private int ChromeHitTest(Point client)
         {
-            const int HTCAPTION = 2, HTLEFT = 10, HTRIGHT = 11, HTTOP = 12,
-                      HTTOPLEFT = 13, HTTOPRIGHT = 14, HTBOTTOM = 15, HTBOTTOMLEFT = 16, HTBOTTOMRIGHT = 17;
+            const int HTCAPTION = 2;
 
-            if (WindowState == FormWindowState.Normal)
-            {
-                bool left = client.X <= ResizeMargin;
-                bool right = client.X >= ClientSize.Width - ResizeMargin;
-                bool top = client.Y <= ResizeMargin;
-                bool bottom = client.Y >= ClientSize.Height - ResizeMargin;
-
-                if (top && left) return HTTOPLEFT;
-                if (top && right) return HTTOPRIGHT;
-                if (bottom && left) return HTBOTTOMLEFT;
-                if (bottom && right) return HTBOTTOMRIGHT;
-                if (left) return HTLEFT;
-                if (right) return HTRIGHT;
-                if (top) return HTTOP;
-                if (bottom) return HTBOTTOM;
-            }
-
+            // No resize edges - the window is a fixed size (see ShiftContentDown).
             if (client.Y < TitleBarHeight && !IsOverInteractiveChrome(client)) return HTCAPTION;
             return 0;
         }
@@ -302,7 +285,6 @@ namespace JRunner
         private bool IsOverInteractiveChrome(Point client)
         {
             if (_btnMinimize != null && _btnMinimize.Bounds.Contains(client)) return true;
-            if (_btnMaximize != null && _btnMaximize.Bounds.Contains(client)) return true;
             if (_btnClose != null && _btnClose.Bounds.Contains(client)) return true;
 
             if (menuStrip1.Bounds.Contains(client))

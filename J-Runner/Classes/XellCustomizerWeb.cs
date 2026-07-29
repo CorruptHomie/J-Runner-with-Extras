@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,6 +18,8 @@ namespace JRunner
     public static class XellCustomizerWeb
     {
         private const int Port = 2222;
+        // Must match API_VERSION in xell-customizer/server/src/index.js.
+        private const int RequiredApiVersion = 3;
         private static Process _serverProcess;
 
         private static string ServerDir => Path.Combine(variables.pathforit, "xell-customizer", "server");
@@ -28,10 +31,28 @@ namespace JRunner
         {
             try
             {
-                if (await IsServerUp())
+                ServerState state = await ProbeServer();
+                if (state == ServerState.Current)
                 {
                     OpenBrowser();
                     return;
+                }
+                if (state == ServerState.Outdated)
+                {
+                    // Reusing it would serve the current frontend against an older API, and
+                    // the frontend would get HTML back where it expects JSON.
+                    if (_serverProcess != null && !_serverProcess.HasExited)
+                    {
+                        Console.WriteLine("XeLL Customizer: restarting an out-of-date server...");
+                        Shutdown();
+                        await Task.Delay(500);
+                    }
+                    else
+                    {
+                        Console.WriteLine("XeLL Customizer: an older XeLL Customizer server is already running on port {0}.", Port);
+                        Console.WriteLine("XeLL Customizer: it was started by a previous session - close J-Runner completely (or end the stray node.exe) and reopen.");
+                        return;
+                    }
                 }
 
                 if (!File.Exists(EntryPoint))
@@ -52,7 +73,7 @@ namespace JRunner
                 // ~20MB / thousands of files, and bin\ gets wiped on a clean rebuild), so
                 // install it here on first launch instead of making the user do it by hand
                 // in a folder that won't survive the next build.
-                if (!Directory.Exists(Path.Combine(ServerDir, "node_modules")))
+                if (!DependenciesInstalled())
                 {
                     Console.WriteLine("XeLL Customizer: First run - installing dependencies, this takes a few seconds...");
                     bool installed = await RunNpmInstall();
@@ -90,7 +111,7 @@ namespace JRunner
                 // first start.
                 for (int i = 0; i < 40; i++)
                 {
-                    if (await IsServerUp()) break;
+                    if (await ProbeServer() == ServerState.Current) break;
                     await Task.Delay(250);
                 }
 
@@ -113,7 +134,9 @@ namespace JRunner
             _serverProcess = null;
         }
 
-        private static async Task<bool> IsServerUp()
+        private enum ServerState { Absent, Outdated, Current }
+
+        private static async Task<ServerState> ProbeServer()
         {
             try
             {
@@ -121,10 +144,13 @@ namespace JRunner
                 {
                     wc.Headers.Add("User-Agent", "J-Runner");
                     string result = await wc.DownloadStringTaskAsync("http://localhost:" + Port + "/health");
-                    return result.Contains("\"ok\":true");
+                    if (!result.Contains("\"ok\":true")) return ServerState.Absent;
+                    return result.Contains("\"api\":" + RequiredApiVersion)
+                        ? ServerState.Current
+                        : ServerState.Outdated;
                 }
             }
-            catch { return false; }
+            catch { return ServerState.Absent; }
         }
 
         private static void OpenBrowser()
@@ -134,6 +160,46 @@ namespace JRunner
                 FileName = "http://localhost:" + Port + "/",
                 UseShellExecute = true
             });
+        }
+
+        // Checking only that node_modules exists isn't enough: if the dependency list grows
+        // after someone has already installed once, the folder is there but the new package
+        // isn't, and the server dies at import with ERR_MODULE_NOT_FOUND. Verify each
+        // dependency named in package.json actually has a folder.
+        private static bool DependenciesInstalled()
+        {
+            string modules = Path.Combine(ServerDir, "node_modules");
+            try
+            {
+                if (!Directory.Exists(modules)) return false;
+
+                string pkgPath = Path.Combine(ServerDir, "package.json");
+                if (!File.Exists(pkgPath)) return true;
+
+                string json = File.ReadAllText(pkgPath);
+                int at = json.IndexOf("\"dependencies\"", StringComparison.Ordinal);
+                if (at < 0) return true;
+                int open = json.IndexOf('{', at);
+                int close = json.IndexOf('}', open);
+                if (open < 0 || close < 0) return true;
+
+                foreach (Match m in Regex.Matches(json.Substring(open, close - open), "\"([^\"]+)\"\\s*:"))
+                {
+                    string name = m.Groups[1].Value;
+                    string dir = Path.Combine(modules, name.Replace('/', Path.DirectorySeparatorChar));
+                    if (!Directory.Exists(dir))
+                    {
+                        Console.WriteLine("XeLL Customizer: dependency \"{0}\" is missing; reinstalling.", name);
+                        return false;
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (variables.debugme) Console.WriteLine(ex.ToString());
+                return Directory.Exists(modules);
+            }
         }
 
         private static Task<bool> RunNpmInstall()

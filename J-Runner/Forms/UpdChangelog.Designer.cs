@@ -1,4 +1,4 @@
-﻿
+
 namespace JRunner
 {
     partial class UpdChangelog
@@ -30,8 +30,8 @@ namespace JRunner
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UpdChangelog));
-            this.UpdateWizard = new AeroWizard.WizardControl();
-            this.UpdatePage = new AeroWizard.WizardPage();
+            this.UpdateWizard = new UI.ThemedWizard();
+            this.UpdatePage = new UI.ThemedWizardPage();
             this.label2 = new System.Windows.Forms.Label();
             this.txtChangeLog = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.UpdateWizard)).BeginInit();
@@ -102,8 +102,8 @@ namespace JRunner
 
         #endregion
 
-        private AeroWizard.WizardControl UpdateWizard;
-        private AeroWizard.WizardPage UpdatePage;
+        private UI.ThemedWizard UpdateWizard;
+        private UI.ThemedWizardPage UpdatePage;
         private System.Windows.Forms.TextBox txtChangeLog;
         private System.Windows.Forms.Label label2;
     }
