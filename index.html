@@ -1,0 +1,230 @@
+<!-- @dsCard group="Website" viewport="1280x900" name="Landing page" subtitle="Marketing site — hero, features, hardware, XeLL spotlight, gallery" -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>J-Runner Premium — The Ultimate RGH/JTAG App</title>
+<link rel="icon" href="../assets/logo-jr2.png">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="site.css">
+</head><body>
+
+<header class="site" data-header>
+<div class="wrap">
+<a class="brand" href="index.html"><span class="mark"><img src="../assets/logo-jr2.png" alt=""></span>J-Runner Premium</a>
+<nav class="top">
+<a href="#what">What it does</a>
+<a href="#hardware">Hardware</a>
+<a href="#xell">XeLL</a>
+<a href="#shots">Screenshots</a>
+<a href="docs.html">Docs</a>
+<a href="downloads.html">Downloads</a>
+</nav>
+</div>
+</header>
+
+<section class="hero">
+<div class="wrap">
+<div class="narrow" style="margin-left:0" data-reveal>
+<div class="eyebrow">Xbox 360 · NAND flashing &amp; glitch chip programming</div>
+<h1>The whole RGH/JTAG<br>toolchain in <span class="accent">one window</span>.</h1>
+<p class="lede">J-Runner Premium reads and writes your console's NAND, builds the XeBuild image that goes on it, programs the glitch chip that boots it, and keeps every key and dump in one place. Free, open source, and built by the modding scene.</p>
+<div class="cta">
+<a class="btn primary" href="https://github.com/ScallywagDude/J-Runner-Premium/releases/latest">Download latest package</a>
+<a class="btn" href="https://github.com/ScallywagDude/J-Runner-Premium">View on GitHub</a>
+<span class="note">Windows · .NET Framework 4.8 · v4.0.0devpre4</span>
+</div>
+</div>
+<div class="shotwrap" data-reveal>
+<div class="shot" data-tilt><img src="../assets/screens/main-window.png" alt="The J-Runner Premium main window" width="825" height="674"></div>
+</div>
+</div>
+</section>
+
+<div class="warn">
+<div class="wrap">
+<span class="dot"></span>
+<p><strong>Read this before you flash anything.</strong> Writing a bad image to your console's NAND will brick it. Dump your NAND at least twice and keep those dumps somewhere safe. Never disconnect the flasher or close J-Runner while a write is running. If you are not sure what a setting does, stop and ask in the scene before you press Write.</p>
+</div>
+</div>
+
+<section id="what">
+<div class="wrap">
+<div class="narrow" style="margin-left:0" data-reveal>
+<div class="eyebrow">What it does</div>
+<h2 style="font-size:clamp(30px,4vw,44px)">Four jobs, one workflow</h2>
+<p class="lede" style="margin-top:18px">Modding a 360 normally means juggling half a dozen command-line tools. J-Runner Premium wraps the whole sequence — dump, inspect, build, program, write — into a single window that walks in the order you actually work.</p>
+</div>
+
+<div class="features">
+
+<div class="frow" data-reveal>
+<div>
+<h3>Read and write NAND</h3>
+<p>Dump the console's flash memory over your flasher, verify it across multiple reads, and write a patched image back when you're ready. Every step reports into the session log as it happens.</p>
+<ul>
+<li>Multi-pass reads so you can be sure the dump is clean</li>
+<li>ECC creation, donor NAND building and NAND comparison</li>
+<li>Bad-block reporting before anything is written</li>
+<li>A confirmation gate and a blocking progress screen on every write</li>
+</ul>
+</div>
+<div class="visual"><div class="logwell" data-log></div></div>
+</div>
+
+<div class="frow" data-reveal>
+<div>
+<h3>Build the XeBuild image</h3>
+<p>Pick a kernel version and console type, choose your CB type — Retail, Glitch, Glitch2, Glitch2m, JTAG or DEVGL — and J-Runner assembles the image, patches and Dashlaunch config for you. No command line, no guessing at arguments.</p>
+<ul>
+<li>Kernel and console type selection with the right patches applied</li>
+<li>XB Settings, Patches and Dashlaunch panels in the same window</li>
+<li>Bundled XeBuild 1.21 and Dashlaunch 3.21</li>
+</ul>
+</div>
+<div class="visual"><img src="../assets/screens/main-window.png" alt="XeBuild panel inside the main window" style="object-fit:cover;object-position:top right;aspect-ratio:16/11"></div>
+</div>
+
+<div class="frow" data-reveal>
+<div>
+<h3>PicoRGH Integration</h3>
+<p>Flash a Raspberry Pi Pico with RGH 1.2 glitcher firmware to use it as a Glitch Chip. You can do this straight from the app: hold BOOTSEL, plug it in, click Program.</p>
+</div>
+<div class="visual" style="display:grid;place-items:center;padding:36px;background:var(--jr-window-bg)"><img src="../assets/screens/glitch-chip.png" alt="The Program Glitch Chip dialog" style="max-width:420px;border:1px solid var(--jr-border-subtle);border-radius:8px"></div>
+</div>
+
+<div class="frow" data-reveal>
+<div>
+<h3>More Failsafes</h3>
+<p>We will help make sure you get everything right. If you missed something, we'll give you the chance to correct it before you flash the Nand</p>
+</div>
+<div class="visual" style="display:grid;place-items:center;padding:36px;background:var(--jr-window-bg)"><img src="../assets/screens/confirm-flash.png" alt="The Confirm Flash dialog" style="max-width:460px;border:1px solid var(--jr-border-subtle);border-radius:8px"></div>
+</div>
+
+</div>
+</div>
+</section>
+
+<section id="hardware" style="background:var(--jr-panel-bg);border-top:1px solid var(--jr-border-subtle);border-bottom:1px solid var(--jr-border-subtle)">
+<div class="wrap">
+<div class="narrow" style="margin-left:0" data-reveal>
+<div class="eyebrow">Supported hardware</div>
+<h2 style="font-size:clamp(30px,4vw,44px)">Bring whatever flasher you already own</h2>
+<p class="lede" style="margin-top:18px">J-Runner detects your flasher on startup and shows it in the main window. If you're buying new, a Raspberry Pi Pico running PicoFlasher is the cheapest way in — around the price of a coffee.</p>
+</div>
+<div class="devices">
+<div class="device" data-reveal><img src="../assets/device-picoflasher.png" alt="PicoFlasher"><div class="n">PicoFlasher</div><div class="d">Raspberry Pi Pico / RP2040</div></div>
+<div class="device" data-reveal><img src="../assets/device-dirtypico.png" alt="DirtyPico"><div class="n">DirtyPico</div><div class="d">Pico-based, by ThisIsCheez</div></div>
+<div class="device" data-reveal><img src="../assets/device-xflash-spi.png" alt="xFlasher SPI"><div class="n">xFlasher 360 — SPI</div><div class="d">NAND over SPI</div></div>
+<div class="device" data-reveal><img src="../assets/device-xflash-emmc.png" alt="xFlasher eMMC"><div class="n">xFlasher 360 — eMMC</div><div class="d">Corona 4GB consoles</div></div>
+<div class="device" data-reveal><img src="../assets/device-matrix.png" alt="Matrix NAND programmer"><div class="n">Matrix NAND</div><div class="d">USB programmer</div></div>
+<div class="device" data-reveal><img src="../assets/device-demon.png" alt="DemoN"><div class="n">DemoN</div><div class="d">Dual NAND with UART</div></div>
+<div class="device" data-reveal><img src="../assets/device-usbtool.png" alt="USB SPI tool"><div class="n">USB SPI tool</div><div class="d">Generic USB flasher</div></div>
+<div class="device" data-reveal><img src="../assets/device-openxenium.png" alt="OpenXenium"><div class="n">OpenXenium</div><div class="d">Original Xbox modchip</div></div>
+</div>
+</div>
+</section>
+
+<section id="xell" class="xell">
+<div class="wrap xellgrid">
+<div data-reveal>
+<div class="eyebrow">Built in</div>
+<h2 style="font-size:clamp(28px,3.6vw,40px)">Make XeLL look like yours</h2>
+<p class="lede" style="margin-top:18px">XeLL is the loader screen you stare at every time the console boots. J-Runner starts a small web app on your machine that lets you recolour it and swap the ASCII banner, then generates a custom XeLL build to flash. Pick a community preset or build your own from the eleven colours LibXenon supports.</p>
+<div class="presets" style="margin-top:26px">
+<button class="preset" data-preset="0"><i style="background:#4E44D8"></i>Default</button>
+<button class="preset" data-preset="1"><i style="background:#FF6600"></i>Swizzy</button>
+<button class="preset" data-preset="2"><i style="background:#FF66FF"></i>XTUDO</button>
+<button class="preset" data-preset="3"><i style="background:#008000"></i>Classic</button>
+</div>
+</div>
+<div data-xell data-reveal>
+<div class="xscreen"><div class="inner" data-xell-screen>  * Xenos FB with 148x41 (1280x720) at 0x9e000000 initialized.
+
+XeLL - Xenon linux loader second stage v0.993-git-7526b02
+
+Built with GCC 13.3.0 and Binutils 2.44
+
+        __  __     ____  ____
+       |  \/  |   |  __||  __|
+       |      | __| |__ | |__
+       |  |\/| |/ _ \  __||  __|
+       |__|  |_|\___/____||____|
+
+     Free60.org XeLL - Xenon Linux Loader v0.993
+      Special Corona &amp; Winchester Compatible
+
+  * nand init
+  * network init
+  * initializing lwip 1.4.1...
+Waiting for link...link still down.
+  * requesting dhcp....................</div></div>
+<p style="margin-top:14px;font-size:13px;color:var(--jr-text-secondary)">Live preview — the same one the customizer shows at <code style="font-family:var(--jr-font-mono)">localhost:2222</code>.</p>
+</div>
+</div>
+</section>
+
+<section id="shots">
+<div class="wrap">
+<div class="narrow" style="margin-left:0" data-reveal>
+<div class="eyebrow">Screenshots</div>
+<h2 style="font-size:clamp(30px,4vw,44px)">The whole app, honestly</h2>
+<p class="lede" style="margin-top:18px">No mockups. This is what it looks like on a real machine.</p>
+</div>
+<div class="gallery">
+<figure class="gitem" data-shot="Main window — v4.0.0devpre4" data-reveal><img src="../assets/screens/main-window.png" alt="Main window"><figcaption>Main window</figcaption></figure>
+<figure class="gitem" data-shot="Writing NAND — the blocking progress screen" data-reveal><img src="../assets/screens/flashing-nand.png" alt="Writing NAND overlay"><figcaption>Writing NAND</figcaption></figure>
+<figure class="gitem" data-shot="Confirm Flash — shown before every write" data-reveal><img src="../assets/screens/confirm-flash.png" alt="Confirm Flash dialog"><figcaption>Confirm Flash</figcaption></figure>
+<figure class="gitem" data-shot="Program Glitch Chip — Pico firmware flashing" data-reveal><img src="../assets/screens/glitch-chip.png" alt="Program Glitch Chip dialog"><figcaption>Program Glitch Chip</figcaption></figure>
+<figure class="gitem" data-shot="XeLL Theme Customizer — served on localhost:2222" data-reveal><img src="../assets/screens/xell-customizer.png" alt="XeLL Theme Customizer"><figcaption>XeLL Theme Customizer</figcaption></figure>
+</div>
+</div>
+</section>
+
+<section id="credits" style="background:var(--jr-panel-bg);border-top:1px solid var(--jr-border-subtle)">
+<div class="wrap">
+<div class="narrow" style="margin-left:0" data-reveal>
+<div class="eyebrow">Credit where credit is due</div>
+<h2 style="font-size:clamp(30px,4vw,44px)">Standing on a lot of shoulders</h2>
+<p class="lede" style="margin-top:18px">J-Runner Premium is a fork in a long line of scene tools, and it wouldn't exist without the people who built what came before it.</p>
+</div>
+<div class="linklist">
+<a class="linkrow" href="https://github.com/ThisIsCheez" data-reveal><span><span class="t">ThisIsCheez</span><span class="s">DirtyPico</span></span><span class="arrow">→</span></a>
+<a class="linkrow" href="https://www.se7ensins.com/members/lordvirusxex.1551087/" data-reveal><span><span class="t">LordVirusXeX</span><span class="s">BootAnimRemap17559</span></span><span class="arrow">→</span></a>
+<a class="linkrow" href="https://github.com/X360Tools" data-reveal><span><span class="t">X360Tools</span><span class="s">J-Runner Pro</span></span><span class="arrow">→</span></a>
+<a class="linkrow" href="https://github.com/Octal450" data-reveal><span><span class="t">Octal450</span><span class="s">J-Runner with Extras</span></span><span class="arrow">→</span></a>
+<a class="linkrow" href="https://github.com/J-Runner-With-Extras" data-reveal><span><span class="t">J-Runner with Extras</span><span class="s">The lineage this fork continues</span></span><span class="arrow">→</span></a>
+<a class="linkrow" href="https://github.com/barrenechea/xell-customizer" data-reveal><span><span class="t">barrenechea</span><span class="s">XeLL Theme Customizer</span></span><span class="arrow">→</span></a>
+</div>
+
+<h3 style="font-size:20px;margin:56px 0 0" data-reveal>Firmware and related projects</h3>
+<div class="linklist">
+<a class="linkrow" href="https://github.com/X360Tools/PicoFlasher" data-reveal><span><span class="t">PicoFlasher</span><span class="s">Firmware for the Raspberry Pi Pico / RP2040</span></span><span class="arrow">→</span></a>
+<a class="linkrow" href="https://github.com/Agustin8123/Pico2Flasher" data-reveal><span><span class="t">Pico2Flasher</span><span class="s">For the Pico 2 / RP2350</span></span><span class="arrow">→</span></a>
+<a class="linkrow" href="https://github.com/prodeveloper0/picoflasher" data-reveal><span><span class="t">picoflasher (clone build)</span><span class="s">For RP2040 clones with 20 GPIO headers per side</span></span><span class="arrow">→</span></a>
+</div>
+</div>
+</section>
+
+<section style="padding:96px 0" id="get">
+<div class="wrap narrow" style="text-align:center" data-reveal>
+<h2 style="font-size:clamp(30px,4.4vw,48px)">Ready when you are.</h2>
+<p class="lede" style="margin:18px auto 0">Grab the latest package, read the getting-started guide, and dump your NAND twice before you do anything else.</p>
+<div class="cta" style="justify-content:center">
+<a class="btn primary" href="downloads.html">Downloads</a>
+<a class="btn" href="docs.html">Getting started</a>
+</div>
+</div>
+</section>
+
+<footer class="site">
+<div class="wrap">
+<a class="brand" href="index.html"><span class="mark"><img src="../assets/logo-jr2.png" alt=""></span>J-Runner Premium</a>
+<p class="meta">Free and open source. Not affiliated with, endorsed by, or associated with Microsoft. Xbox and the Xbox sphere are trademarks of Microsoft Corporation.</p>
+<a class="btn sm" href="https://github.com/ScallywagDude/J-Runner-Premium">GitHub</a>
+</div>
+</footer>
+<div class="statusstrip"><span><b>XeBuild:</b> 1.21</span><span><b>Dashlaunch:</b> 3.21</span><span><b>Build:</b> 4.0.0devpre4</span></div>
+
+<figure class="lightbox" data-lightbox><img alt=""><figcaption></figcaption></figure>
+
+<script src="xfall.js"></script>
+<script src="site.js"></script>
+</body></html>
