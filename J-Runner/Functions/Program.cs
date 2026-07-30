@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -43,7 +43,7 @@ namespace JRunner
 
                 if (needVcredistx86)
                 {
-                    MessageBox.Show("Microsoft Visual C++ 2010 Redistributable is required for J-Runner Premium and some of its components to work correctly\n\nClick OK to begin the installation", "Dependency Missing", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    UI.Msg.Show("Microsoft Visual C++ 2010 Redistributable is required for J-Runner Premium and some of its components to work correctly\n\nClick OK to begin the installation", "Dependency Missing", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Thread Vcredist = new Thread(() =>
                     {
                         try
@@ -60,7 +60,7 @@ namespace JRunner
                         }
                         catch
                         {
-                            MessageBox.Show("Dependency installer failed to launch for some reason", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            UI.Msg.Show("Dependency installer failed to launch for some reason", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             Environment.Exit(0);
                         }
                     });
@@ -128,7 +128,7 @@ namespace JRunner
 
         private static void OnCurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            //MessageBox.Show(e.ExceptionObject.ToString());
+            //UI.Msg.Show(e.ExceptionObject.ToString());
             File.AppendAllText(Path.Combine(variables.pathforit, "Error.log"), e.ExceptionObject.ToString() + Environment.NewLine);
         }
 

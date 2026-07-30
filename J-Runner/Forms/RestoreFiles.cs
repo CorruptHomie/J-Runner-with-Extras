@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
@@ -12,6 +12,7 @@ namespace JRunner
         public RestoreFiles()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             RestoreWizard.Cancelling += WizardCancelled;
             RestoreWizard.Finished += WizardFinished;
             RestorePage.Commit += RestoreNext;
@@ -30,9 +31,9 @@ namespace JRunner
             this.Close();
         }
 
-        private void RestoreNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void RestoreNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
-            if (MessageBox.Show("Are you sure that you want to restore files?\n\nAll files inside common and xeBuild will be deleted and replaced with clean versions!", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+            if (UI.Msg.Show("Are you sure that you want to restore files?\n\nAll files inside common and xeBuild will be deleted and replaced with clean versions!", "Steep Hill Ahead", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
             {
                 this.Close();
             }

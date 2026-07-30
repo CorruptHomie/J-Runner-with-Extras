@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -9,6 +9,7 @@ namespace JRunner.Nand
         public CB_Fuse()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
         List<ListViewGroup> lgroups = new List<ListViewGroup>();
         List<ListViewItem> litems = new List<ListViewItem>();

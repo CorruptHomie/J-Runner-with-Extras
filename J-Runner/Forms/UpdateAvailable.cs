@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace JRunner
@@ -8,6 +8,7 @@ namespace JRunner
         public UpdateAvailable()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             lblMessage.Text = string.IsNullOrEmpty(Upd.pendingVersion)
                 ? "A new version is available.\n\nWould you like to view what's new and install it?"
                 : "Version " + Upd.pendingVersion + " is available.\n\nWould you like to view what's new and install it?";

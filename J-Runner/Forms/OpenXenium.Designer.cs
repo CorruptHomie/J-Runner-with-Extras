@@ -1,4 +1,4 @@
-﻿
+
 namespace JRunner.Forms
 {
     partial class OpenXenium
@@ -30,12 +30,12 @@ namespace JRunner.Forms
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OpenXenium));
-            this.OpenXeniumWizard = new AeroWizard.WizardControl();
-            this.OpenXeniumPage = new AeroWizard.WizardPage();
+            this.OpenXeniumWizard = new UI.ThemedWizard();
+            this.OpenXeniumPage = new UI.ThemedWizardPage();
             this.label2 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.waitPage = new AeroWizard.WizardPage();
+            this.waitPage = new UI.ThemedWizardPage();
             ((System.ComponentModel.ISupportInitialize)(this.OpenXeniumWizard)).BeginInit();
             this.OpenXeniumPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -128,11 +128,11 @@ namespace JRunner.Forms
 
         #endregion
 
-        private AeroWizard.WizardControl OpenXeniumWizard;
-        private AeroWizard.WizardPage OpenXeniumPage;
+        private UI.ThemedWizard OpenXeniumWizard;
+        private UI.ThemedWizardPage OpenXeniumPage;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label2;
-        private AeroWizard.WizardPage waitPage;
+        private UI.ThemedWizardPage waitPage;
     }
 }

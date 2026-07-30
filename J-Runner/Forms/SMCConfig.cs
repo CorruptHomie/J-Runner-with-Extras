@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -36,6 +36,7 @@ namespace JRunner.Forms
         public SMCConfig()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             try
             {
                 smc_config = Nand.Nand.getConfigValues(Nand.Nand.getsmcconfig(variables.filename1, out block_offset), block_offset);

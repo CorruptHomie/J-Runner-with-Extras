@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace JRunner
 {
@@ -64,6 +65,18 @@ namespace JRunner
 
     class variables
     {
+        /// <summary>
+        /// The numeric core of the version with the separators removed - "4.0.0devpre4" gives
+        /// "400". staticversion is a const, so this is safe to call from a field initialiser.
+        /// </summary>
+        private static string VersionStamp()
+        {
+            Match m = Regex.Match(staticversion, @"^(\d+)\.(\d+)\.(\d+)");
+            return m.Success
+                ? m.Groups[1].Value + m.Groups[2].Value + m.Groups[3].Value
+                : "000";
+        }
+
         private static DateTime GetLinkerTime(Assembly assembly, TimeZoneInfo target = null)
         {
             var filePath = assembly.Location;
@@ -101,11 +114,18 @@ namespace JRunner
             Win81,
             W10_11
         }
-        public static string version = "3.2.1 Final";
-        // Referenced by Classes/StaticVersion.cs (Ver.Split('.') expects 4 parts). That class
-        // isn't used anywhere else in the app; this just keeps it compiling.
-        public const string staticversion = "1.0.0.0";
-        public static string build = "3103." + GetLinkerTime(Assembly.GetExecutingAssembly()).ToString("yyMMdd.HHmm");
+        public static string version = "4.0.0devpre4";
+        // Referenced by Classes/StaticVersion.cs. StaticVersion parses this with a regex
+        // (major.minor.build + free-form pre-release tag) rather than Split('.'), so a
+        // qualifier like "pre1" no longer needs to be a 4th numeric component.
+        public const string staticversion = "4.0.0devpre4";
+        // Build stamp shown in About and logged for beta builds: <version digits>.<yyMMdd>.<HHmm>,
+        // so 4.0.0devpre4 built on 29 July 2026 at 21:17 reads 400.260729.2117.
+        //
+        // The prefix was the hardcoded literal "3103" - left over from an older release - so
+        // it never moved when the version did. Derived from staticversion now, which means it
+        // tracks the version automatically instead of needing to be remembered.
+        public static string build = VersionStamp() + "." + GetLinkerTime(Assembly.GetExecutingAssembly()).ToString("yyMMdd.HHmm");
         public static bool iswriting;
         public static bool isscanningip = false;
         public static JR_MODE current_mode = JR_MODE.MODEJR;
@@ -131,7 +151,7 @@ namespace JRunner
         public static string superDevKey = "55555555555555555555555555D9AEE2";
         public static string outfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "output");
         public static string nanddumpfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "NaND dumps");
-        public static string updatednandfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Updated NaNDs");
+        public static string updatedflashfolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Updated flash");
         public static string AppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "J-Runner Premium");
         public static string tempfile = "";
         public static string cpkey = "";
@@ -158,6 +178,15 @@ namespace JRunner
         public static bool minimizetotray = false;
         public static bool autoCheckUpdates = true;
         public static bool checkPrereleaseUpdates = false;
+        public static bool animationsEnabled = true;
+
+        // Which GitHub release stream the updater follows. Empty means "not chosen yet" -
+        // Upd.ResolveDefaultChannel() then derives it from the running build's own version
+        // string, so a dev build defaults to Dev rather than silently watching the stable
+        // channel. This build's "4.0.0devpre4" contains "dev", so it defaults to Dev -
+        // which matches any build cut from the dev branch, prerelease or not (see
+        // Upd.MatchesChannel). Persisted as the setting "UpdateChannel".
+        public static string updateChannel = "";
         public static bool slimprefersrgh = false;
         public static bool mtxUsbMode = false;
         public static Color logbackground = Color.Black;
@@ -165,7 +194,7 @@ namespace JRunner
         public static string[] settings = { "xebuild", "FileChecks", "location", "COMPort", "Errorsound", "Comparesound", "Successsound", "Delay",
                                           "DashLaunchE", "IP", "NoReads", "IPStart", "IPEnd", "XebuildName", "dashlaunch", "preferredDash", "KeepFiles", "WorkingDir",
                                           "LPTport", "Server", "AutoExtract", "AllMove", "Modder", "DiscordRPC", "TimingOnKeypress", "LogBackground", "LogText",
-                                          "MinimizeToTray", "SlimPreferSrgh", "MtxUsbMode", "AutoCheckUpdates", "PrereleaseUpdates"};
+                                          "MinimizeToTray", "SlimPreferSrgh", "MtxUsbMode", "AutoCheckUpdates", "PrereleaseUpdates", "AnimationsEnabled", "UpdateChannel"};
 
         #region
 

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
 
@@ -23,3 +23,12 @@ using System.Runtime.InteropServices;
 [assembly: Guid("98d21f81-eb49-4f4d-bfc4-f1e4d7548fbe")]
 
 [assembly: NeutralResourcesLanguageAttribute("en")]
+
+// AssemblyVersion/AssemblyFileVersion must be plain numeric (Explorer's file properties
+// dialog and the .NET loader both require this), so the pre-release tag lives in
+// AssemblyInformationalVersion instead - that field allows arbitrary text and is what
+// actually reads "4.0.0devpre4" in Explorer's "Product version" field. Keep this in sync
+// with Classes/variables.cs's version/staticversion constants.
+[assembly: AssemblyVersion("4.0.0.0")]
+[assembly: AssemblyFileVersion("4.0.0.0")]
+[assembly: AssemblyInformationalVersion("4.0.0devpre4")]

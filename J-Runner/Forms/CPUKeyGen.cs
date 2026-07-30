@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Security.Cryptography;
 using System.Windows.Forms;
@@ -12,6 +12,7 @@ namespace JRunner.Forms
         public CPUKeyGen()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private void btnGenKey_Click(object sender, EventArgs e)

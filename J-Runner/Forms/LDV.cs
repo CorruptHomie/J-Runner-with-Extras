@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -9,6 +9,7 @@ namespace JRunner.Forms
         public xeBuildOptions()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private void button1_Click(object sender, EventArgs e)

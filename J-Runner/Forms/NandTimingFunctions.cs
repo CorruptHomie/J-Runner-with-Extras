@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace JRunner
@@ -12,6 +12,7 @@ namespace JRunner
         public NandTimingFunctions()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             this.AcceptButton = btnRun;
             btnRun.DialogResult = System.Windows.Forms.DialogResult.OK;
             MainForm.mainForm.updateDevice += UpdateDevice;

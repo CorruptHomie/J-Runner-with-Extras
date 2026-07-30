@@ -1,4 +1,4 @@
-﻿namespace JRunner
+namespace JRunner
 {
     partial class XBOptions
     {
@@ -74,7 +74,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabControl1 = new UI.DarkTabControl();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.label30 = new System.Windows.Forms.Label();
             this.rev = new System.Windows.Forms.TextBox();
@@ -1341,7 +1341,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TabControl tabControl1;
+        private UI.DarkTabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TabPage tabPage3;

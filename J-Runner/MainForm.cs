@@ -1,4 +1,4 @@
-﻿using DiscordRPC;
+using DiscordRPC;
 using JRunner.Forms;
 using LibUsbDotNet.DeviceNotify;
 using Microsoft.Win32;
@@ -51,6 +51,7 @@ namespace JRunner
         public static Nand.PrivateN nand = new Nand.PrivateN();
         public PicoFlasher picoflasher = new PicoFlasher();
         public DirtyPico dirtypico = new DirtyPico();
+        public RPicoRGH rpicorgh = new RPicoRGH();
         public xFlasher xflasher = new xFlasher();
         public Mtx_Usb mtx_usb = new Mtx_Usb();
         public xdkbuild XDKbuild = new xdkbuild();
@@ -84,6 +85,7 @@ namespace JRunner
         public MainForm()
         {
             InitializeComponent();
+            SetupCustomChrome();
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             pnlInfo.Controls.Add(nandInfo);
             listInfo.Add(nandInfo);
@@ -209,6 +211,13 @@ namespace JRunner
                 else if (File.Exists(dirtypico.svfPath)) File.Delete(dirtypico.svfPath);
             }
             catch { }
+
+            // Runs last in one-time init, after nandInfo/nTools/xPanel (added in the
+            // MainForm() constructor) and everything settings()/deviceinit() above touch -
+            // so the recursive walk actually reaches every real control instead of running
+            // too early and only ever seeing MainForm's own top-level ones.
+            TweakLayout();
+            UI.Theme.ApplyTheme(this);
         }
 
         private void showApplication()
@@ -251,7 +260,7 @@ namespace JRunner
             try
             {
                 if (!Directory.Exists(variables.nanddumpfolder)) Directory.CreateDirectory(variables.nanddumpfolder);
-                if (!Directory.Exists(variables.updatednandfolder)) Directory.CreateDirectory(variables.updatednandfolder);
+                if (!Directory.Exists(variables.updatedflashfolder)) Directory.CreateDirectory(variables.updatedflashfolder);
             }
             catch (Exception ex)
             {
@@ -514,6 +523,8 @@ namespace JRunner
         {
             savesettings();
             saveToLog();
+            XellCustomizerWeb.Shutdown();
+            if (_snowfall != null) { _snowfall.Dispose(); _snowfall = null; }
         }
 
         private void saveToLog()
@@ -908,7 +919,7 @@ namespace JRunner
             }
             catch (Exception objException)
             {
-                MessageBox.Show(objException.ToString());
+                UI.Msg.Show(objException.ToString());
             }
         }
 
@@ -995,7 +1006,7 @@ namespace JRunner
                     }
                     else if (device == DEVICE.PICOFLASHER)
                     {
-                        MessageBox.Show("PicoFlasher can't erase.", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        UI.Msg.Show("PicoFlasher can't erase.", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                     else if (device == DEVICE.XFLASHER_SPI)
@@ -1052,7 +1063,7 @@ namespace JRunner
                     {
                         if (device == DEVICE.PICOFLASHER)
                         {
-                            MessageBox.Show("PicoFlasher can't write timing.", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            UI.Msg.Show("PicoFlasher can't write timing.", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
                         else if (device == DEVICE.XFLASHER_SPI)
@@ -1065,7 +1076,7 @@ namespace JRunner
                         }
                         else if (device == DEVICE.XFLASHER_EMMC)
                         {
-                            MessageBox.Show("Unable to write timing in eMMC mode\n\nPlease switch to SPI mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            UI.Msg.Show("Unable to write timing in eMMC mode\n\nPlease switch to SPI mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
                         else if (device == DEVICE.NAND_X && variables.mtxUsbMode)
@@ -1180,7 +1191,7 @@ namespace JRunner
                 {
                      if (device == DEVICE.PICOFLASHER)
                     {
-                        MessageBox.Show("PicoFlasher can't to write timing.", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        UI.Msg.Show("PicoFlasher can't to write timing.", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                     else if(device == DEVICE.XFLASHER_SPI)
@@ -1193,7 +1204,7 @@ namespace JRunner
                     }
                     else if (device == DEVICE.XFLASHER_EMMC)
                     {
-                        MessageBox.Show("Unable to write timing in eMMC mode\n\nPlease switch to SPI mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        UI.Msg.Show("Unable to write timing in eMMC mode\n\nPlease switch to SPI mode", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                     else if (device == DEVICE.NAND_X && variables.mtxUsbMode)
@@ -1248,7 +1259,7 @@ namespace JRunner
                 error = NandX.Errors.WrongConfig;
 
                 Console.WriteLine("");
-                MessageBox.Show("Unable to read/write eMMC type console with an SPI tool\n\nPlease use an eMMC tool", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Unable to read/write eMMC type console with an SPI tool\n\nPlease use an eMMC tool", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return error;
             }
             else if (flashconfig == ("01198010"))
@@ -1489,7 +1500,7 @@ namespace JRunner
                     variables.iterations = j;
                     if (File.Exists(variables.filename))
                     {
-                        if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
+                        if (DialogResult.Cancel == UI.Msg.Show("File already exists, it will be DELETED! Press OK to continue", "About to overwrite a nanddump", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning))
                         {
                             Console.WriteLine("Cancelled");
                             Console.WriteLine("");
@@ -1499,7 +1510,7 @@ namespace JRunner
                         {
                             if (error == NandX.Errors.WrongHeader)
                             {
-                                if (DialogResult.Cancel == MessageBox.Show("Header seems to be wrong! This shouldnt happen for stock image! Are you really sure you want to overwrite your previously dumped image???", "Wrong Header", MessageBoxButtons.OKCancel, MessageBoxIcon.Error))
+                                if (DialogResult.Cancel == UI.Msg.Show("Header seems to be wrong! This shouldnt happen for stock image! Are you really sure you want to overwrite your previously dumped image???", "Wrong Header", MessageBoxButtons.OKCancel, MessageBoxIcon.Error))
                                 {
                                     Console.WriteLine("Cancelled");
                                     Console.WriteLine("");
@@ -1555,72 +1566,87 @@ namespace JRunner
         /// <param name="ecc"></param>
         void writenand(bool ecc, int writelength = 0)
         {
-            if (String.IsNullOrWhiteSpace(variables.filename1)) loadfile(ref variables.filename1, ref this.txtFilePath1, true);
-            if (String.IsNullOrWhiteSpace(variables.filename1)) return;
-            if (!File.Exists(variables.filename1)) return;
-            if (DemoN.DemonDetected)
+            try
             {
-                demon.write(variables.filename1);
-                if (Path.GetExtension(variables.filename1) == ".ecc")
+                if (String.IsNullOrWhiteSpace(variables.filename1)) loadfile(ref variables.filename1, ref this.txtFilePath1, true);
+                if (String.IsNullOrWhiteSpace(variables.filename1)) return;
+                if (!File.Exists(variables.filename1)) return;
+                if (DemoN.DemonDetected)
                 {
-                    if (variables.tempfile != "")
+                    demon.write(variables.filename1);
+                    if (Path.GetExtension(variables.filename1) == ".ecc")
                     {
-                        variables.filename1 = variables.tempfile;
-                        txtFilePath1.Text = variables.tempfile;
+                        if (variables.tempfile != "")
+                        {
+                            variables.filename1 = variables.tempfile;
+                            txtFilePath1.Text = variables.tempfile;
+                        }
                     }
-                }
-            }
-            else
-            {
-                //if (textBox2.Text != "008A3020" && textBox2.Text != "00AA3020") ctypeselected = 0;
-
-                double len = new FileInfo(variables.filename1).Length;
-                if (variables.debugme) Console.WriteLine("File Length = {0} | Expected 69206016 for a 64MB nand", len);
-                if ((variables.ctyp.ID == 6 || variables.ctyp.ID == 7) && (len == 69206016))
-                {
-                    variables.nandsizex = Nandsize.S64;
-                }
-                else if (variables.ctyp.ID == 0)
-                {
-                    variables.nandsizex = Nandsize.S16;
                 }
                 else
                 {
-                    variables.nandsizex = variables.ctyp.Nsize;
-                }
+                    //if (textBox2.Text != "008A3020" && textBox2.Text != "00AA3020") ctypeselected = 0;
 
-                if (Path.GetExtension(variables.filename1) == ".ecc")
-                {
-                    if (!ecc)
+                    double len = new FileInfo(variables.filename1).Length;
+                    if (variables.debugme) Console.WriteLine("File Length = {0} | Expected 69206016 for a 64MB nand", len);
+                    if ((variables.ctyp.ID == 6 || variables.ctyp.ID == 7) && (len == 69206016))
                     {
-                        Console.WriteLine("You need an .bin image");
-                        return;
+                        variables.nandsizex = Nandsize.S64;
                     }
-                    NandX.Errors result = NandX.Errors.None;
-
-                    if (!usingVNand) result = nandx.write(variables.filename1, variables.nandsizex, 0, 0x50, true, true);
-                    else vnand.write_v2(variables.filename1, 0, 0x50, true, true);
-
-                    Thread.Sleep(500);
-                    if (variables.tempfile != "" && result == NandX.Errors.None)
+                    else if (variables.ctyp.ID == 0)
                     {
-                        variables.filename1 = variables.tempfile;
-                        txtFilePath1.Text = variables.tempfile;
+                        variables.nandsizex = Nandsize.S16;
                     }
-                }
-                else if (Path.GetExtension(variables.filename1) == ".bin")
-                {
-                    if (ecc)
+                    else
                     {
-                        Console.WriteLine("You need an .ecc image");
-                        return;
+                        variables.nandsizex = variables.ctyp.Nsize;
                     }
 
-                    if (!usingVNand) nandx.write(variables.filename1, variables.nandsizex, 0, writelength);
-                    else vnand.write_v2(variables.filename1, 0, writelength);
+                    if (Path.GetExtension(variables.filename1) == ".ecc")
+                    {
+                        if (!ecc)
+                        {
+                            Console.WriteLine("You need an .bin image");
+                            return;
+                        }
+                        NandX.Errors result = NandX.Errors.None;
 
-                    //NandX.write(ref txtBlocks, ref progressBar1, variables.filename1, variables.nandsizex, 0, 0);
+                        if (!usingVNand) result = nandx.write(variables.filename1, variables.nandsizex, 0, 0x50, true, true);
+                        else vnand.write_v2(variables.filename1, 0, 0x50, true, true);
+
+                        Thread.Sleep(500);
+                        if (variables.tempfile != "" && result == NandX.Errors.None)
+                        {
+                            variables.filename1 = variables.tempfile;
+                            txtFilePath1.Text = variables.tempfile;
+                        }
+                        if (result == NandX.Errors.None) this.Invoke(new Action(() => { HideFlashOverlay(); UI.ThemedDialogs.ShowFlashComplete(this); }));
+                    }
+                    else if (Path.GetExtension(variables.filename1) == ".bin")
+                    {
+                        if (ecc)
+                        {
+                            Console.WriteLine("You need an .ecc image");
+                            return;
+                        }
+
+                        NandX.Errors binResult = NandX.Errors.None;
+                        if (!usingVNand) binResult = nandx.write(variables.filename1, variables.nandsizex, 0, writelength);
+                        else vnand.write_v2(variables.filename1, 0, writelength);
+
+                        if (binResult == NandX.Errors.None) this.Invoke(new Action(() => { HideFlashOverlay(); UI.ThemedDialogs.ShowFlashComplete(this); }));
+
+                        //NandX.write(ref txtBlocks, ref progressBar1, variables.filename1, variables.nandsizex, 0, 0);
+                    }
                 }
+            }
+            finally
+            {
+                // Unconditional, regardless of which branch ran or whether it succeeded -
+                // otherwise a failed or JTAG/Demon write would leave the shared progress
+                // bar stuck animating for every later read/build that reuses it.
+                HideFlashOverlay();
+                this.Invoke(new Action(() => SetFlashing(false)));
             }
         }
         void writefusion()
@@ -1710,7 +1736,7 @@ namespace JRunner
         {
             if (variables.reading) return;
             Thread.Sleep(2000);
-            variables.xefolder = Path.Combine(variables.updatednandfolder, nand.ki.serial);
+            variables.xefolder = Path.Combine(variables.updatedflashfolder, nand.ki.serial);
 
             //updateS((variables.filename1.Replace(variables.outfolder, variables.xefolder)));
             Console.WriteLine("Moving all files from output folder to {0}", variables.xefolder);
@@ -1866,7 +1892,7 @@ namespace JRunner
 
         void comparenands()
         {
-            if (variables.filename1 == null || variables.filename2 == null) { MessageBox.Show("Input all Files"); return; }
+            if (variables.filename1 == null || variables.filename2 == null) { UI.Msg.Show("Input all Files"); return; }
             if (!File.Exists(variables.filename1) || !File.Exists(variables.filename2)) return;
             else
             {
@@ -1934,7 +1960,7 @@ namespace JRunner
                         }
                         catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); };
 
-                        if (MessageBox.Show("Files do not match!\nShow Differences?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
+                        if (UI.Msg.Show("Files do not match!\nShow Differences?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
                         {
                             FileEquals(variables.filename1, variables.filename2);
                         }
@@ -2193,7 +2219,7 @@ namespace JRunner
             if (String.IsNullOrEmpty(variables.filename1)) return;
             if (!File.Exists(variables.filename1))
             {
-                MessageBox.Show("No file was selected!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No file was selected!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             try
@@ -2517,7 +2543,7 @@ namespace JRunner
                         {
                             if (variables.debugme) Console.WriteLine(ex.ToString());
                             try { File.AppendAllText(Path.Combine(variables.rootfolder, "Error.log"), ex.ToString() + Environment.NewLine); } catch { }
-                            MessageBox.Show("Failed to create the ECC image:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            UI.Msg.Show("Failed to create the ECC image:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                         if (result == 1)
                         {
@@ -2545,7 +2571,7 @@ namespace JRunner
                 // instead of crashing.
                 if (variables.debugme) Console.WriteLine(ex.ToString());
                 try { File.AppendAllText(Path.Combine(variables.rootfolder, "Error.log"), ex.ToString() + Environment.NewLine); } catch { }
-                MessageBox.Show("Something went wrong creating the ECC image:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Something went wrong creating the ECC image:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -2556,7 +2582,7 @@ namespace JRunner
                 loadfile(ref variables.filename1, ref this.txtFilePath1, true);
                 if (String.IsNullOrWhiteSpace(variables.filename1))
                 {
-                    MessageBox.Show("No file was selected!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("No file was selected!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
@@ -2633,7 +2659,7 @@ namespace JRunner
         {
             if (!nand.ok)
             {
-                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -3089,13 +3115,17 @@ namespace JRunner
 
         private void reportIssueToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Issues issues = new Issues();
-            issues.ShowDialog();
+            // Owner passed so the dialog centres on the main window - it's CenterParent, and
+            // without an owner that falls back to an arbitrary position.
+            using (Issues issues = new Issues())
+            {
+                issues.ShowDialog(this);
+            }
         }
 
         private void shortcutsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-                    MessageBox.Show("J-Runner Premium has several shortcut keybinds:\n\n" +
+                    UI.Msg.Show("J-Runner Premium has several shortcut keybinds:\n\n" +
                 "Operations:\n" +
                 "Esc - Cancel active task (if possible)\n" +
                 "F1 - New Session\n" +
@@ -3116,31 +3146,14 @@ namespace JRunner
 
         private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Cursor.Current = Cursors.WaitCursor;
-            Upd.check();
-            Cursor.Current = Cursors.Default;
-
-            if (!Upd.checkSuccess)
+            // Replaces the old blocking check + MessageBox chain with the Updates window,
+            // which does the same check but also shows the changelog and lets the update
+            // channel be switched. The UpdateAvailable/UpdUI wizard still runs from there
+            // once a download is started.
+            using (Forms.UpdatesWindow w = new Forms.UpdatesWindow())
             {
-                MessageBox.Show("Could not check for updates: " + Upd.failedReason, "Check for Updates", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (Upd.upToDate)
-            {
-                MessageBox.Show("You're already running the latest version (" + variables.version + ").", "Check for Updates", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            using (UpdateAvailable ua = new UpdateAvailable())
-            {
-                ua.ShowDialog(this);
-            }
-            if (Upd.allowUpdate)
-            {
-                UpdChangelog cl = new UpdChangelog();
-                cl.showChangelog(Upd.changelog);
-                cl.ShowDialog(this);
+                w.Owner = this;
+                w.ShowDialog(this);
             }
         }
 
@@ -3222,7 +3235,7 @@ namespace JRunner
             }
             else
             {
-                MessageBox.Show("The utility is already running", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("The utility is already running", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -3335,7 +3348,7 @@ namespace JRunner
                 return;
             }
 
-            DialogResult mbr = MessageBox.Show("Warning: injecting a KV successfully requires FreeBoot patches or a Type 1 CB.\n\nContinue?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            DialogResult mbr = UI.Msg.Show("Warning: injecting a KV successfully requires FreeBoot patches or a Type 1 CB.\n\nContinue?", "Are you sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
             if (mbr != DialogResult.Yes)
             {
@@ -3388,7 +3401,7 @@ namespace JRunner
         {
             if (String.IsNullOrEmpty(variables.filename1))
             {
-                MessageBox.Show("Please load a source NAND image before injecting XeLL", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Please load a source NAND image before injecting XeLL", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -3405,32 +3418,17 @@ namespace JRunner
             }
         }
 
-        private void customizeThemeToolStripMenuItem_Click(object sender, EventArgs e)
+        private void xellCustomizerWebToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // These are the exact same two files moveXell() in Classes/xebuild.cs and
-            // creatergh2eccinit() in Nand/ECC.cs always copy in fresh on every build -
-            // customizing them here is what actually makes a theme show up on a flashed
-            // console, instead of editing some other file the build pipeline never reads.
-            string[] xellTemplates = {
-                Path.Combine(variables.pathforit, @"common\xell\xell-2f.bin"),
-                Path.Combine(variables.pathforit, @"common\xell\xell-gggggg.bin")
-            };
-
-            if (!xellTemplates.Any(File.Exists))
-            {
-                MessageBox.Show("Couldn't find the XeLL template files to customize. Try updating your support files.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            XellCustomizer xc = new XellCustomizer();
-            xc.InitializeAndShowDialog(xellTemplates);
+            XellCustomizerWeb.LaunchOrFocus();
         }
+
 
         private void sMCConfigViewerToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             if (!nand.ok)
             {
-                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -3447,7 +3445,7 @@ namespace JRunner
         {
             if (!nand.ok)
             {
-                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -3468,7 +3466,7 @@ namespace JRunner
         {
             if (string.IsNullOrEmpty(variables.filename1))
             {
-                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -3498,14 +3496,14 @@ namespace JRunner
 
             File.WriteAllBytes(outputFile, eccAligned);
 
-            MessageBox.Show("Done! Please check the location of your original file.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            UI.Msg.Show("Done! Please check the location of your original file.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void mB64MBToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(variables.filename1))
             {
-                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -3575,7 +3573,7 @@ namespace JRunner
         {
             if (string.IsNullOrWhiteSpace(variables.filename1))
             {
-                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -3607,7 +3605,7 @@ namespace JRunner
         {
             if (string.IsNullOrWhiteSpace(variables.filename1))
             {
-                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -3650,7 +3648,7 @@ namespace JRunner
         {
             if (string.IsNullOrWhiteSpace(variables.filename1))
             {
-                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -3764,6 +3762,12 @@ namespace JRunner
             }
         }
 
+        private void programGlitchChipToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Forms.GlitchChipProgrammer dlg = new Forms.GlitchChipProgrammer(rpicorgh);
+            dlg.Show(this);
+        }
+
         private void enableDevGLToolStripMenuItem_Click(object sender, EventArgs e)
         {
             bool enableDevGlStatus = false;
@@ -3869,7 +3873,7 @@ namespace JRunner
             }
             else
             {
-                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
         }
@@ -3878,13 +3882,13 @@ namespace JRunner
         {
             if (String.IsNullOrWhiteSpace(variables.filename1))
             {
-                MessageBox.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No nand loaded in source", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             if (nand == null || !nand.ok) return;
             if (String.IsNullOrWhiteSpace(txtCPUKey.Text))
             {
-                MessageBox.Show("No CPU Key entered", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("No CPU Key entered", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -3905,7 +3909,7 @@ namespace JRunner
         //    {
         //        if (f.filename == null)
         //        {
-        //            MessageBox.Show("You did not select anything", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //            UI.Msg.Show("You did not select anything", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
         //            return;
         //        }
         //        vnand = new Nand.VNand(f.filename, f.console, f.flashconfig, f.BadBlocks);
@@ -3950,7 +3954,7 @@ namespace JRunner
                 }
                 catch
                 {
-                    MessageBox.Show("Could not launch driver installer for some reason!\n\nPlease launch it manually from the common\\drivers folder", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("Could not launch driver installer for some reason!\n\nPlease launch it manually from the common\\drivers folder", "Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             });
             xFlasherDrivers.Start();
@@ -3960,12 +3964,12 @@ namespace JRunner
         {
             if (device == DEVICE.XFLASHER_SPI)
             {
-                MessageBox.Show("Connect OpenXenium and press OK", "Connect Device", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                UI.Msg.Show("Connect OpenXenium and press OK", "Connect Device", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 xflasher.flashSvf(variables.pathforit + @"\common\svf\openxenium.svf");
             }
             else
             {
-                MessageBox.Show("This only works with xFlasher in SPI Mode!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                UI.Msg.Show("This only works with xFlasher in SPI Mode!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -4194,7 +4198,7 @@ namespace JRunner
                 loadfile(ref variables.filename1, ref this.txtFilePath1, true);
                 if (String.IsNullOrWhiteSpace(variables.filename1))
                 {
-                    MessageBox.Show("No file was selected!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("No file was selected!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
@@ -4213,7 +4217,7 @@ namespace JRunner
             {
                 if (xPanel.getRgh3Checked() && (variables.ctyp.ID == 3 || variables.ctyp.ID == 8))
                 {
-                    MessageBox.Show("RGH3 is not supported on this board type", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("RGH3 is not supported on this board type", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 if (nand == null || !nand.ok) return;
@@ -4237,7 +4241,7 @@ namespace JRunner
             }
             else
             {
-                MessageBox.Show("Impossible to create an ECC for this hack type", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Impossible to create an ECC for this hack type", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -4262,6 +4266,10 @@ namespace JRunner
 
         void btnWriteECCClick()
         {
+            // Same reasoning as btnWriteClick below - the flasher-device branches never
+            // reach getconsoletype(), so the hook has to sit at the top of the handler.
+            if (!BeginFlash()) return;
+
             if (device == DEVICE.PICOFLASHER)
             {
                 picoflasher.Write(nTools.getbtnWriteECC().Contains("XeLL") ? 0 : 1);
@@ -4308,6 +4316,12 @@ namespace JRunner
 
         void btnWriteClick()
         {
+            // Hooked here rather than inside getconsoletype() because the flasher-device
+            // branches below (PicoFlasher, xFlasher SPI, MTX USB) never reach it - which is
+            // why the confirmation and the logo progress overlay weren't appearing for
+            // anyone writing through an actual flasher.
+            if (!BeginFlash()) return;
+
             if (device == DEVICE.PICOFLASHER)
             {
                 picoflasher.Write(0);
@@ -4463,7 +4477,7 @@ namespace JRunner
             }
             if (txtCPUKey.Text == "AUTOGGISBETTER")
             {
-                MessageBox.Show("Lol no");
+                UI.Msg.Show("Lol no");
             }
         }
 
@@ -4682,8 +4696,30 @@ namespace JRunner
 
         #region Demon
         bool showingdemon = false;
+
+        // Custom window chrome (see MainForm.Chrome.cs) needs first refusal on
+        // WM_NCHITTEST so it can turn the fake title bar / window edges into
+        // drag and resize handles. A partial class can only define WndProc
+        // once, so that logic is folded in here rather than in Chrome.cs.
         protected override void WndProc(ref Message m)
         {
+            const int WM_NCHITTEST = 0x0084;
+            const int HTCLIENT = 1;
+
+            if (m.Msg == WM_NCHITTEST)
+            {
+                base.WndProc(ref m);
+                if ((int)m.Result == HTCLIENT)
+                {
+                    int lp = m.LParam.ToInt32();
+                    Point screen = new Point((short)(lp & 0xFFFF), (short)((lp >> 16) & 0xFFFF));
+                    Point client = PointToClient(screen);
+                    int hit = ChromeHitTest(client);
+                    if (hit != 0) m.Result = (IntPtr)hit;
+                }
+                return;
+            }
+
             try
             {
                 // The OnDeviceChange routine processes WM_DEVICECHANGE messages.
@@ -5066,6 +5102,12 @@ namespace JRunner
                         case "PrereleaseUpdates":
                             x.write(name, variables.checkPrereleaseUpdates.ToString());
                             break;
+                        case "AnimationsEnabled":
+                            x.write(name, variables.animationsEnabled.ToString());
+                            break;
+                        case "UpdateChannel":
+                            x.write(name, variables.updateChannel);
+                            break;
                         case "SlimPreferSrgh":
                             x.write(name, variables.slimprefersrgh.ToString());
                             break;
@@ -5283,6 +5325,14 @@ namespace JRunner
                             bvalue = false;
                             if (!bool.TryParse(val, out bvalue)) bvalue = false;
                             variables.checkPrereleaseUpdates = bvalue;
+                            break;
+                        case "AnimationsEnabled":
+                            bvalue = true;
+                            if (!bool.TryParse(val, out bvalue)) bvalue = true;
+                            variables.animationsEnabled = bvalue;
+                            break;
+                        case "UpdateChannel":
+                            variables.updateChannel = val ?? "";
                             break;
                         case "SlimPreferSrgh":
                             bvalue = false;

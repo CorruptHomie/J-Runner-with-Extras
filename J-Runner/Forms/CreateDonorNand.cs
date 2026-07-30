@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -10,6 +10,7 @@ namespace JRunner.Forms
         public CreateDonorNand()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             this.FormClosing += FormClose;
             DonorWizard.Cancelling += WizardCancelled;
             DonorWizard.Finished += WizardFinished;
@@ -72,14 +73,14 @@ namespace JRunner.Forms
         }
 
         // Prerequisites Page
-        private void PrereqNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void PrereqNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
             pullXeBuildVal();
 
             if (console.Length == 0 || hack.Length == 0 || kernelStr.Length == 0)
             {
                 e.Cancel = true;
-                MessageBox.Show("Console Type, Hack Type, or Dashboard Version not set\n\nPlease make sure the XeBuild panel is set correctly", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Console Type, Hack Type, or Dashboard Version not set\n\nPlease make sure the XeBuild panel is set correctly", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             else
@@ -137,17 +138,17 @@ namespace JRunner.Forms
         }
 
         // CPU Key and KV Page
-        private void CpuKvBack(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void CpuKvBack(object sender, UI.WizardPageConfirmEventArgs e)
         {
             forceFocus(false);
         }
 
-        private void CpuKvNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void CpuKvNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
             if (!Nand.Nand.VerifyKey(Oper.StringToByteArray(CpuKeyBox.Text)))
             {
                 e.Cancel = true;
-                MessageBox.Show("CPU Key is wrong", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("CPU Key is wrong", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             else if (!DonorKv.Checked)
@@ -275,7 +276,7 @@ namespace JRunner.Forms
             catch
             {
                 kvValid = false;
-                MessageBox.Show("Illegal path to keyvault\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Illegal path to keyvault\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -292,19 +293,19 @@ namespace JRunner.Forms
                     else
                     {
                         kvValid = false;
-                        MessageBox.Show("Keyvault is encrypted\n\nYou can decrypt it using the Decrypt Keyvault option in the Tools menu", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        UI.Msg.Show("Keyvault is encrypted\n\nYou can decrypt it using the Decrypt Keyvault option in the Tools menu", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 else
                 {
                     kvValid = false;
-                    MessageBox.Show("Keyvault is invalid or corrupt\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("Keyvault is invalid or corrupt\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
                 kvValid = false;
-                MessageBox.Show("Keyvault is missing\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Keyvault is missing\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -325,7 +326,7 @@ namespace JRunner.Forms
         }
 
         // FCRT Page
-        private void FcrtNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void FcrtNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
             if (!DonorFcrt.Checked)
             {
@@ -399,7 +400,7 @@ namespace JRunner.Forms
             catch
             {
                 fcrtValid = false;
-                MessageBox.Show("Illegal path to FCRT\n\nYou need to supply a valid decrypted FCRT", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Illegal path to FCRT\n\nYou need to supply a valid decrypted FCRT", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -412,18 +413,18 @@ namespace JRunner.Forms
                 else
                 {
                     fcrtValid = false;
-                    MessageBox.Show("FCRT is invalid or corrupt\n\nYou need to supply a valid decrypted FCRT", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("FCRT is invalid or corrupt\n\nYou need to supply a valid decrypted FCRT", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
                 fcrtValid = false;
-                MessageBox.Show("FCRT is missing\n\nYou need to supply a valid decrypted FCRT", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("FCRT is missing\n\nYou need to supply a valid decrypted FCRT", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         // LDV and SMC Config Page
-        private void LdvSmcConfNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void LdvSmcConfNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
             ldv = Convert.ToInt32(Math.Round(LdvBox.Value, 0));
 
@@ -493,7 +494,7 @@ namespace JRunner.Forms
             catch
             {
                 smcConfValid = false;
-                MessageBox.Show("Illegal path to SMC Config\n\nYou need to supply a valid SMC Config", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Illegal path to SMC Config\n\nYou need to supply a valid SMC Config", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -506,13 +507,13 @@ namespace JRunner.Forms
                 else
                 {
                     smcConfValid = false;
-                    MessageBox.Show("SMC Config is invalid or corrupt\n\nYou need to supply a valid SMC Config", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("SMC Config is invalid or corrupt\n\nYou need to supply a valid SMC Config", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
                 smcConfValid = false;
-                MessageBox.Show("SMC Config is missing\n\nYou need to supply a valid SMC Config", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("SMC Config is missing\n\nYou need to supply a valid SMC Config", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

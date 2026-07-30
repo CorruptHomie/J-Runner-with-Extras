@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -69,7 +69,7 @@ namespace JRunner
             double len = new FileInfo(variables.filename1).Length;
             if (len == 50331648)
             {
-                MessageBox.Show("Unable to write eMMC type image with an SPI tool\n\nPlease use an eMMC tool", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Unable to write eMMC type image with an SPI tool\n\nPlease use an eMMC tool", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             else if (len == 553648128)
@@ -99,7 +99,7 @@ namespace JRunner
             }
             else
             {
-                MessageBox.Show("Nand is not a valid size", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Nand is not a valid size", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

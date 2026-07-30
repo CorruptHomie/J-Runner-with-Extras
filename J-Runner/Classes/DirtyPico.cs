@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Media;
@@ -38,7 +38,7 @@ namespace JRunner
         {
             MessageBoxButtons DirtyButtons = MessageBoxButtons.OK;
             string DirtyMessage = "Check wiring before flashing." + Environment.NewLine + "Watch LEDs on glitch chip during flashing." + Environment.NewLine + "If LEDs change you've had a successful flash!";
-            MessageBox.Show(DirtyMessage, "WARNING", DirtyButtons, MessageBoxIcon.Warning);
+            UI.Msg.Show(DirtyMessage, "WARNING", DirtyButtons, MessageBoxIcon.Warning);
 
             {
                 if (inUse || waiting) return;

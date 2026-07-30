@@ -1,4 +1,4 @@
-﻿namespace JRunner.Panels
+namespace JRunner.Panels
 {
     partial class NandTools
     {
@@ -61,7 +61,7 @@
             // 
             // btnCPUDB
             // 
-            this.btnCPUDB.Location = new System.Drawing.Point(221, 107);
+            this.btnCPUDB.Location = new System.Drawing.Point(3, 166);
             this.btnCPUDB.Name = "btnCPUDB";
             this.btnCPUDB.Size = new System.Drawing.Size(63, 51);
             this.btnCPUDB.TabIndex = 80;
@@ -263,9 +263,9 @@
             // 
             this.pBoxDevice.ErrorImage = null;
             this.pBoxDevice.InitialImage = null;
-            this.pBoxDevice.Location = new System.Drawing.Point(12, 166);
+            this.pBoxDevice.Location = new System.Drawing.Point(258, 99);
             this.pBoxDevice.Name = "pBoxDevice";
-            this.pBoxDevice.Size = new System.Drawing.Size(220, 64);
+            this.pBoxDevice.Size = new System.Drawing.Size(198, 118);
             this.pBoxDevice.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pBoxDevice.TabIndex = 83;
             this.pBoxDevice.TabStop = false;
@@ -273,7 +273,7 @@
             // 
             // btnCreateDonor
             // 
-            this.btnCreateDonor.Location = new System.Drawing.Point(285, 107);
+            this.btnCreateDonor.Location = new System.Drawing.Point(70, 166);
             this.btnCreateDonor.Name = "btnCreateDonor";
             this.btnCreateDonor.Size = new System.Drawing.Size(58, 51);
             this.btnCreateDonor.TabIndex = 87;
@@ -285,7 +285,7 @@
             // 
             // btnExtractFiles
             // 
-            this.btnExtractFiles.Location = new System.Drawing.Point(344, 107);
+            this.btnExtractFiles.Location = new System.Drawing.Point(132, 166);
             this.btnExtractFiles.Name = "btnExtractFiles";
             this.btnExtractFiles.Size = new System.Drawing.Size(58, 51);
             this.btnExtractFiles.TabIndex = 88;
@@ -297,7 +297,7 @@
             // 
             // btnPatchKv
             // 
-            this.btnPatchKv.Location = new System.Drawing.Point(403, 107);
+            this.btnPatchKv.Location = new System.Drawing.Point(194, 166);
             this.btnPatchKv.Name = "btnPatchKv";
             this.btnPatchKv.Size = new System.Drawing.Size(58, 51);
             this.btnPatchKv.TabIndex = 89;

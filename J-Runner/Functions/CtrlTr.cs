@@ -1,4 +1,4 @@
-﻿using LibUsbDotNet;
+using LibUsbDotNet;
 using LibUsbDotNet.Main;
 using System;
 using System.Runtime.InteropServices;
@@ -15,6 +15,7 @@ namespace JRunner.Functions
         public CtrlTr()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private static UsbDevice MyUsbDevice;

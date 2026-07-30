@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace JRunner
@@ -21,6 +21,7 @@ namespace JRunner
         public ConsoleTypes()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
 
             this.AcceptButton = btnOk;
             this.CancelButton = btnCancel;

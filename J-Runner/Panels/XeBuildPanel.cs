@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -714,7 +714,7 @@ namespace JRunner.Panels
             {
                 if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin")))
                 {
-                    if (MessageBox.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                    if (UI.Msg.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     {
                         File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin"));
                     }
@@ -740,7 +740,7 @@ namespace JRunner.Panels
             {
                 if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin")))
                 {
-                    if (MessageBox.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                    if (UI.Msg.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     {
                         File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin"));
                     }
@@ -766,7 +766,7 @@ namespace JRunner.Panels
             {
                 if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin")))
                 {
-                    if (MessageBox.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                    if (UI.Msg.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     {
                         File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin"));
                     }
@@ -792,7 +792,7 @@ namespace JRunner.Panels
             {
                 if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin")))
                 {
-                    if (MessageBox.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                    if (UI.Msg.Show("smc.bin found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     {
                         File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + "smc.bin"));
                     }
@@ -870,7 +870,7 @@ namespace JRunner.Panels
         {
             if (chkWB4G.Checked)
             {
-                MessageBox.Show("Warning: This function is for advanced users only\n\nIf you don't understand what this is for, use WB 2K on the XeBuild tab instead", "Steep Hill Ahead", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                UI.Msg.Show("Warning: This function is for advanced users only\n\nIf you don't understand what this is for, use WB 2K on the XeBuild tab instead", "Steep Hill Ahead", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Console.WriteLine("Winbond 2K Buffer Selected");
                 chkWB.Checked = false;
             }
@@ -1001,7 +1001,7 @@ namespace JRunner.Panels
         {
             if (File.Exists(Path.Combine(variables.outfolder, "consoleDump.bin")))
             {
-                MessageBox.Show("consoleDump.bin already exists");
+                UI.Msg.Show("consoleDump.bin already exists");
                 return;
             }
             string arguments;
@@ -1069,7 +1069,7 @@ namespace JRunner.Panels
             string arguments = "-p";
             if (!String.IsNullOrWhiteSpace(variables.filename1))
             {
-                if (MessageBox.Show("Make sure that source file is a patch file.", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel) return;
+                if (UI.Msg.Show("Make sure that source file is a patch file.", "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel) return;
                 arguments += " \"" + variables.filename1 + "\"";
             }
             if (chkShutdown.Checked) arguments += " -s";
@@ -1244,7 +1244,7 @@ namespace JRunner.Panels
                 {
                     if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + file)))
                     {
-                        if (MessageBox.Show(file + " found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                        if (UI.Msg.Show(file + " found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                         {
                             File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + file));
                         }
@@ -1261,12 +1261,12 @@ namespace JRunner.Panels
             }
             else if (er == Classes.xebuild.XebuildError.nodash)
             {
-                MessageBox.Show("No Dash Selected");
+                UI.Msg.Show("No Dash Selected");
                 return;
             }
             else
             {
-                MessageBox.Show("Something Bad Happened");
+                UI.Msg.Show("Something Bad Happened");
                 return;
             }
         }
@@ -1328,18 +1328,18 @@ namespace JRunner.Panels
                     loadFil(ref variables.filename1, true);
                     if (String.IsNullOrWhiteSpace(variables.filename1))
                     {
-                        MessageBox.Show("No file was selected!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        UI.Msg.Show("No file was selected!", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
                 }
                 if (!File.Exists(variables.filename1))
                 {
-                    MessageBox.Show("File is missing. Ensure it wasn't moved and app can access it.", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("File is missing. Ensure it wasn't moved and app can access it.", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 if (Path.GetExtension(variables.filename1) != ".bin")
                 {
-                    MessageBox.Show("You must select a .bin file", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                    UI.Msg.Show("You must select a .bin file", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                     return;
                 }
                 try
@@ -1349,7 +1349,7 @@ namespace JRunner.Panels
                     {
                         if (File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + file)))
                         {
-                            if (MessageBox.Show(file + " found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                            if (UI.Msg.Show(file + " found. Delete it?\nUnless you put it there, delete it!", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                             {
                                 File.Delete(Path.Combine(variables.pathforit, @"xebuild\data\" + file));
                             }
@@ -1376,7 +1376,7 @@ namespace JRunner.Panels
                     {
                         if (!File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\" + file)))
                         {
-                            MessageBox.Show(file + " is missing", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            UI.Msg.Show(file + " is missing", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
                     }
@@ -1395,7 +1395,7 @@ namespace JRunner.Panels
                         {
                             if (!File.Exists(Path.Combine(variables.pathforit, @"xebuild\data\fcrt.bin")))
                             {
-                                MessageBox.Show("fcrt.bin is missing");
+                                UI.Msg.Show("fcrt.bin is missing");
                                 Process.Start(Path.Combine(variables.pathforit, @"xebuild\data"));
                                 return;
                             }
@@ -1424,20 +1424,20 @@ namespace JRunner.Panels
             switch (xe.createxebuild(custom))
             {
                 case Classes.xebuild.XebuildError.nocpukey:
-                    MessageBox.Show("CPU Key is Missing");
+                    UI.Msg.Show("CPU Key is Missing");
                     return;
                 case Classes.xebuild.XebuildError.nodash:
-                    MessageBox.Show("No Dash Selected");
+                    UI.Msg.Show("No Dash Selected");
                     return;
                 case Classes.xebuild.XebuildError.noinis:
-                    MessageBox.Show("Ini's are Missing");
+                    UI.Msg.Show("Ini's are Missing");
                     return;
                 case Classes.xebuild.XebuildError.nobootloaders:
                     Console.WriteLine("The specified console bootloader list ({0}) is missing from the ini ({1})", variables.ctyp.Ini + "bl", ini);
                     Console.WriteLine("You can either add it manually or ask for it get added if its possible");
                     return;
                 case Classes.xebuild.XebuildError.wrongcpukey:
-                    MessageBox.Show("Wrong CPU Key");
+                    UI.Msg.Show("Wrong CPU Key");
                     return;
                 case Classes.xebuild.XebuildError.noconsole:
                     variables.ctyp = callconsoletypes(ConsoleTypes.Selected.All);
@@ -1470,7 +1470,7 @@ namespace JRunner.Panels
                 // Surface it as a normal error dialog instead.
                 if (variables.debugme) Console.WriteLine(ex.ToString());
                 try { File.AppendAllText(Path.Combine(variables.rootfolder, "Error.log"), ex.ToString() + Environment.NewLine); } catch { }
-                MessageBox.Show("Something went wrong creating the XeBuild image:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Something went wrong creating the XeBuild image:\n\n" + ex.Message, "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }
@@ -1535,7 +1535,7 @@ namespace JRunner.Panels
             FileInfo fi = new FileInfo(variables.filename1);
             if (fi.Length == 0xE0400000)
             {
-                if (MessageBox.Show("Copy all 4GB data?", "Copy", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
+                if (UI.Msg.Show("Copy all 4GB data?", "Copy", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
                 {
                     JRunner.Functions.Copy c = new JRunner.Functions.Copy(variables.filename1, targetnand);
                     c.ShowDialog();
@@ -1574,14 +1574,14 @@ namespace JRunner.Panels
                     if (variables.debugme) Console.WriteLine("Deleted {0}", variables.xePath + variables.nanddump);
                 }
                 catch (System.IO.IOException e)
-                { MessageBox.Show(e.Message); return; }
+                { UI.Msg.Show(e.Message); return; }
             }
             if (File.Exists(variables.xePath + variables.cpukeypath))
             {
                 try
                 { File.Delete(variables.xePath + variables.cpukeypath); if (variables.debugme) Console.WriteLine("Deleted {0}", variables.xePath + variables.cpukeypath); }
                 catch (System.IO.IOException e)
-                { MessageBox.Show(e.Message); return; }
+                { UI.Msg.Show(e.Message); return; }
             }
             if (File.Exists(variables.launchpath + @"\" + currentDashFolder() + @"\launch.ini"))
             {
@@ -1591,7 +1591,7 @@ namespace JRunner.Panels
                     if (variables.debugme) Console.WriteLine("Deleted launch.ini");
                 }
                 catch (System.IO.IOException e)
-                { MessageBox.Show(e.Message); return; }
+                { UI.Msg.Show(e.Message); return; }
             }
             if (File.Exists(Path.Combine(variables.xePath, "SMC.bin")) && (variables.copiedSMC || variables.fullDataClean)) // Only Delete SMCs it puts there
             {
@@ -1601,7 +1601,7 @@ namespace JRunner.Panels
                     if (variables.debugme) Console.WriteLine("Deleted SMC.bin");
                 }
                 catch (System.IO.IOException e)
-                { MessageBox.Show(e.Message); return; }
+                { UI.Msg.Show(e.Message); return; }
             }
             if (File.Exists(Path.Combine(variables.xePath, "KV.bin")) && variables.fullDataClean)
             {
@@ -1611,7 +1611,7 @@ namespace JRunner.Panels
                     if (variables.debugme) Console.WriteLine("Deleted KV.bin");
                 }
                 catch (System.IO.IOException e)
-                { MessageBox.Show(e.Message); return; }
+                { UI.Msg.Show(e.Message); return; }
             }
             if (File.Exists(Path.Combine(variables.xePath, "fcrt.bin")) && variables.fullDataClean)
             {
@@ -1621,7 +1621,7 @@ namespace JRunner.Panels
                     if (variables.debugme) Console.WriteLine("Deleted fcrt.bin");
                 }
                 catch (System.IO.IOException e)
-                { MessageBox.Show(e.Message); return; }
+                { UI.Msg.Show(e.Message); return; }
             }
             if (File.Exists(Path.Combine(variables.xePath, "smc_config.bin")) && variables.fullDataClean)
             {
@@ -1631,7 +1631,7 @@ namespace JRunner.Panels
                     if (variables.debugme) Console.WriteLine("Deleted KV.bin");
                 }
                 catch (System.IO.IOException e)
-                { MessageBox.Show(e.Message); return; }
+                { UI.Msg.Show(e.Message); return; }
             }
         }
 

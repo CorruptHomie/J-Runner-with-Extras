@@ -1,4 +1,4 @@
-﻿
+
 namespace JRunner
 {
     partial class UpdateAvailable
@@ -30,8 +30,8 @@ namespace JRunner
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UpdateAvailable));
-            this.SuccessWizard = new AeroWizard.WizardControl();
-            this.SuccessPage = new AeroWizard.WizardPage();
+            this.SuccessWizard = new UI.ThemedWizard();
+            this.SuccessPage = new UI.ThemedWizardPage();
             this.lblMessage = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.SuccessWizard)).BeginInit();
             this.SuspendLayout();
@@ -90,8 +90,8 @@ namespace JRunner
 
         #endregion
 
-        private AeroWizard.WizardControl SuccessWizard;
-        private AeroWizard.WizardPage SuccessPage;
+        private UI.ThemedWizard SuccessWizard;
+        private UI.ThemedWizardPage SuccessPage;
         private System.Windows.Forms.Label lblMessage;
     }
 }

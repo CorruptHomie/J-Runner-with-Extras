@@ -80,6 +80,7 @@
             this.minimizeToSystemTray = new System.Windows.Forms.CheckBox();
             this.autoCheckUpdatesChk = new System.Windows.Forms.CheckBox();
             this.checkPrereleaseUpdatesChk = new System.Windows.Forms.CheckBox();
+            this.chkAnimationsEnabled = new System.Windows.Forms.CheckBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.SlimPreferSrgh = new System.Windows.Forms.RadioButton();
             this.SlimPreferRgh12 = new System.Windows.Forms.RadioButton();
@@ -566,6 +567,17 @@
             this.checkPrereleaseUpdatesChk.Text = "Check for pre-release (beta) updates";
             this.checkPrereleaseUpdatesChk.UseVisualStyleBackColor = true;
             this.checkPrereleaseUpdatesChk.CheckedChanged += new System.EventHandler(this.checkPrereleaseUpdatesChk_CheckedChanged);
+            //
+            // chkAnimationsEnabled
+            //
+            this.chkAnimationsEnabled.AutoSize = true;
+            this.chkAnimationsEnabled.Location = new System.Drawing.Point(18, 399);
+            this.chkAnimationsEnabled.Name = "chkAnimationsEnabled";
+            this.chkAnimationsEnabled.Size = new System.Drawing.Size(112, 17);
+            this.chkAnimationsEnabled.TabIndex = 53;
+            this.chkAnimationsEnabled.Text = "Enable animations";
+            this.chkAnimationsEnabled.UseVisualStyleBackColor = true;
+            this.chkAnimationsEnabled.CheckedChanged += new System.EventHandler(this.chkAnimationsEnabled_CheckedChanged);
             // 
             // groupBox3
             // 
@@ -611,6 +623,7 @@
             this.Controls.Add(this.minimizeToSystemTray);
             this.Controls.Add(this.autoCheckUpdatesChk);
             this.Controls.Add(this.checkPrereleaseUpdatesChk);
+            this.Controls.Add(this.chkAnimationsEnabled);
             this.Controls.Add(this.logDefault);
             this.Controls.Add(this.logTextCustom);
             this.Controls.Add(this.logTextBlack);
@@ -707,6 +720,7 @@
         private System.Windows.Forms.CheckBox minimizeToSystemTray;
         private System.Windows.Forms.CheckBox autoCheckUpdatesChk;
         private System.Windows.Forms.CheckBox checkPrereleaseUpdatesChk;
+        private System.Windows.Forms.CheckBox chkAnimationsEnabled;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.RadioButton SlimPreferSrgh;
         private System.Windows.Forms.RadioButton SlimPreferRgh12;

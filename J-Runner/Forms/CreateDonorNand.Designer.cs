@@ -1,4 +1,4 @@
-﻿
+
 namespace JRunner.Forms
 {
     partial class CreateDonorNand
@@ -31,11 +31,11 @@ namespace JRunner.Forms
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CreateDonorNand));
-            this.DonorWizard = new AeroWizard.WizardControl();
-            this.PrereqPage = new AeroWizard.WizardPage();
+            this.DonorWizard = new UI.ThemedWizard();
+            this.PrereqPage = new UI.ThemedWizardPage();
             this.label1 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.CpuKvPage = new AeroWizard.WizardPage();
+            this.CpuKvPage = new UI.ThemedWizardPage();
             this.DonorKvText = new System.Windows.Forms.Label();
             this.RetailKvWarn = new System.Windows.Forms.Label();
             this.CpuKeyGroup = new System.Windows.Forms.GroupBox();
@@ -47,7 +47,7 @@ namespace JRunner.Forms
             this.KvEllipse = new System.Windows.Forms.Button();
             this.KvBox = new System.Windows.Forms.TextBox();
             this.DonorKv = new System.Windows.Forms.CheckBox();
-            this.FcrtPage = new AeroWizard.WizardPage();
+            this.FcrtPage = new UI.ThemedWizardPage();
             this.NoFcrtText = new System.Windows.Forms.Label();
             this.RetailFcrtWarn = new System.Windows.Forms.Label();
             this.NoFcrt = new System.Windows.Forms.CheckBox();
@@ -58,7 +58,7 @@ namespace JRunner.Forms
             this.FcrtEllipse = new System.Windows.Forms.Button();
             this.FcrtBox = new System.Windows.Forms.TextBox();
             this.DonorFcrtText = new System.Windows.Forms.Label();
-            this.LdvSmcConfPage = new AeroWizard.WizardPage();
+            this.LdvSmcConfPage = new UI.ThemedWizardPage();
             this.SmcConfigGroup = new System.Windows.Forms.GroupBox();
             this.label16 = new System.Windows.Forms.Label();
             this.SmcConfigEllipse = new System.Windows.Forms.Button();
@@ -68,7 +68,7 @@ namespace JRunner.Forms
             this.LdvGroup = new System.Windows.Forms.GroupBox();
             this.LdvBox = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
-            this.FinishPage = new AeroWizard.WizardPage();
+            this.FinishPage = new UI.ThemedWizardPage();
             this.RevLdv = new System.Windows.Forms.TextBox();
             this.label15 = new System.Windows.Forms.Label();
             this.RevKernel = new System.Windows.Forms.TextBox();
@@ -646,25 +646,25 @@ namespace JRunner.Forms
 
         #endregion
 
-        private AeroWizard.WizardControl DonorWizard;
-        private AeroWizard.WizardPage CpuKvPage;
+        private UI.ThemedWizard DonorWizard;
+        private UI.ThemedWizardPage CpuKvPage;
         private System.Windows.Forms.GroupBox KvGroup;
         private System.Windows.Forms.Button KvEllipse;
         private System.Windows.Forms.TextBox KvBox;
         private System.Windows.Forms.CheckBox DonorKv;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private AeroWizard.WizardPage FcrtPage;
+        private UI.ThemedWizardPage FcrtPage;
         private System.Windows.Forms.CheckBox DonorFcrt;
         private System.Windows.Forms.GroupBox FcrtGroup;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button FcrtEllipse;
         private System.Windows.Forms.TextBox FcrtBox;
         private System.Windows.Forms.Label DonorFcrtText;
-        private AeroWizard.WizardPage FinishPage;
+        private UI.ThemedWizardPage FinishPage;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
-        private AeroWizard.WizardPage PrereqPage;
+        private UI.ThemedWizardPage PrereqPage;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox RevConsole;
@@ -683,7 +683,7 @@ namespace JRunner.Forms
         private System.Windows.Forms.Label RetailFcrtWarn;
         private System.Windows.Forms.Label NoFcrtText;
         private System.Windows.Forms.Label DonorKvText;
-        private AeroWizard.WizardPage LdvSmcConfPage;
+        private UI.ThemedWizardPage LdvSmcConfPage;
         private System.Windows.Forms.GroupBox LdvGroup;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.NumericUpDown LdvBox;

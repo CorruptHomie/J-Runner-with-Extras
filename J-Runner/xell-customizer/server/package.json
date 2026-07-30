@@ -1,0 +1,18 @@
+{
+  "name": "xell-customizer-server",
+  "private": true,
+  "type": "module",
+  "description": "xell-customizer-api ported from Cloudflare Workers to plain Node, bundled with J-Runner. Serves the built xell-customizer frontend and the /generate endpoint that dispatches the xell-worker/xell-builder GitHub Actions build, on http://localhost:2222.",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@hono/zod-validator": "^0.8.0",
+    "@octokit/rest": "^22.0.1",
+    "@paralleldrive/cuid2": "^3.3.0",
+    "dotenv": "^16.4.5",
+    "hono": "^4.12.27",
+    "zod": "^4.4.3"
+  }
+}

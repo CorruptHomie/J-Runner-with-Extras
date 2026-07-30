@@ -1,4 +1,4 @@
-﻿using Be.Windows.Forms;
+using Be.Windows.Forms;
 using System;
 using System.Drawing;
 using System.Globalization;
@@ -18,6 +18,7 @@ namespace JRunner.HexEdit
         {
             file = true;
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             if (File.Exists(filename))
             {
                 DynamicFileByteProvider dynamicFileByteProvider;
@@ -46,6 +47,7 @@ namespace JRunner.HexEdit
         public HexViewer(byte[] bytes)
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             if (bytes != null)
             {
                 try
@@ -181,7 +183,7 @@ namespace JRunner.HexEdit
         {
             if (hexBox1.ByteProvider != null && hexBox1.ByteProvider.HasChanges())
             {
-                DialogResult res = MessageBox.Show("Do you want to save changes?",
+                DialogResult res = UI.Msg.Show("Do you want to save changes?",
                     "Save",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning);

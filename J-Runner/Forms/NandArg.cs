@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace JRunner
@@ -14,6 +14,7 @@ namespace JRunner
         public NandProArg()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             this.AcceptButton = btnRun;
             btnRun.DialogResult = System.Windows.Forms.DialogResult.OK;
             txtFilename.Text = variables.filename1;

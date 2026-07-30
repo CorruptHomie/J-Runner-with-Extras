@@ -1,4 +1,4 @@
-﻿namespace JRunner.Panels
+namespace JRunner.Panels
 {
     partial class NandInfo
     {
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabControl1 = new UI.DarkTabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.textBoxCbType = new System.Windows.Forms.TextBox();
@@ -739,7 +739,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TabControl tabControl1;
+        private UI.DarkTabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox textBoxpd_cb;

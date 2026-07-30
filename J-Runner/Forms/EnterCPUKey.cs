@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,13 +15,14 @@ namespace JRunner.Forms
         public EnterCPUKey()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private void btnOk_Click(object sender, EventArgs e)
         {
             if (false == Nand.Nand.VerifyKey(Oper.StringToByteArray(txtCpuKey.Text)))
             {
-                DialogResult dr = MessageBox.Show("WARNING: Physical CPU key did not pass verification! Unless you've intentionally blown fuselines 3, 4, 5, or 6, you've likely made a typo. Continue?",
+                DialogResult dr = UI.Msg.Show("WARNING: Physical CPU key did not pass verification! Unless you've intentionally blown fuselines 3, 4, 5, or 6, you've likely made a typo. Continue?",
                                                   "CPU Key Verification Failed",
                                                   MessageBoxButtons.YesNo,
                                                   MessageBoxIcon.Warning);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -13,6 +13,7 @@ namespace JRunner
         public AddCpuKey()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
 

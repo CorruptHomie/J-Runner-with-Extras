@@ -47,7 +47,97 @@ namespace JRunner
             [JsonProperty("tag_name")] public string TagName;
             [JsonProperty("prerelease")] public bool Prerelease;
             [JsonProperty("body")] public string Body;
+            [JsonProperty("target_commitish")] public string TargetCommitish;
             [JsonProperty("assets")] public List<GhAsset> Assets;
+        }
+
+        /// <summary>
+        /// The three release streams the updater can follow. GitHub has no notion of a
+        /// "channel", so Release and PreRelease are each a combination of two things a
+        /// release actually carries: its prerelease flag, and target_commitish - the
+        /// branch it was cut from. Dev only cares about the branch - it's whatever's
+        /// newest there, prerelease or not - so a dev-branch build is never left
+        /// unreachable by every channel just because of how its prerelease flag was set.
+        /// </summary>
+        public enum UpdateChannel
+        {
+            Release,     // stable build,       release branch
+            PreRelease,  // pre-release build,  release branch
+            Dev          // stable or pre-release build, dev branch
+        }
+
+        // Branch names treated as "the dev branch". Anything else (main, master, release,
+        // or a raw commit sha, which is what target_commitish holds for a release cut from
+        // a tag) counts as a release branch.
+        private static readonly string[] DevBranches = { "dev", "develop", "development" };
+
+        private static bool IsDevBranch(string targetCommitish)
+        {
+            if (string.IsNullOrEmpty(targetCommitish)) return false;
+            foreach (string b in DevBranches)
+                if (targetCommitish.Equals(b, StringComparison.OrdinalIgnoreCase)) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// The channel the user picked, or - if they never picked one - the channel that
+        /// matches the build they're currently running, so a dev pre-release build doesn't
+        /// silently sit on the stable stream.
+        /// </summary>
+        public static UpdateChannel CurrentChannel
+        {
+            get
+            {
+                UpdateChannel parsed;
+                if (!string.IsNullOrEmpty(variables.updateChannel)
+                    && Enum.TryParse(variables.updateChannel, true, out parsed))
+                    return parsed;
+                return ResolveDefaultChannel();
+            }
+            set
+            {
+                variables.updateChannel = value.ToString();
+                // Keep the older Settings checkbox consistent with the channel choice, so
+                // the two can't disagree about whether pre-releases are wanted. Dev counts
+                // too now, since MatchesChannel no longer excludes prereleases from it.
+                variables.checkPrereleaseUpdates = (value == UpdateChannel.PreRelease || value == UpdateChannel.Dev);
+            }
+        }
+
+        public static UpdateChannel ResolveDefaultChannel()
+        {
+            string v = variables.version ?? "";
+            bool dev = v.IndexOf("dev", StringComparison.OrdinalIgnoreCase) >= 0;
+            bool pre = v.IndexOf("pre", StringComparison.OrdinalIgnoreCase) >= 0
+                    || v.IndexOf("beta", StringComparison.OrdinalIgnoreCase) >= 0
+                    || v.IndexOf("rc", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (dev) return UpdateChannel.Dev;
+            if (pre) return UpdateChannel.PreRelease;
+            return UpdateChannel.Release;
+        }
+
+        public static string DescribeChannel(UpdateChannel c)
+        {
+            switch (c)
+            {
+                case UpdateChannel.Release: return "Latest stable build from the release branch.";
+                case UpdateChannel.PreRelease: return "Latest pre-release build from the release branch.";
+                case UpdateChannel.Dev: return "Latest build from the dev branch.";
+            }
+            return "";
+        }
+
+        private static bool MatchesChannel(GhRelease r, UpdateChannel channel)
+        {
+            bool dev = IsDevBranch(r.TargetCommitish);
+            switch (channel)
+            {
+                case UpdateChannel.Release: return !r.Prerelease && !dev;
+                case UpdateChannel.PreRelease: return r.Prerelease && !dev;
+                case UpdateChannel.Dev: return dev;
+            }
+            return false;
         }
 
         // Returns the dotted numeric core of a version string, with the first standalone
@@ -74,10 +164,12 @@ namespace JRunner
 
         // The pre-release channel is used if the running build IS a pre-release, or the user
         // has explicitly opted into pre-release updates from a stable build (Settings).
+        // Kept for the older call sites that only care "stable or not"; the channel is now
+        // the single source of truth for that.
         public static bool WantsPrereleaseChannel()
         {
-            return variables.checkPrereleaseUpdates
-                || variables.version.IndexOf("Pre-Release", StringComparison.OrdinalIgnoreCase) >= 0;
+            UpdateChannel c = CurrentChannel;
+            return c == UpdateChannel.PreRelease || c == UpdateChannel.Dev;
         }
 
         private static bool TryFindAssetUrl(List<GhAsset> assets, out string url)
@@ -96,7 +188,7 @@ namespace JRunner
         // Finds the latest release matching wantPrerelease, if it's newer than currentVersion.
         // GitHub returns releases newest-first, so the first channel match is that channel's
         // latest - if it isn't newer, nothing further down the list will be either.
-        private static bool TryGetNewerRelease(List<GhRelease> releases, string currentVersion, bool wantPrerelease, out GhRelease match)
+        private static bool TryGetNewerRelease(List<GhRelease> releases, string currentVersion, UpdateChannel channel, out GhRelease match)
         {
             match = null;
             string curCore = ExtractVersionCore(currentVersion);
@@ -105,7 +197,7 @@ namespace JRunner
 
             foreach (GhRelease r in releases)
             {
-                if (r.Prerelease != wantPrerelease) continue;
+                if (!MatchesChannel(r, channel)) continue;
 
                 string core = ExtractVersionCore(r.TagName);
                 Version relVer;
@@ -151,7 +243,7 @@ namespace JRunner
                 checkSuccess = true;
 
                 GhRelease newer;
-                if (TryGetNewerRelease(releases, variables.version, WantsPrereleaseChannel(), out newer))
+                if (TryGetNewerRelease(releases, variables.version, CurrentChannel, out newer))
                 {
                     string assetUrl;
                     if (TryFindAssetUrl(newer.Assets, out assetUrl))
@@ -214,9 +306,9 @@ namespace JRunner
                 string assetUrl = _pendingAssetUrl;
                 if (string.IsNullOrEmpty(assetUrl))
                 {
-                    bool wantPrerelease = WantsPrereleaseChannel();
+                    UpdateChannel channel = CurrentChannel;
                     List<GhRelease> releases = FetchReleases();
-                    GhRelease target = releases.FirstOrDefault(r => r.Prerelease == wantPrerelease)
+                    GhRelease target = releases.FirstOrDefault(r => MatchesChannel(r, channel))
                                      ?? releases.FirstOrDefault(r => !r.Prerelease);
                     if (target == null || !TryFindAssetUrl(target.Assets, out assetUrl))
                     {

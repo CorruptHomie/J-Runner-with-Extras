@@ -1,4 +1,4 @@
-﻿
+
 namespace JRunner
 {
     partial class UpdateFailed
@@ -30,8 +30,8 @@ namespace JRunner
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UpdateFailed));
-            this.FailedWizard = new AeroWizard.WizardControl();
-            this.FailedPage = new AeroWizard.WizardPage();
+            this.FailedWizard = new UI.ThemedWizard();
+            this.FailedPage = new UI.ThemedWizardPage();
             this.FailedReason = new System.Windows.Forms.Label();
             this.DownloadButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
@@ -119,8 +119,8 @@ namespace JRunner
 
         #endregion
 
-        private AeroWizard.WizardControl FailedWizard;
-        private AeroWizard.WizardPage FailedPage;
+        private UI.ThemedWizard FailedWizard;
+        private UI.ThemedWizardPage FailedPage;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button DownloadButton;
         private System.Windows.Forms.Label FailedReason;

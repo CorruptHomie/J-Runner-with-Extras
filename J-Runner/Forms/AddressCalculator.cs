@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +15,7 @@ namespace JRunner.Forms
         public AddressCalculator()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private static int pagesz = 0x200;

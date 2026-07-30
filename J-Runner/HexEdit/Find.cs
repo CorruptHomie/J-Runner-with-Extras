@@ -1,4 +1,4 @@
-﻿using Be.Windows.Forms;
+using Be.Windows.Forms;
 using System;
 using System.Windows.Forms;
 
@@ -9,6 +9,7 @@ namespace JRunner.HexEdit
         public FormFind()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private FindOptions _findOptions;
@@ -109,7 +110,7 @@ namespace JRunner.HexEdit
 
             if (res == -1) // -1 = no match
             {
-                MessageBox.Show("Find reached end of file!", "EOF",
+                UI.Msg.Show("Find reached end of file!", "EOF",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else if (res == -2) // -2 = find was aborted

@@ -1,4 +1,4 @@
-﻿
+
 namespace JRunner
 {
     partial class RestoreFiles
@@ -30,8 +30,8 @@ namespace JRunner
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RestoreFiles));
-            this.RestoreWizard = new AeroWizard.WizardControl();
-            this.RestorePage = new AeroWizard.WizardPage();
+            this.RestoreWizard = new UI.ThemedWizard();
+            this.RestorePage = new UI.ThemedWizardPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
@@ -140,8 +140,8 @@ namespace JRunner
 
         #endregion
 
-        private AeroWizard.WizardControl RestoreWizard;
-        private AeroWizard.WizardPage RestorePage;
+        private UI.ThemedWizard RestoreWizard;
+        private UI.ThemedWizardPage RestorePage;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox groupBox1;

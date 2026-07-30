@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace JRunner
@@ -8,6 +8,7 @@ namespace JRunner
         public FormGoTo()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         public void SetDefaultValue(long byteIndex)

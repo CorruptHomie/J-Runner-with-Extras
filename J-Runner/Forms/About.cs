@@ -18,8 +18,9 @@ namespace JRunner.Forms
                                     "Orpheus: Updates to KV Info/Bugfixes",
                                     "SGCSam: 6717/9199 XeBuild Patches",
                                     "Xvistaman2005: XDKbuild",
-                                    "Cheez: DirtyPico",
-                                    "ThisIsCheez: DirtyPico360",
+                                    "ThisIsCheez: DirtyPico",
+                                    "Balázs Triszka: RPicoRGH",
+                                    "barrenechea: XeLL Customizer",
         };
         static int contribloc = 0;
         [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
@@ -39,6 +40,7 @@ namespace JRunner.Forms
         {
             InitializeComponent();
             Region = Region.FromHrgn(RoundCorner(0, 0, Width, Height, 21, 21));
+            UI.Theme.ApplyTheme(this);
         }
 
         private void About_Load(object sender, EventArgs e)

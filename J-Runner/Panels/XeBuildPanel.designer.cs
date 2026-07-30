@@ -1,4 +1,4 @@
-﻿namespace JRunner.Panels
+namespace JRunner.Panels
 {
     partial class XeBuildPanel
     {
@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabControl1 = new UI.DarkTabControl();
             this.Xebuild = new System.Windows.Forms.TabPage();
             this.Rgh3Label2 = new System.Windows.Forms.Label();
             this.Rgh3Label = new System.Windows.Forms.Label();
@@ -1127,7 +1127,7 @@
         #endregion
 
         private System.Windows.Forms.GroupBox groupBox7;
-        private System.Windows.Forms.TabControl tabControl1;
+        private UI.DarkTabControl tabControl1;
         private System.Windows.Forms.TabPage Xebuild;
         private System.Windows.Forms.CheckBox chkRJtag;
         private System.Windows.Forms.Label label2;

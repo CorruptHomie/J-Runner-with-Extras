@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -16,6 +16,7 @@ namespace JRunner
         public XBOptions()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             if (!File.Exists(filename))
             {
                 try

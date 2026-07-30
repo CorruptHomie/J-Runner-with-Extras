@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -12,6 +12,7 @@ namespace JRunner.Forms
         public demon_uart()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private bool StartDemon()

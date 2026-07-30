@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -10,6 +10,7 @@ namespace JRunner.Forms
         public KeyvaultDecrypter()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             DecryptWizard.Cancelling += WizardCancelled;
             DecryptWizard.Finished += WizardFinished;
             DecryptPage.Commit += DecryptNext;
@@ -35,12 +36,12 @@ namespace JRunner.Forms
             else DecryptPage.AllowNext = false;
         }
 
-        private void DecryptNext(object sender, AeroWizard.WizardPageConfirmEventArgs e)
+        private void DecryptNext(object sender, UI.WizardPageConfirmEventArgs e)
         {
             if (!Nand.Nand.VerifyKey(Oper.StringToByteArray(CpuKeyBox.Text)))
             {
                 e.Cancel = true;
-                MessageBox.Show("CPU Key is wrong", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("CPU Key is wrong", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             else if (!checkKv()) // Error message handled by checkKv()
@@ -105,7 +106,7 @@ namespace JRunner.Forms
             }
             catch
             {
-                MessageBox.Show("Illegal path to keyvault\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Illegal path to keyvault\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
@@ -120,19 +121,19 @@ namespace JRunner.Forms
                     }
                     else
                     {
-                        MessageBox.Show("Keyvault is already decrypted\n\nNo need to run this tool", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        UI.Msg.Show("Keyvault is already decrypted\n\nNo need to run this tool", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Keyvault is invalid or corrupt\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("Keyvault is invalid or corrupt\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
             }
             else
             {
-                MessageBox.Show("Keyvault is missing\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UI.Msg.Show("Keyvault is missing\n\nYou need to supply a valid decrypted keyvault", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }

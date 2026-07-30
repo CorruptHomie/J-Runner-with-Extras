@@ -1,4 +1,4 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +18,7 @@ namespace JRunner
         {
             if (string.IsNullOrEmpty(lastBackupPath))
             {
-                MessageBox.Show("No backups have been made since the application was started", "Can't", MessageBoxButton.OK, MessageBoxImage.Error);
+                UI.Msg.Show("No backups have been made since the application was started", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -29,7 +29,7 @@ namespace JRunner
             }
             catch (Exception ex)
             {
-                MessageBox.Show("The backup location could not be opened due to the following reason:\n\n" + ex.GetType(), "Can't", MessageBoxButton.OK, MessageBoxImage.Error);
+                UI.Msg.Show("The backup location could not be opened due to the following reason:\n\n" + ex.GetType(), "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -68,12 +68,12 @@ namespace JRunner
             else
             {
                 string tempPath = Path.GetDirectoryName(variables.filename1);
-                MessageBoxResult mbr = MessageBox.Show("Could not find an XeBuild folder for this nand\n\nDo you want to backup everything in " + tempPath, "No XeBuild Folder", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-                if (mbr == MessageBoxResult.Yes)
+                System.Windows.Forms.DialogResult mbr = UI.Msg.Show("Could not find an XeBuild folder for this nand\n\nDo you want to backup everything in " + tempPath, "No XeBuild Folder", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                if (mbr == System.Windows.Forms.DialogResult.Yes)
                 {
                     return tempPath;
                 }
-                else if (mbr == MessageBoxResult.No)
+                else if (mbr == System.Windows.Forms.DialogResult.No)
                 {
                     CommonOpenFileDialog openDialog = new CommonOpenFileDialog();
                     openDialog.InitialDirectory = Oper.FilePickerInitialPath(tempPath);
@@ -104,13 +104,13 @@ namespace JRunner
             }
             catch
             {
-                MessageBox.Show("Backup failed because the path is not valid\n\nCheck that the folder set in Settings is correct and exists", "Can't", MessageBoxButton.OK, MessageBoxImage.Error);
+                UI.Msg.Show("Backup failed because the path is not valid\n\nCheck that the folder set in Settings is correct and exists", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             if (string.IsNullOrEmpty(target) || string.IsNullOrEmpty(path)) // Should NEVER happen
             {
-                MessageBox.Show("Backup encountered an unknown error\n\nBlank target or path", "Can't", MessageBoxButton.OK, MessageBoxImage.Error);
+                UI.Msg.Show("Backup encountered an unknown error\n\nBlank target or path", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

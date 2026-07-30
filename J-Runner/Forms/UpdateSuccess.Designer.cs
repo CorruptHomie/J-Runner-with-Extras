@@ -1,4 +1,4 @@
-﻿
+
 namespace JRunner
 {
     partial class UpdateSuccess
@@ -30,8 +30,8 @@ namespace JRunner
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UpdateSuccess));
-            this.SuccessWizard = new AeroWizard.WizardControl();
-            this.SuccessPage = new AeroWizard.WizardPage();
+            this.SuccessWizard = new UI.ThemedWizard();
+            this.SuccessPage = new UI.ThemedWizardPage();
             this.label2 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -120,8 +120,8 @@ namespace JRunner
 
         #endregion
 
-        private AeroWizard.WizardControl SuccessWizard;
-        private AeroWizard.WizardPage SuccessPage;
+        private UI.ThemedWizard SuccessWizard;
+        private UI.ThemedWizardPage SuccessPage;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label2;

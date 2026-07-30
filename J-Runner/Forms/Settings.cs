@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
@@ -14,6 +14,7 @@ namespace JRunner.Forms
             InitializeComponent();
             this.AcceptButton = btnOK;
             btnOK.DialogResult = DialogResult.OK;
+            UI.Theme.ApplyTheme(this);
         }
 
         private void Settings_Load(object sender, EventArgs e)
@@ -40,6 +41,7 @@ namespace JRunner.Forms
             minimizeToSystemTray.Checked = variables.minimizetotray;
             autoCheckUpdatesChk.Checked = variables.autoCheckUpdates;
             checkPrereleaseUpdatesChk.Checked = variables.checkPrereleaseUpdates;
+            chkAnimationsEnabled.Checked = variables.animationsEnabled;
             almovebut.Checked = !variables.allmove;
             //if (MainForm.mainForm.device == 4 && variables.boardtype == null) buttonDeviceGroup.Visible = true;
             if (variables.soundcompare != "") chksuccom.Checked = true;
@@ -169,11 +171,11 @@ namespace JRunner.Forms
             DialogResult d;
             if (variables.discordrpc)
             {
-                d = MessageBox.Show("J-Runner must be restarted to enable DiscordRPC!" + Environment.NewLine + Environment.NewLine + "Do you want to restart J-Runner now?", "DiscordRPC", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                d = UI.Msg.Show("J-Runner must be restarted to enable DiscordRPC!" + Environment.NewLine + Environment.NewLine + "Do you want to restart J-Runner now?", "DiscordRPC", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
             else
             {
-                d = MessageBox.Show("J-Runner must be restarted to disable DiscordRPC!" + Environment.NewLine + Environment.NewLine + "Do you want to restart J-Runner now?", "DiscordRPC", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                d = UI.Msg.Show("J-Runner must be restarted to disable DiscordRPC!" + Environment.NewLine + Environment.NewLine + "Do you want to restart J-Runner now?", "DiscordRPC", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
             if (d == DialogResult.Yes)
             {
@@ -252,6 +254,11 @@ namespace JRunner.Forms
         private void checkPrereleaseUpdatesChk_CheckedChanged(object sender, EventArgs e)
         {
             variables.checkPrereleaseUpdates = checkPrereleaseUpdatesChk.Checked;
+        }
+
+        private void chkAnimationsEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            variables.animationsEnabled = chkAnimationsEnabled.Checked;
         }
 
         private void SlimPreferSrgh_CheckedChanged(object sender, EventArgs e)

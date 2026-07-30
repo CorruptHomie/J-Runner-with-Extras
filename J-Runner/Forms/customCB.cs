@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -11,6 +11,7 @@ namespace JRunner.Forms
         public customCB(List<int> CBs)
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             this.CBs = CBs;
         }
 

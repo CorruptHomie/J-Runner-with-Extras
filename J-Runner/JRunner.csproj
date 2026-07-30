@@ -1,6 +1,6 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props')" />
+  <Import Project="..\packages\Costura.Fody.6.2.0\build\Costura.Fody.props" Condition="Exists('..\packages\Costura.Fody.6.2.0\build\Costura.Fody.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -113,8 +113,8 @@
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AeroWizard, Version=2.2.9.0, Culture=neutral, PublicKeyToken=915e74f5d64b8f37, processorArchitecture=MSIL">
-      <HintPath>..\packages\AeroWizard.2.2.9\lib\net40\AeroWizard.dll</HintPath>
+    <Reference Include="Costura, Version=6.2.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
+      <HintPath>..\packages\Costura.Fody.6.2.0\lib\netstandard2.0\Costura.dll</HintPath>
     </Reference>
     <Reference Include="DiscordRPC, Version=1.0.175.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\DiscordRichPresence.1.0.175\lib\net35\DiscordRPC.dll</HintPath>
@@ -159,6 +159,23 @@
     <Compile Include="Classes\rgh3build.cs" />
     <Compile Include="Classes\EnableDevGL.cs" />
     <Compile Include="Classes\DirtyPico.cs" />
+    <Compile Include="Classes\RPicoRGH.cs" />
+    <Compile Include="Classes\XellCustomizerWeb.cs" />
+    <Compile Include="MainForm.Chrome.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Theme.cs" />
+    <Compile Include="UI\JRunnerToolStripRenderer.cs" />
+    <Compile Include="UI\XboxFillProgressBar.cs" />
+    <Compile Include="UI\DarkTabControl.cs" />
+    <Compile Include="UI\ThemedWizard.cs" />
+    <Compile Include="UI\SnowfallBackground.cs" />
+    <Compile Include="UI\NativeDark.cs" />
+    <Compile Include="UI\Msg.cs" />
+    <Compile Include="UI\MessageDialog.cs" />
+    <Compile Include="UI\FlashProgressOverlay.cs" />
+    <Compile Include="Forms\GlitchChipProgrammer.cs" />
+    <Compile Include="Forms\UpdatesWindow.cs" />
     <Compile Include="Classes\UI.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -261,9 +278,6 @@
     <Compile Include="Forms\Issues.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Issues.Designer.cs">
-      <DependentUpon>Issues.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\KeyvaultDecrypter.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -281,12 +295,6 @@
     </Compile>
     <Compile Include="Forms\AddressCalculator.Designer.cs">
       <DependentUpon>AddressCalculator.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\XellCustomizer.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\XellCustomizer.Designer.cs">
-      <DependentUpon>XellCustomizer.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ShowPanel.cs">
       <SubType>Form</SubType>
@@ -690,9 +698,6 @@
     <EmbeddedResource Include="Forms\CPUKeyGen.resx">
       <DependentUpon>CPUKeyGen.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Issues.resx">
-      <DependentUpon>Issues.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\KeyvaultDecrypter.resx">
       <DependentUpon>KeyvaultDecrypter.cs</DependentUpon>
     </EmbeddedResource>
@@ -701,9 +706,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\AddressCalculator.resx">
       <DependentUpon>AddressCalculator.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\XellCustomizer.resx">
-      <DependentUpon>XellCustomizer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ShowPanel.resx">
       <DependentUpon>ShowPanel.cs</DependentUpon>
@@ -962,12 +964,10 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Fody.6.6.0\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.6.0\build\Fody.targets'))" />
-    <Error Condition="!Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.7.0\build\Costura.Fody.props'))" />
-    <Error Condition="!Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Fody.6.9.3\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.6.9.3\build\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Costura.Fody.6.2.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.6.2.0\build\Costura.Fody.props'))" />
+    <Error Condition="!Exists('..\packages\Costura.Fody.6.2.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.6.2.0\build\Costura.Fody.targets'))" />
   </Target>
-  <Import Project="..\packages\Fody.6.6.0\build\Fody.targets" Condition="Exists('..\packages\Fody.6.6.0\build\Fody.targets')" />
-  <Import Project="..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.5.7.0\build\Costura.Fody.targets')" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
@@ -979,4 +979,40 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="..\packages\Fody.6.9.3\build\Fody.targets" Condition="Exists('..\packages\Fody.6.9.3\build\Fody.targets')" />
+  <Import Project="..\packages\Costura.Fody.6.2.0\build\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.6.2.0\build\Costura.Fody.targets')" />
+  <!--
+    Neither this nor common\ (dirtypico, xell templates, etc.) were ever wired into the
+    build - variables.pathforit-relative code has always assumed those folders just sit
+    next to the built .exe, copied there by whatever produces the release zip, outside of
+    what this csproj tracks. That's fine when something else is doing the packaging, but it
+    means a plain F5/Build in Visual Studio never puts xell-customizer next to the .exe,
+    which is what "index.js not found" at runtime actually is. This copies the two new
+    folders (not all of common\ - not mine to change) into $(OutDir) on every build so a
+    normal build+run in Visual Studio works without a separate packaging step.
+  -->
+  <Target Name="AfterBuild">
+    <ItemGroup>
+      <XellServerSrc Include="xell-customizer\server\src\**\*.*" />
+      <XellServerRoot Include="xell-customizer\server\package.json;xell-customizer\server\.env.example" />
+      <XellWebDist Include="xell-customizer\web\dist\**\*.*" />
+      <XellDocs Include="xell-customizer\README.md;xell-customizer\LICENSE" />
+      <RPicoRGHFiles Include="common\rpicorgh\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(XellServerSrc)"
+          DestinationFiles="@(XellServerSrc->'$(OutDir)xell-customizer\server\src\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(XellServerRoot)"
+          DestinationFolder="$(OutDir)xell-customizer\server\"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(XellWebDist)"
+          DestinationFiles="@(XellWebDist->'$(OutDir)xell-customizer\web\dist\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(XellDocs)"
+          DestinationFolder="$(OutDir)xell-customizer\"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(RPicoRGHFiles)"
+          DestinationFiles="@(RPicoRGHFiles->'$(OutDir)common\rpicorgh\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
 </Project>

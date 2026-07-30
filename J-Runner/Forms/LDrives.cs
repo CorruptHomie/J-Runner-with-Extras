@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32.SafeHandles;
+using Microsoft.Win32.SafeHandles;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -41,17 +41,20 @@ namespace JRunner.Forms
         public LDrives()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             numberofreads = 1;
         }
         public LDrives(string file)
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             filename = file;
             numberofreads = 1;
         }
         public LDrives(string file, Function f)
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             filename = file;
             fu = f;
             numberofreads = 1;
@@ -59,6 +62,7 @@ namespace JRunner.Forms
         public LDrives(string file, Function f, int no)
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             filename = file;
             fu = f;
             numberofreads = no;
@@ -196,14 +200,14 @@ namespace JRunner.Forms
         {
             if (String.IsNullOrEmpty(filename))
             {
-                MessageBox.Show("No Filename Selected");
+                UI.Msg.Show("No Filename Selected");
                 return 0;
             }
             if (listView1.SelectedItems.Count == 0) return 0;
 
             if (File.Exists(filename))
             {
-                if (DialogResult.Cancel == MessageBox.Show("File already exists, it will be DELETED! Press ok to continue", "File Already Exists", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+                if (DialogResult.Cancel == UI.Msg.Show("File already exists, it will be DELETED! Press ok to continue", "File Already Exists", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                 {
                     Console.WriteLine("Cancelled");
                     Console.WriteLine("");
@@ -219,7 +223,7 @@ namespace JRunner.Forms
 
             if ((listView1.SelectedItems[0].SubItems[5].Text != (size / (1024 * 1024)).ToString()) && (listView1.SelectedItems[0].SubItems[5].Text != "3648") && (listView1.SelectedItems[0].SubItems[5].Text != "3696"))
             {
-                if (DialogResult.Cancel == MessageBox.Show("Not normal size of xbox360 nand, ensure you have selected the correct drive!", "Size Different", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+                if (DialogResult.Cancel == UI.Msg.Show("Not normal size of xbox360 nand, ensure you have selected the correct drive!", "Size Different", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                 {
                     Console.WriteLine("Cancelled");
                     Console.WriteLine("");
@@ -483,11 +487,11 @@ namespace JRunner.Forms
             if (listView1.SelectedItems.Count == 0) return;
             string ldrive = listView1.SelectedItems[0].SubItems[1].Text;
             if (listView1.SelectedItems[0].SubItems[2].Text != "Removable") { Console.WriteLine("Must be a removable type"); return; }
-            if (MessageBox.Show("You are about to write to " + ldrive + ". Continue?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
+            if (UI.Msg.Show("You are about to write to " + ldrive + ". Continue?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
 
             if ((listView1.SelectedItems[0].SubItems[5].Text != (size / (1024 * 1024)).ToString()) && (listView1.SelectedItems[0].SubItems[5].Text != "3648") && (listView1.SelectedItems[0].SubItems[5].Text != "3696"))
             {
-                if (DialogResult.Cancel == MessageBox.Show("Size seems to be different! Press ok to continue", "Size Different", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+                if (DialogResult.Cancel == UI.Msg.Show("Size seems to be different! Press ok to continue", "Size Different", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                 {
                     Console.WriteLine("Cancelled");
                     Console.WriteLine("");
@@ -742,11 +746,11 @@ namespace JRunner.Forms
             if (listView1.SelectedItems.Count == 0) return;
             string ldrive = listView1.SelectedItems[0].SubItems[1].Text;
             if (listView1.SelectedItems[0].SubItems[2].Text != "Removable") { Console.WriteLine("Must be a removable type"); return; }
-            if (MessageBox.Show("You are about to erase " + ldrive + ". Continue?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
+            if (UI.Msg.Show("You are about to erase " + ldrive + ". Continue?", "Continue?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No) return;
 
             if ((listView1.SelectedItems[0].SubItems[5].Text != (size / (1024 * 1024)).ToString()) && (listView1.SelectedItems[0].SubItems[5].Text != "3648") && (listView1.SelectedItems[0].SubItems[5].Text != "3696"))
             {
-                if (DialogResult.Cancel == MessageBox.Show("Size seems to be different! Press ok to continue", "Size Different", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
+                if (DialogResult.Cancel == UI.Msg.Show("Size seems to be different! Press ok to continue", "Size Different", MessageBoxButtons.OKCancel, MessageBoxIcon.Information))
                 {
                     Console.WriteLine("Cancelled");
                     Console.WriteLine("");

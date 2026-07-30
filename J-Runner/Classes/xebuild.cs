@@ -608,7 +608,13 @@ namespace JRunner.Classes
             Console.WriteLine("Kernel Selected: {0}", _dashFolder);
 
 
-            variables.xefolder = Path.Combine(Directory.GetParent(variables.outfolder).FullName, _nand.ki.serial);
+            // Was: Path.Combine(Directory.GetParent(variables.outfolder).FullName, _nand.ki.serial)
+            // That resolves to a folder next to the .exe (outfolder's parent), not inside
+            // variables.updatedflashfolder - so the cpukey/KV info written below, and the
+            // patched image xeBuild.exe writes using this same path (see build(), which
+            // passes variables.xefolder on its command line), landed in a stray folder that
+            // MainForm.movework() never looks in when it moves output into "Updated flash".
+            variables.xefolder = Path.Combine(variables.updatedflashfolder, _nand.ki.serial);
             if (variables.debugme) Console.WriteLine("outfolder: {0}", variables.xefolder);
             if (!Directory.Exists(variables.xefolder)) Directory.CreateDirectory(variables.xefolder);
             File.WriteAllText(System.IO.Path.Combine(variables.xefolder, variables.cpukeypath), _cpukey);
@@ -891,7 +897,10 @@ namespace JRunner.Classes
             checkDashLaunch();
 
             Console.WriteLine("Started Updating Console to {0}", _dashFolder);
-            variables.xefolder = variables.outfolder;
+            // Was: variables.xefolder = variables.outfolder; - same bug as in patch() above,
+            // just pointed at the temp outfolder itself instead of a stray sibling folder.
+            // Either way it bypassed variables.updatedflashfolder.
+            variables.xefolder = Path.Combine(variables.updatedflashfolder, _nand.ki.serial);
 
             return result;
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -282,7 +282,7 @@ namespace JRunner
                 else
                 {
 
-                    if (MessageBox.Show("Are you sure you want to build a new bootloader chain?", "Bootloader Chain", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No)
+                    if (UI.Msg.Show("Are you sure you want to build a new bootloader chain?", "Bootloader Chain", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.No)
                     {
                         cpukey = "";
                         goto wtf;
@@ -323,7 +323,7 @@ namespace JRunner
                 {
                     Console.WriteLine(" * using donor CB");
                     dt.CB_A_crypted = null;
-                    if (MessageBox.Show("There have been various reports that using a different bootloader improves the glitch speeds on xenon. Click Yes to use the 7375 Bootloader or Click No to use the 1940 one.", "Choose CB", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
+                    if (UI.Msg.Show("There have been various reports that using a different bootloader improves the glitch speeds on xenon. Click Yes to use the 7375 Bootloader or Click No to use the 1940 one.", "Choose CB", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
                     {
                         dt.CB_A = Oper.openfile(Path.Combine(variables.pathforit, @"common\CB\CB_A.7375.bin"), ref size, 0);
                     }

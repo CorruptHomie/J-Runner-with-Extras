@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace JRunner
@@ -8,6 +8,7 @@ namespace JRunner
         public UpdateFailed()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             FailedWizard.Cancelling += WizardCancelled;
             FailedWizard.Finished += WizardFinished;
         }

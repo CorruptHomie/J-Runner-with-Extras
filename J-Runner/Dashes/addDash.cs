@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -10,6 +10,7 @@ namespace JRunner
         public addDash()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             btnAdd.Visible = false;
             this.CancelButton = Cancel;
             this.AcceptButton = buttonOK;

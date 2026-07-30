@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Data;
 using System.Windows.Forms;
@@ -12,6 +12,7 @@ namespace JRunner.CPUkeydb
         public Editmobo(string ID, string Serial, string CPU, string Mobo, DataSet1 his)
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
             this.IdentTB.Text = ID;
             this.SerialTB.Text = Serial;
             this.CpukeyTB.Text = CPU;

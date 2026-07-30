@@ -1,4 +1,4 @@
-﻿
+
 namespace JRunner.Forms
 {
     partial class KeyvaultDecrypter
@@ -30,8 +30,8 @@ namespace JRunner.Forms
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(KeyvaultDecrypter));
-            this.DecryptWizard = new AeroWizard.WizardControl();
-            this.DecryptPage = new AeroWizard.WizardPage();
+            this.DecryptWizard = new UI.ThemedWizard();
+            this.DecryptPage = new UI.ThemedWizardPage();
             this.KvGroup = new System.Windows.Forms.GroupBox();
             this.label1 = new System.Windows.Forms.Label();
             this.CpuKeyBox = new System.Windows.Forms.TextBox();
@@ -154,8 +154,8 @@ namespace JRunner.Forms
 
         #endregion
 
-        private AeroWizard.WizardControl DecryptWizard;
-        private AeroWizard.WizardPage DecryptPage;
+        private UI.ThemedWizard DecryptWizard;
+        private UI.ThemedWizardPage DecryptPage;
         private System.Windows.Forms.GroupBox KvGroup;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button KvEllipse;

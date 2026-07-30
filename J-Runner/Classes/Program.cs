@@ -1,4 +1,4 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -46,6 +46,13 @@ namespace JRunner
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
+                // Global dark styling for every MenuStrip, ContextMenuStrip and StatusStrip
+                // in the app. Must be set before any form is constructed.
+                ToolStripManager.Renderer = new UI.JRunnerToolStripRenderer();
+                // Scrollbars and other OS-drawn control parts can't be recoloured from
+                // managed code; this opts the process into Windows' own dark mode so they
+                // come out dark instead of bright white on every dark form.
+                UI.NativeDark.EnableForApp();
 
                 // Determine current Windows version
                 if (Environment.OSVersion.Version.Major >= 10) variables.currentOS = variables.Windows.W10_11;
@@ -61,7 +68,7 @@ namespace JRunner
                 if (variables.currentOS == variables.Windows.XP)
                 {
                     variables.isWinXP = true;
-                    MessageBox.Show("This version of Windows is not supported\n\nJ-Runner with Extras requires Microsoft Windows Vista or later", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UI.Msg.Show("This version of Windows is not supported\n\nJ-Runner with Extras requires Microsoft Windows Vista or later", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 
@@ -101,7 +108,7 @@ namespace JRunner
                 {
                     if (!Directory.Exists("common") || !Directory.Exists("xeBuild"))
                     {
-                        if (MessageBox.Show("Critical support files required for correct operation are missing\n\nDo you want to download the required support files?\n\nAll files inside common and xeBuild will be deleted and replaced with clean versions!", "Missing Files", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                        if (UI.Msg.Show("Critical support files required for correct operation are missing\n\nDo you want to download the required support files?\n\nAll files inside common and xeBuild will be deleted and replaced with clean versions!", "Missing Files", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                         {
                             Upd.runFullUpdate = true;
                         }
@@ -118,7 +125,7 @@ namespace JRunner
 
                     if (needVcredistx86)
                     {
-                        MessageBox.Show("Microsoft Visual C++ 2010 Redistributable is required for J-Runner with Extras and some of its components to work correctly\n\nClick OK to begin the installation", "Dependency Missing", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        UI.Msg.Show("Microsoft Visual C++ 2010 Redistributable is required for J-Runner with Extras and some of its components to work correctly\n\nClick OK to begin the installation", "Dependency Missing", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         Thread Vcredist = new Thread(() =>
                         {
                             try
@@ -135,7 +142,7 @@ namespace JRunner
                             }
                             catch
                             {
-                                MessageBox.Show("Dependency installer failed to launch for some reason", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                UI.Msg.Show("Dependency installer failed to launch for some reason", "Can't", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 Environment.Exit(0);
                             }
                         });
@@ -196,7 +203,7 @@ namespace JRunner
 
         private static void OnCurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            //MessageBox.Show(e.ExceptionObject.ToString());
+            //UI.Msg.Show(e.ExceptionObject.ToString());
             File.AppendAllText(Path.Combine(variables.rootfolder, "Error.log"), e.ExceptionObject.ToString() + Environment.NewLine);
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Windows.Forms;
@@ -10,6 +10,7 @@ namespace JRunner.Dashes
         public delDash()
         {
             InitializeComponent();
+            UI.Theme.ApplyTheme(this);
         }
 
         private void button1_Click(object sender, EventArgs e)

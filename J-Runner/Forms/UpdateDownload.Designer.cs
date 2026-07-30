@@ -1,4 +1,4 @@
-﻿
+
 namespace JRunner
 {
     partial class UpdateDownload
@@ -30,8 +30,8 @@ namespace JRunner
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UpdateDownload));
-            this.UpdateWizard = new AeroWizard.WizardControl();
-            this.UpdatePage = new AeroWizard.WizardPage();
+            this.UpdateWizard = new UI.ThemedWizard();
+            this.UpdatePage = new UI.ThemedWizardPage();
             this.updateProgressBar = new System.Windows.Forms.ProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.UpdateWizard)).BeginInit();
             this.UpdatePage.SuspendLayout();
@@ -93,8 +93,8 @@ namespace JRunner
 
         #endregion
 
-        private AeroWizard.WizardControl UpdateWizard;
-        private AeroWizard.WizardPage UpdatePage;
+        private UI.ThemedWizard UpdateWizard;
+        private UI.ThemedWizardPage UpdatePage;
         private System.Windows.Forms.ProgressBar updateProgressBar;
     }
 }
