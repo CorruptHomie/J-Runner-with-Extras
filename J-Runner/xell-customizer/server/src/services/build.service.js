@@ -188,18 +188,70 @@ export async function fetchLog(date, id) {
   ].join("\n");
 }
 
-export async function buildStatus(date, id) {
+// Locates the Actions run this build id was dispatched as, and its artifact, so the UI can
+// link straight to them. The dispatch API doesn't hand back a run id, but the workflow's
+// run-name embeds the id ("XeLL Build (<id>)"), so the run can be matched on that.
+async function findRunLinks(octokit, id) {
+  if (!octokit) return null;
+  try {
+    const { data } = await octokit.actions.listWorkflowRuns({
+      owner: OWNER,
+      repo: REPO,
+      workflow_id: WORKFLOW,
+      per_page: 30,
+    });
+
+    const run = (data.workflow_runs || []).find(
+      (r) => `${r.name || ""} ${r.display_title || ""}`.includes(id),
+    );
+    if (!run) return null;
+
+    const links = {
+      runId: run.id,
+      runUrl: run.html_url,
+      runStatus: run.status,
+      runConclusion: run.conclusion,
+    };
+
+    const arts = await octokit.actions.listWorkflowRunArtifacts({
+      owner: OWNER,
+      repo: REPO,
+      run_id: run.id,
+    });
+    const artifact = (arts.data.artifacts || [])[0];
+    if (artifact) {
+      links.artifactName = artifact.name;
+      links.artifactSize = artifact.size_in_bytes;
+      links.artifactExpired = artifact.expired;
+      // The browser-facing URL. GitHub requires you to be signed in for it, which is why the
+      // API URL is offered alongside rather than instead.
+      links.artifactUrl = `https://github.com/${OWNER}/${REPO}/actions/runs/${run.id}/artifacts/${artifact.id}`;
+      links.artifactApiUrl = artifact.archive_download_url;
+    }
+    return links;
+  } catch (e) {
+    console.error(`Couldn't look up the workflow run: ${e?.message || e}`);
+    return null;
+  }
+}
+
+export async function buildStatus(date, id, ghToken) {
   const base = rawBase(date, id);
 
+  // Resolved first and returned even while the build is still running, so the run can be
+  // watched from the moment it starts rather than only once it has published something.
+  const octokit = ghToken ? new Octokit({ auth: ghToken }) : null;
+  const links = (await findRunLinks(octokit, id)) || {};
+
   const log = await fetch(`${base}/log.txt`, { cache: "no-store" });
-  if (!log.ok) return { ready: false };
+  if (!log.ok) return { ready: false, ...links };
 
   // Served through this server rather than linking raw.githubusercontent directly, so an
   // unusable log gets explained instead of dumping Azure's XML in a browser tab.
   const logUrl = `/log?id=${encodeURIComponent(id)}&date=${encodeURIComponent(date)}`;
 
   const nameRes = await fetch(`${base}/original-filename.txt`, { cache: "no-store" });
-  if (!nameRes.ok) return { ready: true, failed: true, logUrl };
+  if (!nameRes.ok) return { ready: true, failed: true, logUrl, ...links };
 
   const filename = (await nameRes.text()).trim();
   const downloadUrl = `${base}/${id}.tar.gz`;
@@ -211,7 +263,12 @@ export async function buildStatus(date, id) {
     console.error(`Couldn't save the build locally: ${e?.message || e}`);
   }
 
-  return { ready: true, failed: false, filename, downloadUrl, logUrl, savedTo };
+  if (links.artifactUrl) {
+    console.log(`Workflow run:      ${links.runUrl}`);
+    console.log(`Artifact download: ${links.artifactUrl}`);
+  }
+
+  return { ready: true, failed: false, filename, downloadUrl, logUrl, savedTo, ...links };
 }
 
 async function saveBuild(downloadUrl, filename, id) {

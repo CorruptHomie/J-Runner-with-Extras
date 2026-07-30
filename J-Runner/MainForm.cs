@@ -524,6 +524,7 @@ namespace JRunner
             savesettings();
             saveToLog();
             XellCustomizerWeb.Shutdown();
+            if (_snowfall != null) { _snowfall.Dispose(); _snowfall = null; }
         }
 
         private void saveToLog()

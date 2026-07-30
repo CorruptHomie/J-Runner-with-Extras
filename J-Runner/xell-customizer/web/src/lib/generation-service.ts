@@ -26,6 +26,15 @@ export interface BuildStatus {
   logUrl?: string;
   /** Local folder the finished build was saved to, when the server managed to fetch it. */
   savedTo?: string | null;
+  /** The Actions run this build was dispatched as. */
+  runUrl?: string;
+  runId?: number;
+  runStatus?: string;
+  runConclusion?: string | null;
+  /** Direct link to the run's artifact (requires being signed in to GitHub). */
+  artifactUrl?: string;
+  artifactApiUrl?: string;
+  artifactName?: string;
 }
 
 /**

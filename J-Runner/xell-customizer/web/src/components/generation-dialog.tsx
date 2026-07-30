@@ -45,6 +45,11 @@ export function GenerationDialog({
   const [generationDate, setGenerationDate] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [logUrl, setLogUrl] = useState<string | null>(null);
+  // Links to the Actions run that produced this build and to its artifact, so the build can
+  // be watched while it runs and downloaded straight from the workflow afterwards.
+  const [runUrl, setRunUrl] = useState<string | null>(null);
+  const [artifactUrl, setArtifactUrl] = useState<string | null>(null);
+  const [savedTo, setSavedTo] = useState<string | null>(null);
   const [pollCount, setPollCount] = useState(0);
   const [downloadInfo, setDownloadInfo] = useState<DownloadInfo | null>(null);
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
@@ -54,6 +59,9 @@ export function GenerationDialog({
       setStatus("starting");
       setError(null);
       setLogUrl(null);
+      setRunUrl(null);
+      setArtifactUrl(null);
+      setSavedTo(null);
       setDownloadInfo(null);
       setBlobUrl(null);
       setPollCount(0);
@@ -84,6 +92,10 @@ export function GenerationDialog({
     try {
       const result = await checkBuildStatus(generationId, generationDate);
 
+      // Set before the ready check: the run link is useful while it's still building.
+      if (result.runUrl) setRunUrl(result.runUrl);
+      if (result.artifactUrl) setArtifactUrl(result.artifactUrl);
+
       if (!result.ready) return;
 
       if (result.failed) {
@@ -98,6 +110,7 @@ export function GenerationDialog({
       if (!response.ok) throw new Error(t("generation.error.fetch_artifact"));
       const blob = await response.blob();
 
+      setSavedTo(result.savedTo ?? null);
       setDownloadInfo({ filename: result.filename!, downloadUrl });
       setBlobUrl(URL.createObjectURL(blob));
       setStatus("ready");
@@ -221,6 +234,35 @@ export function GenerationDialog({
                 >
                   {t("generation.button.check_log")}
                 </Button>
+              )}
+            </div>
+          )}
+          {(runUrl || artifactUrl || savedTo) && (
+            <div className="text-muted-foreground mt-4 space-y-1 text-xs">
+              {savedTo && <div>Saved to: {savedTo}</div>}
+              {runUrl && (
+                <div>
+                  <a
+                    href={runUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline hover:no-underline"
+                  >
+                    View workflow run
+                  </a>
+                </div>
+              )}
+              {artifactUrl && (
+                <div>
+                  <a
+                    href={artifactUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline hover:no-underline"
+                  >
+                    Download artifact from workflow
+                  </a>
+                </div>
               )}
             </div>
           )}

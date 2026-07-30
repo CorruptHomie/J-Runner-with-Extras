@@ -169,6 +169,7 @@
     <Compile Include="UI\XboxFillProgressBar.cs" />
     <Compile Include="UI\DarkTabControl.cs" />
     <Compile Include="UI\ThemedWizard.cs" />
+    <Compile Include="UI\SnowfallBackground.cs" />
     <Compile Include="UI\NativeDark.cs" />
     <Compile Include="UI\Msg.cs" />
     <Compile Include="UI\MessageDialog.cs" />

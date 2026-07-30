@@ -27,8 +27,8 @@ using System.Runtime.InteropServices;
 // AssemblyVersion/AssemblyFileVersion must be plain numeric (Explorer's file properties
 // dialog and the .NET loader both require this), so the pre-release tag lives in
 // AssemblyInformationalVersion instead - that field allows arbitrary text and is what
-// actually reads "4.0.0devpre3" in Explorer's "Product version" field. Keep this in sync
+// actually reads "4.0.0devpre4" in Explorer's "Product version" field. Keep this in sync
 // with Classes/variables.cs's version/staticversion constants.
 [assembly: AssemblyVersion("4.0.0.0")]
 [assembly: AssemblyFileVersion("4.0.0.0")]
-[assembly: AssemblyInformationalVersion("4.0.0devpre3")]
+[assembly: AssemblyInformationalVersion("4.0.0devpre4")]

@@ -46,7 +46,7 @@ app.get("/status", async (c) => {
   const date = c.req.query("date");
   if (!id || !date) return c.json({ error: "id and date are required" }, 400);
   try {
-    return c.json(await buildStatus(date, id));
+    return c.json(await buildStatus(date, id, process.env.GITHUB_TOKEN));
   } catch (error) {
     console.error(error);
     return c.json({ error: error?.message || "status check failed" }, 500);

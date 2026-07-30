@@ -23,6 +23,7 @@ namespace JRunner
         private Label _btnMinimize;
         private Label _btnClose;
         private Panel _titleSeparator;
+        private UI.SnowfallBackground _snowfall;
 
         private void SetupCustomChrome()
         {
@@ -71,6 +72,14 @@ namespace JRunner
 
             Resize += (s, e) => LayoutTitleBar();
             LayoutTitleBar();
+
+            // Double buffering matters here: the background effect repaints the gaps between
+            // controls continuously, and without it that flickers.
+            DoubleBuffered = true;
+            _snowfall = UI.SnowfallBackground.Attach(this);
+            // The console covers the largest single block of the window, so without this the
+            // field just stops at its edge. Extended onto it so the X's carry straight across.
+            if (_snowfall != null) _snowfall.PaintOnto(txtConsole);
         }
 
         // Small post-designer layout corrections, applied once at startup alongside the
@@ -168,6 +177,10 @@ namespace JRunner
         {
             UI.XboxFillProgressBar bar = progressBar as UI.XboxFillProgressBar;
             if (bar != null) bar.IsFlashing = flashing;
+
+            // Drives the background colour change as well - the falling X's go lime while a
+            // write is running, so the state is visible from across the room.
+            UI.Theme.FlashActive = flashing;
         }
 
         private Label MakeChromeButton(ChromeGlyph kind, int x)

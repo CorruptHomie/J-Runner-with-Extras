@@ -7,7 +7,7 @@ namespace JRunner
 
         // Ver used to always be 4 plain numeric dot-separated parts (e.g. "1.0.0.0"), so
         // this class just did Ver.Split('.') + int.Parse on each piece. Now that
-        // variables.staticversion carries a real pre-release tag (e.g. "4.0.0devpre3"),
+        // variables.staticversion carries a real pre-release tag (e.g. "4.0.0devpre4"),
         // that would throw a FormatException on "pre1" the moment this class is touched.
         // Match the numeric major.minor.build core with a regex instead, and keep
         // whatever trailing text follows it (if any) as a separate string, so both old

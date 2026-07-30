@@ -35,6 +35,12 @@ namespace UI
         // overwrite the chrome buttons' deliberate grey and the separator hairline.
         public const string SkipTag = "ui.theme.skip";
 
+        /// <summary>
+        /// True while a NAND write is in progress. Set from MainForm.SetFlashing, which
+        /// already runs on every write path, so the background can react to it.
+        /// </summary>
+        public static bool FlashActive;
+
         // Toggled from Settings ("Enable animations"). Only the flashing progress bar
         // animates; everything else is instant.
         public static bool AnimationsEnabled
@@ -192,6 +198,50 @@ namespace UI
                     rb.Paint += RadioButton_Paint;
                     break;
 
+                case ListView lvw:
+                    // Column headers are drawn by the OS from system colours and there's no
+                    // property for them, so the control has to be owner-drawn. Group headers
+                    // still aren't reachable - Win32 draws those - but they render their own
+                    // accent text, which reads fine once the background is dark.
+                    NativeDark.Apply(lvw);
+                    lvw.BackColor = FieldBg;
+                    lvw.ForeColor = TextPrimary;
+                    lvw.BorderStyle = BorderStyle.None;
+                    if (!lvw.OwnerDraw)
+                    {
+                        lvw.OwnerDraw = true;
+                        lvw.DrawColumnHeader -= ListView_DrawColumnHeader;
+                        lvw.DrawColumnHeader += ListView_DrawColumnHeader;
+                        lvw.DrawItem -= ListView_DrawItem;
+                        lvw.DrawItem += ListView_DrawItem;
+                        lvw.DrawSubItem -= ListView_DrawSubItem;
+                        lvw.DrawSubItem += ListView_DrawSubItem;
+                    }
+                    break;
+
+                case TreeView trv:
+                    NativeDark.Apply(trv);
+                    trv.BackColor = FieldBg;
+                    trv.ForeColor = TextPrimary;
+                    trv.LineColor = Border;
+                    trv.BorderStyle = BorderStyle.None;
+                    break;
+
+                case TrackBar trk:
+                    // The slider and track are drawn by the OS; only the surround is ours.
+                    // NativeDark is what gets the rest closer to matching.
+                    NativeDark.Apply(trk);
+                    trk.BackColor = PanelBg;
+                    break;
+
+                case ScrollBar scr:
+                    NativeDark.Apply(scr);
+                    break;
+
+                case Splitter spl:
+                    spl.BackColor = Border;
+                    break;
+
                 case NumericUpDown nud:
                     nud.BackColor = FieldBg;
                     nud.ForeColor = TextPrimary;
@@ -265,6 +315,57 @@ namespace UI
                     // XboxFillProgressBar paints itself.
                     break;
             }
+        }
+
+        private static void ListView_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
+        {
+            using (SolidBrush bg = new SolidBrush(RaisedBg))
+                e.Graphics.FillRectangle(bg, e.Bounds);
+            using (Pen sep = new Pen(BorderSubtle))
+            {
+                e.Graphics.DrawLine(sep, e.Bounds.Right - 1, e.Bounds.Top + 3, e.Bounds.Right - 1, e.Bounds.Bottom - 3);
+                e.Graphics.DrawLine(sep, e.Bounds.Left, e.Bounds.Bottom - 1, e.Bounds.Right, e.Bounds.Bottom - 1);
+            }
+
+            Rectangle r = new Rectangle(e.Bounds.X + 6, e.Bounds.Y, Math.Max(0, e.Bounds.Width - 8), e.Bounds.Height);
+            TextRenderer.DrawText(e.Graphics, e.Header.Text, e.Font ?? UiFont, r, TextPrimary,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+        }
+
+        private static void ListView_DrawItem(object sender, DrawListViewItemEventArgs e)
+        {
+            // In Details view each column arrives via DrawSubItem instead, so drawing here
+            // as well would paint over them.
+            ListView lv = sender as ListView;
+            if (lv != null && lv.View == View.Details) return;
+
+            using (SolidBrush bg = new SolidBrush(e.Item.Selected ? AccentDim : FieldBg))
+                e.Graphics.FillRectangle(bg, e.Bounds);
+
+            TextRenderer.DrawText(e.Graphics, e.Item.Text, e.Item.Font ?? UiFont, e.Bounds,
+                ResolveItemColor(e.Item.ForeColor),
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+        }
+
+        private static void ListView_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
+        {
+            using (SolidBrush bg = new SolidBrush(e.Item.Selected ? AccentDim : FieldBg))
+                e.Graphics.FillRectangle(bg, e.Bounds);
+
+            Rectangle r = new Rectangle(e.Bounds.X + 4, e.Bounds.Y, Math.Max(0, e.Bounds.Width - 6), e.Bounds.Height);
+            TextRenderer.DrawText(e.Graphics, e.SubItem.Text, e.SubItem.Font ?? e.Item.Font ?? UiFont, r,
+                ResolveItemColor(e.SubItem.ForeColor),
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+        }
+
+        // Deliberate per-item colours are kept; the default black is not, since it would be
+        // invisible on a dark row.
+        private static Color ResolveItemColor(Color c)
+        {
+            if (c.IsEmpty) return TextPrimary;
+            if (c.ToArgb() == SystemColors.WindowText.ToArgb()) return TextPrimary;
+            if (c.ToArgb() == Color.Black.ToArgb()) return TextPrimary;
+            return c;
         }
 
         private static void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
