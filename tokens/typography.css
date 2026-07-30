@@ -1,0 +1,22 @@
+/* Theme.UiFont = Segoe UI 9pt = 12px at 96dpi. Every size below is the px equivalent of
+   a point size actually used in the sources. */
+:root{
+  --jr-font-ui:"Segoe UI",-apple-system,system-ui,sans-serif;
+  --jr-font-mono:"Web437 IBM VGA","Consolas","Courier New",monospace;
+
+  --jr-text-xs:11px;      /* status strip, small captions */
+  --jr-text-sm:12px;      /* 9pt - the app default: buttons, labels, fields, tabs, menus */
+  --jr-text-md:13px;      /* 10pt bold - Glitch Chip dialog title */
+  --jr-text-lg:15px;      /* 11pt bold - MessageDialog title */
+  --jr-text-xl:20px;      /* 15pt bold - flash overlay caption */
+
+  --jr-weight-regular:400;
+  --jr-weight-bold:700;   /* Theme.UiFontBold - only ever bold, never semibold */
+
+  --jr-leading-tight:1.15;
+  --jr-leading-normal:1.35;
+  --jr-leading-log:1.45;  /* console output */
+
+  --jr-console-size:12px;
+  --jr-console-leading:1.5;
+}

@@ -1,0 +1,27 @@
+/* WinForms absolute layout: the designer's real numbers, not a 4/8 grid. */
+:root{
+  --jr-space-1:2px;
+  --jr-space-2:4px;
+  --jr-space-3:6px;    /* GroupBox inner inset, tab strip padding */
+  --jr-space-4:8px;
+  --jr-space-5:10px;
+  --jr-space-6:12px;
+  --jr-space-7:14px;   /* Glitch Chip title bar inset */
+  --jr-space-8:16px;
+  --jr-space-9:20px;   /* MessageDialog content inset */
+  --jr-space-10:24px;
+
+  --jr-titlebar-h:36px;      /* MainForm.Chrome TitleBarHeight */
+  --jr-menustrip-h:24px;     /* LegacyMenuStripHeight */
+  --jr-chrome-btn-w:46px;    /* ChromeButtonWidth */
+  --jr-statusbar-h:22px;
+  --jr-control-h:23px;       /* designer default field height */
+  --jr-button-h:26px;        /* typical designer button */
+  --jr-button-h-lg:32px;     /* MessageDialog buttons (90x32) */
+  --jr-button-h-xl:34px;     /* Glitch Chip "Program" (110x34) */
+  --jr-progress-h:20px;      /* MainForm progressBar 347x20 */
+  --jr-glyph:13px;           /* native checkbox/radio glyph size */
+  --jr-hairline:1px;
+  --jr-app-width:832px;      /* MainForm.ClientSize */
+  --jr-app-height:661px;
+}

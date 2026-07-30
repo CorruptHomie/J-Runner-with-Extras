@@ -1,0 +1,28 @@
+<!-- @dsCard group="Components" viewport="700x300" name="Controls" subtitle="Buttons, fields, dropdowns, toggles" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<style>html,body{margin:0;background:var(--jr-window-bg);color:var(--jr-text-primary);font:400 var(--jr-text-sm)/1.3 var(--jr-font-ui)}#root{padding:14px}</style></head><body><div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script type="text/babel">
+const { Button, SplitButton, TextField, Select, NumberField, Checkbox, Radio } = window.JRunnerPremiumDesignSystem_5a2f40;
+const Row = ({label, children}) => <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+  <span style={{width:78,flex:"none",color:"var(--jr-text-secondary)",fontSize:11}}>{label}</span>{children}</div>;
+function Demo(){
+  const [iface,setIface]=React.useState("USB");
+  const [reads,setReads]=React.useState(2);
+  const [ecc,setEcc]=React.useState(true);
+  return <div style={{display:"flex",flexDirection:"column",gap:12}}>
+    <Row label="Button"><Button>Read Nand</Button><Button variant="primary" size="lg">Yes</Button><Button variant="danger">Erase</Button><Button disabled>Write Nand</Button></Row>
+    <Row label="Sizes"><Button size="sm">sm 22</Button><Button>md 26</Button><Button size="lg">lg 32</Button><Button size="xl">xl 34</Button></Row>
+    <Row label="Split"><SplitButton>Show Working Folder</SplitButton></Row>
+    <Row label="Field"><TextField width={190} placeholder="Load Source" /><TextField width={210} mono value="A1B2C3D4E5F60718" /><TextField width={110} value="disabled" disabled /></Row>
+    <Row label="Select"><Select width={160} value="Corona" options={["Falcon","Jasper","Trinity","Corona"]} /><Select width={160} /></Row>
+    <Row label="Number"><NumberField value={reads} onChange={setReads} /></Row>
+    <Row label="Toggles"><Checkbox checked={ecc} onChange={setEcc} label="Create ECC" /><Checkbox label="Unchecked" /><Checkbox checked disabled label="Disabled" />
+      <Radio checked={iface==="USB"} onChange={()=>setIface("USB")} label="USB" /><Radio checked={iface==="LPT"} onChange={()=>setIface("LPT")} label="LPT" /></Row>
+  </div>;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<Demo/>);
+</script></body></html>

@@ -1,0 +1,141 @@
+<!-- @dsCard group="Website" viewport="1280x900" name="Docs page" subtitle="Getting started — requirements, first dump, first flash" -->
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Getting started — J-Runner Premium</title><meta name="description" content="What you need, how to dump your NAND, and how to do your first flash safely.">
+<link rel="icon" href="../assets/logo-jr2.png">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="site.css">
+</head><body>
+<header class="site" data-header>
+<div class="wrap">
+<a class="brand" href="index.html"><span class="mark"><img src="../assets/logo-jr2.png" alt=""></span>J-Runner Premium</a>
+<nav class="top">
+<a href="index.html#what">What it does</a>
+<a href="index.html#hardware">Hardware</a>
+<a href="index.html#shots">Screenshots</a>
+<a href="docs.html" aria-current="page">Docs</a>
+<a href="downloads.html">Downloads</a>
+</nav>
+</div>
+</header>
+
+<div class="page-head"><div class="wrap narrow" style="margin-left:auto;margin-right:auto">
+<div class="eyebrow" data-reveal>Documentation</div>
+<h1 data-reveal>Getting started</h1>
+<p class="lede" style="margin-top:20px" data-reveal>Everything below assumes you have never done this before. If you are already comfortable with RGH, skip to <a href="#flash">the first flash</a>.</p>
+<div class="toc" data-reveal>
+<a href="#need">What you need</a><a href="#install">Install</a><a href="#dump">Dump the NAND</a><a href="#read">Read the info</a>
+<a href="#chip">Program the glitch chip</a><a href="#flash">The first flash</a><a href="#xell">Customize XeLL</a><a href="#terms">Glossary</a><a href="#trouble">If it goes wrong</a>
+</div>
+</div></div>
+
+<div class="doc"><div class="wrap narrow" style="margin-left:auto;margin-right:auto">
+
+<div class="callout danger" data-reveal>
+<div class="h">Before anything else</div>
+<p>A NAND flash rewrites the console's firmware. A bad write bricks the console. Take two clean dumps of your NAND, copy them somewhere off the machine you are working on, and do not delete them — ever. They are the only way back.</p>
+</div>
+
+<h2 id="need" data-reveal>What you need</h2>
+<table class="spec" data-reveal>
+<tr><th style="width:34%">Item</th><th>Notes</th></tr>
+<tr><td>A Windows PC</td><td>x86 or x64, Windows Vista SP2 or later. Realistically, Windows 10 or 11.</td></tr>
+<tr><td>.NET Framework 4.8</td><td>Already present on modern Windows. Otherwise install it from Microsoft first.</td></tr>
+<tr><td>A free USB 2.0 port</td><td>Flashers are picky. Use a rear port on a desktop, not a hub.</td></tr>
+<tr><td>A NAND flasher</td><td>A Raspberry Pi Pico running PicoFlasher is the cheapest option. xFlasher, Matrix, DemoN and generic USB SPI tools all work too.</td></tr>
+<tr><td>A glitch chip</td><td>For RGH. A second Pico running RPicoRGH is a supported choice seeing as even a Matrix Glitcher can be hard to find— J-Runner can flash it for you.</td></tr>
+<tr><td>Soldering gear</td><td>Yes, really. Getting a NAND dump means wiring the flasher to the motherboard.</td></tr>
+</table>
+<p data-reveal>If you already own a Pico 2 (RP2350) or a Pico clone with 20 GPIO headers per side, there are community firmware builds for those — links are on the <a href="index.html#credits">home page</a>.</p>
+
+<h2 id="install" data-reveal>Install J-Runner Premium</h2>
+<ol class="steps" data-reveal>
+<li><div class="t">Download the latest stable package</div><p>Grab it from the <a href="downloads.html">downloads page</a>. It is a full package, not an installer.</p></li>
+<li><div class="t">Unzip it somewhere permanent</div><p>Somewhere short and without spaces or non-English characters — <code>C:\JRunner\</code> is fine. J-Runner writes dumps, images and logs into subfolders alongside itself, so don't run it from your Downloads folder or from inside the zip.</p></li>
+<li><div class="t">Run it</div><p>The main window opens at a fixed size with the session log at the bottom left. That log is where everything reports; keep an eye on it.</p></li>
+</ol>
+
+<h2 id="dump" data-reveal>Dump the NAND</h2>
+<p data-reveal>Nothing else can happen until J-Runner has a copy of your console's flash memory.</p>
+<ol class="steps" data-reveal>
+<li><div class="t">Wire the flasher to the console</div><p>Follow the wiring diagram for your specific motherboard and flasher. This is the part where mistakes cost you money, so double-check every point before powering anything on.</p></li>
+<li><div class="t">Plug the flasher into your PC</div><p>J-Runner polls for hardware and shows the detected flasher in the panel to the right of the Nand buttons. If it still says <em>No flasher detected</em>, the driver or the wiring is the problem — not the software.</p></li>
+<li><div class="t">Set Nand Reads to 2 or more</div><p>The stepper sits under the Nand column. Two reads let J-Runner compare passes and tell you whether the dump is trustworthy.</p></li>
+<li><div class="t">Click Read Nand</div><p>Progress runs along the bar at the bottom of the left column. When it finishes, the log tells you whether the reads matched and how many bad blocks were found.</p></li>
+<li><div class="t">Back up the dumps</div><p>Copy them off this machine. Cloud, USB stick, second drive — anywhere that is not the folder you are about to work in.</p></li>
+</ol>
+
+<h2 id="read" data-reveal>Read what the dump tells you</h2>
+<p data-reveal>Once a dump is loaded, the panels on the right fill in. This is how you learn what console you actually have.</p>
+<ul data-reveal>
+<li><strong>Nand Info</strong> — console type, CB versions (2BL, 4BL, 5BL, 6BL, 7BL), CB type and LDV. The CB type tells you which exploit applies.</li>
+<li><strong>KV Info</strong> — keyvault contents: console ID, serial, manufacturing date, region and DVD key.</li>
+<li><strong>Bad Blocks</strong> — any damaged regions in the flash. A handful is normal; a lot is a warning sign.</li>
+</ul>
+<p data-reveal>The <strong>CPU Key</strong> field is the single most important value here. Extract it from the dump, or pull it off a running console with <em>Get CPU Key</em> over the network, and save it into the CPU Key Database so it is there next time.</p>
+
+<h2 id="chip" data-reveal>Program the glitch chip</h2>
+<ol class="steps" data-reveal>
+<li><div class="t">Open Advanced → Program Glitch Chip</div><p>A small dialog appears with two firmware choices: <strong>RPicoRGH</strong> (recommended) and <strong>PicoRGH</strong> (original/legacy). Pick the first unless you have a specific reason not to.</p></li>
+<li><div class="t">Hold BOOTSEL and plug the Pico in</div><p>Hold the button down on the Pico <em>while</em> connecting it to the PC. This puts it into the mode where its firmware can be replaced.</p></li>
+<li><div class="t">Click Program</div><p>The dialog reports progress and tells you when it is done. Unplug and replug the Pico afterwards.</p></li>
+<li><div class="t">Generate a timing file</div><p>Back on the main window, <em>Program Timing File</em> produces the timing values for your specific console and pushes them to the chip over USB or LPT.</p></li>
+</ol>
+
+<h2 id="flash" data-reveal>The first flash</h2>
+<div class="callout" data-reveal><div class="h">Point of no return</div><p>Everything up to here is reversible. This step is not. Make sure your dumps are backed up and that your CB type, console type and kernel version are all correct before you continue.</p></div>
+<ol class="steps" data-reveal>
+<li><div class="t">Pick your kernel version and console type</div><p>In the XeBuild panel. The console type must match the motherboard you dumped — Falcon, Jasper, Trinity, Corona and so on.</p></li>
+<li><div class="t">Pick the CB type</div><p>Retail, Glitch, Glitch2, Glitch2m, JTAG or DEVGL. This comes from what the Nand Info panel told you; don't guess.</p></li>
+<li><div class="t">Click Create XeBuild Image</div><p>J-Runner assembles the image with the right patches and Dashlaunch config. Watch the log for errors before going further.</p></li>
+<li><div class="t">Click Write Nand</div><p>You will be asked: <em>"Are you sure? Did you make sure to select the correct options and patches?"</em> This is your last chance to stop. If anything at all feels uncertain, click No.</p></li>
+<li><div class="t">Do not touch anything</div><p>The whole window is taken over by the progress screen while the write runs. Do not unplug the flasher, do not close the app, do not let the PC sleep.</p></li>
+<li><div class="t">Disconnect the flasher before booting</div><p>J-Runner reminds you when the write finishes. Take the flasher off, reassemble, and boot.</p></li>
+</ol>
+
+<h2 id="xell" data-reveal>Customize the XeLL screen</h2>
+<p data-reveal>XeLL is the loader that appears on boot. J-Runner starts a small web app on <code>localhost:2222</code> that lets you recolour it and replace the ASCII banner, then generates a custom XeLL build to flash.</p>
+<ul data-reveal>
+<li>Start from a community preset — Default (blue on white), Swizzy (orange on black), XTUDO (pink on black) or Classic (green on black).</li>
+<li>Or pick a background and text colour from the eleven LibXenon console colours.</li>
+<li>Paste your own ASCII art into the ASCII Art tab; the preview updates live.</li>
+<li>Click <em>Generate Custom XeLL Build</em> and flash the result the same way as any other image.</li>
+</ul>
+
+<h2 id="terms" data-reveal>Glossary</h2>
+<table class="spec" data-reveal>
+<tr><th style="width:26%">Term</th><th>Meaning</th></tr>
+<tr><td>NAND</td><td>The console's onboard flash memory. Everything you are modifying lives here.</td></tr>
+<tr><td>RGH</td><td>Reset Glitch Hack. A hardware glitch that lets unsigned code run. Needs a glitch chip.</td></tr>
+<tr><td>JTAG</td><td>The older software exploit. Only works on very early consoles.</td></tr>
+<tr><td>XeBuild</td><td>The tool that assembles the patched firmware image. Bundled with J-Runner.</td></tr>
+<tr><td>XeLL</td><td>The Xenon Linux Loader — the screen you see on boot after a successful glitch.</td></tr>
+<tr><td>Dashlaunch</td><td>The tool that loads your settings and launches the dashboard on boot.</td></tr>
+<tr><td>CB / CB type</td><td>Bootloader revision. Determines which exploit path applies to your console.</td></tr>
+<tr><td>Keyvault (KV)</td><td>The encrypted block holding your console's identity and keys.</td></tr>
+<tr><td>CPU key</td><td>The per-console key that unlocks the keyvault. Lose it and the dump is useless.</td></tr>
+<tr><td>LDV</td><td>Launch Data Version — a counter that must not go backwards.</td></tr>
+<tr><td>BOOTSEL</td><td>The button on a Raspberry Pi Pico that puts it into firmware-flashing mode.</td></tr>
+</table>
+
+<h2 id="trouble" data-reveal>If it goes wrong</h2>
+<h3 data-reveal>The flasher isn't detected</h3>
+<p data-reveal>Try a different USB port, avoid hubs, and check the driver installed correctly. If the panel still reads <em>No flasher detected</em>, the problem is upstream of J-Runner.</p>
+<h3 data-reveal>The two reads don't match</h3>
+<p data-reveal>Your wiring is marginal. Re-flow the solder joints and read again. Do not write anything based on a dump that didn't verify.</p>
+<h3 data-reveal>The console won't boot after a flash</h3>
+<p data-reveal>Write your original dump back. This is exactly why you kept it. If you didn't keep it, the scene forums are your next stop.</p>
+<h3 data-reveal>Something else</h3>
+<p data-reveal>Copy the session log — it holds the real error text — and open an issue on <a href="https://github.com/ScallywagDude/J-Runner-Premium">GitHub</a>.</p>
+
+</div></div>
+<footer class="site">
+<div class="wrap">
+<a class="brand" href="index.html"><span class="mark"><img src="../assets/logo-jr2.png" alt=""></span>J-Runner Premium</a>
+<p class="meta">Free and open source. Not affiliated with, endorsed by, or associated with Microsoft. Xbox and the Xbox sphere are trademarks of Microsoft Corporation.</p>
+<a class="btn sm" href="https://github.com/ScallywagDude/J-Runner-Premium">GitHub</a>
+</div>
+</footer>
+<div class="statusstrip"><span><b>XeBuild:</b> 1.21</span><span><b>Dashlaunch:</b> 3.21</span><span><b>Build:</b> 4.0.0devpre4</span></div>
+<script src="xfall.js"></script>
+<script src="site.js"></script>
+</body></html>

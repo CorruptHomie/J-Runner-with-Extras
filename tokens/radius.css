@@ -1,0 +1,12 @@
+/* Every radius in the app is drawn by MessageDialog.RoundedPath at one of these values. */
+:root{
+  --jr-radius-glyph:3px;   /* checkbox box */
+  --jr-radius-menu:4px;    /* dropdown row */
+  --jr-radius-group:6px;   /* GroupBox frame */
+  --jr-radius-btn:5px;     /* Button: max(3, min(8, height/5)) - 5px at the 26px default */
+  --jr-radius-btn-min:3px;
+  --jr-radius-btn-max:8px;
+  --jr-radius-dialog-sm:10px; /* GlitchChipProgrammer */
+  --jr-radius-dialog:12px;    /* MessageDialog */
+  --jr-radius-pill:999px;
+}

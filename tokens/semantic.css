@@ -1,0 +1,32 @@
+/* Role aliases. Prefer these in components; the raw --jr-* values above are the source. */
+:root{
+  --surface-window:var(--jr-window-bg);
+  --surface-panel:var(--jr-panel-bg);
+  --surface-raised:var(--jr-raised-bg);
+  --surface-field:var(--jr-field-bg);
+  --surface-hover:var(--jr-hover-bg);
+  --surface-pressed:var(--jr-pressed-bg);
+  --surface-selected:var(--jr-accent-dim);
+  --surface-row-alt:var(--jr-row-alt-bg);
+
+  --text-body:var(--jr-text-primary);
+  --text-muted:var(--jr-text-secondary);
+  --text-disabled:var(--jr-text-disabled);
+  --text-inverse:var(--jr-text-on-accent);
+  --text-link:var(--jr-accent);
+  --text-link-hover:var(--jr-accent-light);
+
+  --border-default:var(--jr-border);
+  --border-quiet:var(--jr-border-subtle);
+  --border-focus:var(--jr-accent);
+
+  --action-primary:var(--jr-accent);
+  --action-primary-hover:var(--jr-accent-light);
+  --action-primary-active:var(--jr-accent-dim);
+  --action-danger:var(--jr-danger);
+
+  --status-ok:var(--jr-accent);
+  --status-error:var(--jr-danger);
+}
+a{color:var(--text-link);text-decoration:none}
+a:hover{color:var(--text-link-hover);text-decoration:underline}

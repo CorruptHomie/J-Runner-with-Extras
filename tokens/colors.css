@@ -1,0 +1,59 @@
+/* Exact values from J-Runner/UI/Theme.cs (Color.FromArgb triples). Do not round. */
+:root{
+  --jr-window-bg:#161619;        /* Theme.WindowBg      22,22,25  */
+  --jr-panel-bg:#1e1e22;         /* Theme.PanelBg       30,30,34  */
+  --jr-raised-bg:#2d2d33;        /* Theme.RaisedBg      45,45,51  */
+  --jr-hover-bg:#3c3c43;         /* Theme.HoverBg       60,60,67  */
+  --jr-pressed-bg:#242429;       /* Theme.PressedBg     36,36,41  */
+  --jr-field-bg:#111113;         /* Theme.FieldBg       17,17,19  */
+  --jr-track-bg:#121214;         /* progress track      18,18,20  */
+  --jr-row-alt-bg:#1a1a1e;       /* grid zebra          26,26,30  */
+
+  --jr-border:#3e3e45;           /* Theme.Border        62,62,69  */
+  --jr-border-subtle:#2e2e34;    /* Theme.BorderSubtle  46,46,52  */
+
+  --jr-text-primary:#e8e8eb;     /* Theme.TextPrimary   232,232,235 */
+  --jr-text-secondary:#96969e;   /* Theme.TextSecondary 150,150,158 */
+  --jr-text-disabled:#6e6e76;    /* Theme.TextDisabled  110,110,118 */
+  --jr-text-on-accent:#141414;   /* dialog primary button fore 20,20,20 */
+  --jr-tick:#141812;             /* checkbox tick       20,24,18  */
+
+  --jr-accent:#74c757;           /* Theme.Accent        116,199,87 */
+  --jr-accent-dim:#468037;       /* Theme.AccentDim     70,128,55  */
+  --jr-accent-light:#a1e082;     /* ControlPaint.Light(Accent), hover on primary buttons */
+  --jr-danger:#d65a50;           /* Theme.Danger        214,90,80  */
+
+  --jr-chrome-glyph:#babac1;     /* Theme.ChromeButton      186,186,193 */
+  --jr-chrome-glyph-hover:#f0f0f5;/* Theme.ChromeButtonHover 240,240,245 */
+
+  /* Console log severity - CommunicationManager.MessageColor + POST/DemonCom text */
+  --jr-log-ok:#00ff00;
+  --jr-log-info:#32cd32;
+  --jr-log-warn:#ffa500;
+  --jr-log-error:#ff0000;
+
+  /* XeLL console palette - LibXenon CONSOLE_COLOR_* (xell-customizer/lib/theme-colors.ts) */
+  --xell-red:#ff0000;
+  --xell-blue:#4e44d8;
+  --xell-green:#008000;
+  --xell-black:#000000;
+  --xell-white:#ffffff;
+  --xell-grey:#c0c0c0;
+  --xell-brown:#993300;
+  --xell-purple:#9900ff;
+  --xell-yellow:#ffff00;
+  --xell-orange:#ff6600;
+  --xell-pink:#ff66ff;
+
+  /* XeLL Theme Customizer web shell - shadcn "slate" dark scale, verbatim from its index.css */
+  --xc-background:oklch(0.129 0.042 264.695);
+  --xc-foreground:oklch(0.984 0.003 247.858);
+  --xc-card:oklch(0.208 0.042 265.755);
+  --xc-muted:oklch(0.279 0.041 260.031);
+  --xc-muted-foreground:oklch(0.704 0.04 256.788);
+  --xc-border:oklch(1 0 0 / 10%);
+  --xc-destructive:oklch(0.704 0.191 22.216);
+  --xc-heading-from:#2563eb;     /* tailwind blue-600  */
+  --xc-heading-to:#9333ea;       /* tailwind purple-600 */
+  --xc-icon:#a855f7;             /* tailwind purple-500 */
+}

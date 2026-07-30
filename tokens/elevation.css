@@ -1,0 +1,10 @@
+/* The app is flat: surfaces are separated by value steps and 1px hairlines, never by
+   box-shadow. The only real shadow in the product is the OS drop shadow a borderless
+   window gets back via CS_DROPSHADOW, approximated here for HTML window frames. */
+:root{
+  --jr-shadow-none:none;
+  --jr-shadow-window:0 10px 40px rgba(0,0,0,.55);
+  --jr-shadow-dialog:0 8px 28px rgba(0,0,0,.5);
+  --jr-scrim:rgba(0,0,0,.45);      /* MessageDialog owner overlay, Opacity = 0.45 */
+  --jr-overlay-opacity:.97; /* @kind other */        /* FlashProgressOverlay */
+}

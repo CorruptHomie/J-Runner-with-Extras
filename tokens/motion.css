@@ -1,0 +1,11 @@
+/* Animation is opt-in (Settings > "Enable animations") and exists in exactly two places:
+   the flash progress fill easing toward its target, and the marquee sweep. Everything
+   else - hover, press, tab switch - is instant, with no transition. */
+:root{
+  --jr-anim-tick:30ms; /* @kind other */             /* XboxFillProgressBar timer interval */
+  --jr-anim-mirror:40ms; /* @kind other */           /* FlashProgressOverlay mirror timer */
+  --jr-ease-fill:cubic-bezier(.22,.61,.36,1); /* fraction += diff * 0.12 per tick */
+  --jr-duration-fill:600ms;
+  --jr-duration-marquee:1500ms; /* @kind other */    /* phase += 0.02 per 30ms tick */
+  --jr-duration-instant:0ms; /* @kind other */       /* hover / press / selection: no transition */
+}

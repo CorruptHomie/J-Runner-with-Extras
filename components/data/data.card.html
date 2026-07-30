@@ -1,0 +1,17 @@
+<!-- @dsCard group="Components" viewport="700x220" name="Data" subtitle="Zebra grid with accent selection" -->
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../styles.css">
+<style>html,body{margin:0;background:var(--jr-window-bg);color:var(--jr-text-primary);font:400 var(--jr-text-sm)/1.3 var(--jr-font-ui)}#root{padding:14px}</style></head><body><div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script type="text/babel">
+const { DataTable } = window.JRunnerPremiumDesignSystem_5a2f40;
+const cols=[{key:"serial",label:"Serial"},{key:"cpukey",label:"CPU Key",mono:true},{key:"type",label:"CB Type"},{key:"ldv",label:"LDV"}];
+const rows=[
+ {serial:"0270 3423 1908",cpukey:"9A31...C4E2",type:"Corona 4GB",ldv:"12"},
+ {serial:"0189 5521 0044",cpukey:"77B0...19AF",type:"Trinity",ldv:"09"},
+ {serial:"3320 1147 8830",cpukey:"C1D8...5E60",type:"Jasper 16MB",ldv:"14"},
+ {serial:"0044 9982 1276",cpukey:"2F4A...B0C9",type:"Falcon",ldv:"07"}];
+ReactDOM.createRoot(document.getElementById("root")).render(<DataTable columns={cols} rows={rows} selectedIndex={1} onSelect={()=>{}} />);
+</script></body></html>
