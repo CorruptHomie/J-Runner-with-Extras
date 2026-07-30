@@ -1,0 +1,34 @@
+using System.Reflection;
+using System.Resources;
+using System.Runtime.InteropServices;
+
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("J-Runner Premium")]
+[assembly: AssemblyDescription("The Ultimate RGH/JTAG App")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("X360Tools")]
+[assembly: AssemblyProduct("J-Runner Premium")]
+[assembly: AssemblyCopyright("Copyright © J-Runner Developers 2012-2022")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+
+// Setting ComVisible to false makes the types in this assembly not visible 
+// to COM components.  If you need to access a type in this assembly from 
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(true)]
+
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("98d21f81-eb49-4f4d-bfc4-f1e4d7548fbe")]
+
+[assembly: NeutralResourcesLanguageAttribute("en")]
+
+// AssemblyVersion/AssemblyFileVersion must be plain numeric (Explorer's file properties
+// dialog and the .NET loader both require this), so the pre-release tag lives in
+// AssemblyInformationalVersion instead - that field allows arbitrary text and is what
+// actually reads "4.0.0devpre4" in Explorer's "Product version" field. Keep this in sync
+// with Classes/variables.cs's version/staticversion constants.
+[assembly: AssemblyVersion("4.0.0.0")]
+[assembly: AssemblyFileVersion("4.0.0.0")]
+[assembly: AssemblyInformationalVersion("4.0.0devpre4")]
