@@ -175,3 +175,186 @@ table.spec tr:nth-child(even) td{background:var(--jr-row-alt-bg)}
   *{animation-duration:.001ms!important;transition-duration:.001ms!important}
   html{scroll-behavior:auto}
 }
+
+
+/* ---- tweaks panel ---- */
+.tweaks{position:fixed;right:18px;bottom:18px;z-index:80;font-family:var(--jr-font-ui)}
+.twtoggle{height:34px;padding:0 15px;border-radius:999px;border:1px solid var(--jr-border);background:var(--jr-raised-bg);color:var(--jr-text-primary);font:400 13px/1 var(--jr-font-ui);cursor:pointer;box-shadow:var(--jr-shadow-dialog);transition:background .12s,border-color .12s}
+.twtoggle:hover{background:var(--jr-hover-bg)}
+.tweaks.open .twtoggle{display:none}
+.twbody{display:none;width:288px;background:var(--jr-panel-bg);border:1px solid var(--jr-border);border-radius:12px;box-shadow:var(--jr-shadow-dialog);padding:6px 18px 18px;animation:twin .18s cubic-bezier(.22,.61,.36,1) both}
+.tweaks.open .twbody{display:block}
+@keyframes twin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.twhead{display:flex;align-items:center;justify-content:space-between;height:38px;font:700 13px/1 var(--jr-font-ui);color:var(--jr-text-primary)}
+.twclose{background:none;border:none;color:var(--jr-chrome-glyph);cursor:pointer;font-size:13px;padding:6px}
+.twclose:hover{color:var(--jr-chrome-glyph-hover)}
+.twgroup{padding-top:14px;border-top:1px solid var(--jr-border-subtle);margin-top:14px}
+.twgroup:first-of-type{border-top:0;margin-top:0;padding-top:2px}
+.twlabel{font-size:12px;color:var(--jr-text-primary)}
+.twhint{font-size:11px;color:var(--jr-text-secondary);margin-top:3px;line-height:1.4}
+.twrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.twopt{padding:6px 11px;border-radius:6px;border:1px solid var(--jr-border-subtle);background:var(--jr-raised-bg);color:var(--jr-text-secondary);font:400 12px/1 var(--jr-font-ui);cursor:pointer;transition:.12s}
+.twopt:hover{border-color:var(--jr-border);color:var(--jr-text-primary)}
+.twopt.on{border-color:var(--jr-accent);color:var(--jr-text-primary);box-shadow:inset 0 -2px 0 0 var(--jr-accent)}
+
+/* ---- rhythm variants ---- */
+body[data-rhythm="workbench"] section{padding:64px 0}
+body[data-rhythm="workbench"] .frow{padding:38px 0;gap:40px}
+body[data-rhythm="workbench"] .hero{padding:64px 0 48px}
+body[data-rhythm="workbench"] .hero h1{font-size:clamp(34px,4.6vw,58px)}
+body[data-rhythm="workbench"] h2{font-size:clamp(26px,3vw,34px)!important}
+body[data-rhythm="workbench"] .frow h3{font-size:24px}
+body[data-rhythm="workbench"] .lede{font-size:16px}
+body[data-rhythm="workbench"] .shotwrap{margin-top:40px}
+body[data-rhythm="workbench"] .devices,body[data-rhythm="workbench"] .gallery,body[data-rhythm="workbench"] .linklist{gap:8px;margin-top:28px}
+body[data-rhythm="workbench"] .device,body[data-rhythm="workbench"] .linkrow{padding:14px}
+body[data-rhythm="workbench"] .btn,body[data-rhythm="workbench"] .shot,body[data-rhythm="workbench"] .device,body[data-rhythm="workbench"] figure.gitem,body[data-rhythm="workbench"] .linkrow{border-radius:5px}
+
+body[data-rhythm="terminal"]{font-family:var(--jr-font-mono)}
+body[data-rhythm="terminal"] h1,body[data-rhythm="terminal"] h2,body[data-rhythm="terminal"] h3,body[data-rhythm="terminal"] .btn,body[data-rhythm="terminal"] nav.top a,body[data-rhythm="terminal"] .brand,body[data-rhythm="terminal"] .device .n,body[data-rhythm="terminal"] .linkrow .t{font-family:var(--jr-font-mono);letter-spacing:0}
+body[data-rhythm="terminal"] .hero h1{font-size:clamp(30px,4.6vw,58px);line-height:1.12}
+body[data-rhythm="terminal"] h2{font-size:clamp(24px,3vw,34px)!important}
+body[data-rhythm="terminal"] .eyebrow{letter-spacing:.28em}
+body[data-rhythm="terminal"] .lede,body[data-rhythm="terminal"] .doc p,body[data-rhythm="terminal"] .doc li{font-size:15px;line-height:1.6}
+body[data-rhythm="terminal"] .btn,body[data-rhythm="terminal"] .shot,body[data-rhythm="terminal"] .device,body[data-rhythm="terminal"] figure.gitem,body[data-rhythm="terminal"] .linkrow,body[data-rhythm="terminal"] .twbody,body[data-rhythm="terminal"] .brand .mark,body[data-rhythm="terminal"] .toc a{border-radius:0}
+body[data-rhythm="terminal"] .frow{border-top-style:dashed}
+body[data-rhythm="terminal"] .frow li::before{border-radius:0}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOTION LAYER
+   Two brand motifs drive everything: colour rising through greyscale (the
+   flash overlay), and the drifting X's. Timings borrow the app's own easing.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{--ease:cubic-bezier(.22,.61,.36,1);--ease-out-back:cubic-bezier(.34,1.32,.64,1)}
+
+/* ---- page transition ---- */
+body{opacity:1;transition:opacity .24s ease}
+body.leaving{opacity:0}
+
+/* ---- boot veil ---- */
+body.booting{overflow:hidden}
+.bootveil{position:fixed;inset:0;z-index:200;background:var(--jr-window-bg);display:grid;place-items:center;transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.bootveil.gone{opacity:0;transform:scale(1.03);pointer-events:none}
+.bootinner{display:flex;flex-direction:column;align-items:center;gap:22px;width:260px}
+.bootmark{width:56px;height:56px;border-radius:12px;background:#fff;display:grid;place-items:center;animation:bootpop .5s var(--ease-out-back) both}
+.bootmark img{width:40px;height:40px;object-fit:contain}
+@keyframes bootpop{from{opacity:0;transform:scale(.7) translateY(10px)}to{opacity:1;transform:none}}
+.bootlog{font:400 12px/1.75 var(--jr-font-mono);color:var(--jr-text-secondary);min-height:84px;width:100%}
+.bootlog div{animation:bootline .28s var(--ease) both}
+.bootlog div:last-child{color:var(--jr-accent)}
+@keyframes bootline{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.bootbar{width:100%;height:2px;background:var(--jr-border-subtle);overflow:hidden}
+.bootbar i{display:block;height:100%;background:var(--jr-accent);transform-origin:left;animation:bootfill 1.05s var(--ease) both}
+@keyframes bootfill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ---- headline word reveal ---- */
+h1.split .w,[data-split] .w{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.06em;margin-bottom:-.06em}
+h1.split .w i,[data-split] .w i{display:inline-block;font-style:inherit;transform:translateY(105%);opacity:0;transition:transform .78s var(--ease),opacity .5s ease}
+h1.split.shown .w i,[data-split].shown .w i{transform:none;opacity:1}
+.hero h1 .accent{position:relative}
+.hero h1 .accent::after{content:"";position:absolute;left:0;right:0;bottom:.06em;height:3px;background:var(--jr-accent);transform:scaleX(0);transform-origin:left;transition:transform .9s var(--ease) .75s;opacity:.45}
+.hero h1.shown .accent::after{transform:scaleX(1)}
+
+/* ---- generic shown reveal for headings + eyebrows ---- */
+h2,.eyebrow{opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+h2.shown,.eyebrow.shown{opacity:1;transform:none}
+.eyebrow{position:relative;padding-left:0}
+.eyebrow::before{content:"";display:inline-block;width:0;height:1px;background:var(--jr-accent);vertical-align:middle;margin-right:0;transition:width .6s var(--ease) .15s,margin-right .6s var(--ease) .15s}
+.eyebrow.shown::before{width:26px;margin-right:12px}
+
+/* ---- colour rising through greyscale ---- */
+.rise img{filter:grayscale(1) contrast(.92) brightness(.92);transition:filter 1.3s var(--ease)}
+.rise.shown img{filter:none}
+.rise{position:relative}
+.rise::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(to top,color-mix(in oklab,var(--jr-accent) 26%,transparent),transparent 42%);opacity:0;transition:opacity .5s ease}
+.rise.shown::before{animation:risewipe 1.4s var(--ease) both}
+@keyframes risewipe{0%{opacity:0;clip-path:inset(100% 0 0 0)}25%{opacity:1}100%{opacity:0;clip-path:inset(0 0 0 0)}}
+
+/* ---- header rail + nav slider ---- */
+header.site{position:sticky}
+.scrollrail{position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:var(--jr-accent);transform-origin:left;transform:scaleX(0);opacity:.85}
+nav.top{position:relative}
+.navslider{position:absolute;bottom:2px;left:0;height:2px;background:var(--jr-accent);opacity:0;transition:transform .38s var(--ease),width .38s var(--ease),opacity .25s ease;pointer-events:none}
+
+/* ---- buttons: magnetism + sheen ---- */
+.btn{position:relative;overflow:hidden;transition:background .12s,border-color .12s,transform .28s var(--ease),box-shadow .2s}
+.btn::after{content:"";position:absolute;inset:0;background:radial-gradient(140px circle at var(--mx,50%) 50%,rgba(255,255,255,.12),transparent 60%);opacity:0;transition:opacity .25s}
+.btn:hover::after{opacity:1}
+.btn.primary:hover{box-shadow:0 8px 26px -10px var(--jr-accent)}
+.btn:active{transform:scale(.98)!important}
+
+/* ---- hero spotlight + parallax ---- */
+.hero.haslight::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(420px circle at var(--lx,50%) var(--ly,40%),color-mix(in oklab,var(--jr-accent) 7%,transparent),transparent 70%);transition:opacity .4s;opacity:.9}
+.hero{position:relative}
+.hero .shotwrap{transform:translateY(calc(var(--py,0px) * -1)) scale(var(--ps,1));transition:transform .1s linear}
+
+/* ---- CRT on the XeLL preview ---- */
+.crt{position:relative}
+.crt::before{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.16) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+.crt::after{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;background:radial-gradient(120% 100% at 50% 50%,transparent 58%,rgba(0,0,0,.42));animation:flicker 5.5s steps(1) infinite}
+@keyframes flicker{0%,97%{opacity:1}98%{opacity:.86}99%{opacity:1}}
+.xscreen .inner{position:relative;z-index:1}
+
+/* ---- log console caret ---- */
+.logwell::after{content:"";display:inline-block;width:7px;height:13px;background:var(--jr-accent);vertical-align:-2px;animation:blink 1.05s steps(1) infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+/* ---- device + gallery + linkrow hover: hairline draw ---- */
+.device,figure.gitem,.linkrow{position:relative;overflow:hidden}
+.device::after,figure.gitem::after,.linkrow::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--jr-accent);transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease)}
+.device:hover::after,figure.gitem:hover::after,.linkrow:hover::after{transform:scaleX(1)}
+.device img{transition:transform .45s var(--ease)}
+.device:hover img{transform:translateY(-3px) scale(1.06)}
+figure.gitem img{transition:transform .6s var(--ease)}
+figure.gitem:hover img{transform:scale(1.035)}
+
+/* ---- feature rows: hairline draws in ---- */
+.frow{position:relative}
+.frow::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:var(--jr-accent);opacity:.3;transform:scaleX(0);transform-origin:left;transition:transform 1s var(--ease)}
+.frow.in::before{transform:scaleX(1)}
+.frow li{opacity:0;transform:translateX(-8px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.frow.in li{opacity:1;transform:none}
+.frow.in li:nth-child(1){transition-delay:.16s}
+.frow.in li:nth-child(2){transition-delay:.24s}
+.frow.in li:nth-child(3){transition-delay:.32s}
+.frow.in li:nth-child(4){transition-delay:.4s}
+
+/* ---- preset chips ---- */
+.preset{position:relative;overflow:hidden}
+.preset i{transition:transform .3s var(--ease-out-back)}
+.preset:hover i{transform:scale(1.35)}
+.preset.on i{box-shadow:0 0 0 3px color-mix(in oklab,var(--jr-accent) 35%,transparent)}
+
+/* ---- docs: steps + toc ---- */
+.steps{opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.steps.shown{opacity:1;transform:none}
+.steps li::before{transition:color .35s,border-color .35s,background .35s,transform .35s var(--ease-out-back)}
+.steps li.active::before{color:var(--jr-text-on-accent);background:var(--jr-accent);border-color:var(--jr-accent);transform:scale(1.08)}
+.steps li{transition:opacity .35s}
+.steps li:not(.active){opacity:.62}
+.toc a{transition:border-color .2s,color .2s,background .2s}
+.toc a.on{border-color:var(--jr-accent);color:var(--jr-text-primary);background:color-mix(in oklab,var(--jr-accent) 12%,transparent)}
+.callout,table.spec,.release{opacity:0;transform:translateY(16px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.callout.shown,table.spec.shown,.release.shown{opacity:1;transform:none}
+
+/* ---- release card: travelling hairline ---- */
+.release{position:relative;overflow:hidden}
+.release::after{content:"";position:absolute;top:0;left:-40%;width:40%;height:1px;background:linear-gradient(to right,transparent,var(--jr-accent),transparent);animation:travel 4.5s linear infinite}
+@keyframes travel{to{left:110%}}
+
+/* ---- warning band dot trail ---- */
+.warn{overflow:hidden;position:relative}
+.warn::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:linear-gradient(to right,transparent,var(--jr-danger),transparent);opacity:.5;transform:translateX(-100%);animation:sweep 6s linear infinite}
+@keyframes sweep{to{transform:translateX(100%)}}
+
+/* ---- status strip ticker ---- */
+.statusstrip span{transition:color .2s}
+.statusstrip span:hover b{color:var(--jr-accent)}
+
+@media (prefers-reduced-motion:reduce){
+  .bootveil{display:none}
+  .rise img{filter:none}
+  .rise::before,.release::after,.warn::after,.logwell::after,.crt::after{animation:none;display:none}
+  h1.split .w i,h2,.eyebrow,.steps,.callout,table.spec,.release,.frow li{opacity:1!important;transform:none!important}
+}
