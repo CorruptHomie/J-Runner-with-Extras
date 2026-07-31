@@ -12,6 +12,7 @@
     { size: 12, colour: "#2d2d34", w: 1.8 },
   ];
   let W = 0, H = 0, dpr = 1, flakes = [];
+  let mult = { count: 1, speed: 1, scale: 1, fade: 1 };
 
   function make(seeded) {
     const t = TIERS[(Math.random() * 3) | 0];
@@ -32,7 +33,8 @@
     c.width = W * dpr; c.height = H * dpr;
     c.style.width = W + "px"; c.style.height = H + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const count = Math.max(40, Math.min(140, ((W * H) / 12000) | 0));
+    const base = Math.max(40, Math.min(140, ((W * H) / 12000) | 0));
+    const count = Math.round(base * mult.count);
     while (flakes.length < count) flakes.push(make(true));
     flakes.length = count;
   }
@@ -41,9 +43,10 @@
     ctx.clearRect(0, 0, W, H);
     ctx.lineCap = "round";
     for (const f of flakes) {
-      if (!reduce) { f.y += f.speed; f.phase += 0.02; if (f.y - f.size > H) Object.assign(f, make(false)); }
-      const x = f.x + Math.sin(f.phase) * f.drift, y = f.y, s = f.size;
-      ctx.strokeStyle = f.colour; ctx.lineWidth = f.lw;
+      if (!reduce) { f.y += f.speed * mult.speed; f.phase += 0.02 * mult.speed; if (f.y - f.size > H) Object.assign(f, make(false)); }
+      const x = f.x + Math.sin(f.phase) * f.drift, y = f.y, s = f.size * mult.scale;
+      ctx.globalAlpha = mult.fade;
+      ctx.strokeStyle = f.colour; ctx.lineWidth = f.lw * mult.scale;
       ctx.beginPath();
       ctx.moveTo(x - s, y - s); ctx.lineTo(x + s, y + s);
       ctx.moveTo(x + s, y - s); ctx.lineTo(x - s, y + s);
@@ -51,6 +54,10 @@
     }
     requestAnimationFrame(draw);
   }
+
+  window.__xfall = {
+    set(m) { mult = Object.assign({ count: 1, speed: 1, scale: 1, fade: 1 }, m); resize(); },
+  };
 
   window.addEventListener("resize", resize);
   resize(); draw();

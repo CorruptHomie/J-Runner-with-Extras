@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"JRunnerPremiumDesignSystem_5a2f40","components":[{"name":"Button","sourcePath":"components/controls/Button.jsx"},{"name":"Checkbox","sourcePath":"components/controls/Checkbox.jsx"},{"name":"NumberField","sourcePath":"components/controls/NumberField.jsx"},{"name":"Radio","sourcePath":"components/controls/Radio.jsx"},{"name":"Select","sourcePath":"components/controls/Select.jsx"},{"name":"SplitButton","sourcePath":"components/controls/SplitButton.jsx"},{"name":"TextField","sourcePath":"components/controls/TextField.jsx"},{"name":"DataTable","sourcePath":"components/data/DataTable.jsx"},{"name":"DeviceCard","sourcePath":"components/feedback/DeviceCard.jsx"},{"name":"FlashOverlay","sourcePath":"components/feedback/FlashOverlay.jsx"},{"name":"LogConsole","sourcePath":"components/feedback/LogConsole.jsx"},{"name":"MessageDialog","sourcePath":"components/feedback/MessageDialog.jsx"},{"name":"ProgressBar","sourcePath":"components/feedback/ProgressBar.jsx"},{"name":"GroupBox","sourcePath":"components/layout/GroupBox.jsx"},{"name":"MenuDropdown","sourcePath":"components/layout/MenuDropdown.jsx"},{"name":"StatusBar","sourcePath":"components/layout/StatusBar.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"TitleBar","sourcePath":"components/layout/TitleBar.jsx"}],"sourceHashes":{"components/controls/Button.jsx":"3c8af34f522a","components/controls/Checkbox.jsx":"87cb320ebb03","components/controls/NumberField.jsx":"7da26bfab0e3","components/controls/Radio.jsx":"51748b3beae9","components/controls/Select.jsx":"f441b205cdec","components/controls/SplitButton.jsx":"0ecc756bb5b4","components/controls/TextField.jsx":"cd20a791b0bd","components/data/DataTable.jsx":"c65f667d5765","components/feedback/DeviceCard.jsx":"77bf9878476b","components/feedback/FlashOverlay.jsx":"3e8a670beafe","components/feedback/LogConsole.jsx":"f21ab6dcd04f","components/feedback/MessageDialog.jsx":"77d2513b40ab","components/feedback/ProgressBar.jsx":"ed80eb8df2fe","components/layout/GroupBox.jsx":"4dc87dcc8a0a","components/layout/MenuDropdown.jsx":"a296461be78a","components/layout/StatusBar.jsx":"df920bc3ee78","components/layout/Tabs.jsx":"9527720964fd","components/layout/TitleBar.jsx":"097e4fdc6967","site/site.js":"34f7f962028b","site/xfall.js":"e7f7fa670336","ui_kits/jrunner-app/MainWindow.jsx":"00a26d942466","ui_kits/jrunner-app/dialogs.jsx":"ecf1444ec0b8","ui_kits/jrunner-app/panels.jsx":"e8e35345bf3f","ui_kits/xell-customizer/XellCustomizer.jsx":"7e0554658c4b"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":4,"namespace":"JRunnerPremiumDesignSystem_5a2f40","components":[{"name":"Button","sourcePath":"components/controls/Button.jsx"},{"name":"Checkbox","sourcePath":"components/controls/Checkbox.jsx"},{"name":"NumberField","sourcePath":"components/controls/NumberField.jsx"},{"name":"Radio","sourcePath":"components/controls/Radio.jsx"},{"name":"Select","sourcePath":"components/controls/Select.jsx"},{"name":"SplitButton","sourcePath":"components/controls/SplitButton.jsx"},{"name":"TextField","sourcePath":"components/controls/TextField.jsx"},{"name":"DataTable","sourcePath":"components/data/DataTable.jsx"},{"name":"DeviceCard","sourcePath":"components/feedback/DeviceCard.jsx"},{"name":"FlashOverlay","sourcePath":"components/feedback/FlashOverlay.jsx"},{"name":"LogConsole","sourcePath":"components/feedback/LogConsole.jsx"},{"name":"MessageDialog","sourcePath":"components/feedback/MessageDialog.jsx"},{"name":"ProgressBar","sourcePath":"components/feedback/ProgressBar.jsx"},{"name":"GroupBox","sourcePath":"components/layout/GroupBox.jsx"},{"name":"MenuDropdown","sourcePath":"components/layout/MenuDropdown.jsx"},{"name":"StatusBar","sourcePath":"components/layout/StatusBar.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"TitleBar","sourcePath":"components/layout/TitleBar.jsx"}],"sourceHashes":{"components/controls/Button.jsx":"3c8af34f522a","components/controls/Checkbox.jsx":"87cb320ebb03","components/controls/NumberField.jsx":"7da26bfab0e3","components/controls/Radio.jsx":"51748b3beae9","components/controls/Select.jsx":"f441b205cdec","components/controls/SplitButton.jsx":"0ecc756bb5b4","components/controls/TextField.jsx":"cd20a791b0bd","components/data/DataTable.jsx":"c65f667d5765","components/feedback/DeviceCard.jsx":"77bf9878476b","components/feedback/FlashOverlay.jsx":"3e8a670beafe","components/feedback/LogConsole.jsx":"f21ab6dcd04f","components/feedback/MessageDialog.jsx":"77d2513b40ab","components/feedback/ProgressBar.jsx":"ed80eb8df2fe","components/layout/GroupBox.jsx":"4dc87dcc8a0a","components/layout/MenuDropdown.jsx":"a296461be78a","components/layout/StatusBar.jsx":"df920bc3ee78","components/layout/Tabs.jsx":"9527720964fd","components/layout/TitleBar.jsx":"097e4fdc6967","site/motion.js":"24cde5a819e0","site/site.js":"2039a1b3b3df","site/tweaks.js":"1f8270d9170d","site/xfall.js":"5efc6fc47874","ui_kits/jrunner-app/MainWindow.jsx":"00a26d942466","ui_kits/jrunner-app/dialogs.jsx":"ecf1444ec0b8","ui_kits/jrunner-app/panels.jsx":"e8e35345bf3f","ui_kits/xell-customizer/XellCustomizer.jsx":"7e0554658c4b"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -1178,6 +1178,287 @@ function ChromeButton({
 Object.assign(__ds_scope, { TitleBar });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/layout/TitleBar.jsx", error: String((e && e.message) || e) }); }
 
+// site/motion.js
+try { (() => {
+/* Motion layer — the site's animation system.
+   Grounded in two things the app actually does: the flash overlay's "colour rising through
+   greyscale", and the drifting X's. Everything else is restraint plus timing.
+   Every effect is gated on prefers-reduced-motion. */
+(function () {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const raf = window.requestAnimationFrame;
+
+  /* ══ 1. Boot sequence — a short POST-code splash, once per session ══════════════ */
+  function boot() {
+    if (reduce || sessionStorage.getItem("jr.booted")) return;
+    if (!document.body.classList.contains("is-home")) return;
+    sessionStorage.setItem("jr.booted", "1");
+    const el = document.createElement("div");
+    el.className = "bootveil";
+    el.innerHTML = '<div class="bootinner">' + '<div class="bootmark"><img src="../assets/logo-jr2.png" alt=""></div>' + '<div class="bootlog"></div>' + '<div class="bootbar"><i></i></div>' + "</div>";
+    document.body.appendChild(el);
+    document.body.classList.add("booting");
+    const LINES = ["init nand", "init network", "detect flasher", "ready"];
+    const log = el.querySelector(".bootlog");
+    let i = 0;
+    const step = () => {
+      if (i < LINES.length) {
+        const d = document.createElement("div");
+        d.textContent = "  * " + LINES[i];
+        log.appendChild(d);
+        i++;
+        setTimeout(step, 130);
+      } else {
+        setTimeout(() => {
+          el.classList.add("gone");
+          document.body.classList.remove("booting");
+          setTimeout(() => el.remove(), 700);
+        }, 180);
+      }
+    };
+    setTimeout(step, 220);
+  }
+
+  /* ══ 2. Headline word reveal — words rise out of a mask, staggered ══════════════ */
+  function splitHeadlines() {
+    document.querySelectorAll("h1, [data-split]").forEach(h => {
+      if (h.dataset.split === "done") return;
+      const walk = node => {
+        [...node.childNodes].forEach(n => {
+          if (n.nodeType === 3) {
+            const frag = document.createDocumentFragment();
+            n.textContent.split(/(\s+)/).forEach(tok => {
+              if (!tok.trim()) {
+                frag.appendChild(document.createTextNode(tok));
+                return;
+              }
+              const w = document.createElement("span");
+              w.className = "w";
+              const inner = document.createElement("i");
+              inner.textContent = tok;
+              w.appendChild(inner);
+              frag.appendChild(w);
+            });
+            node.replaceChild(frag, n);
+          } else if (n.nodeType === 1 && !n.classList.contains("w")) {
+            walk(n);
+          }
+        });
+      };
+      walk(h);
+      h.querySelectorAll(".w i").forEach((el, k) => el.style.transitionDelay = k * 55 + "ms");
+      h.dataset.split = "done";
+      h.classList.add("split");
+      if (reduce) h.classList.add("shown");
+    });
+  }
+
+  /* ══ 3. One observer, several behaviours ════════════════════════════════════════ */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("shown");
+      io.unobserve(e.target);
+    });
+  }, {
+    rootMargin: "0px 0px -10% 0px",
+    threshold: 0.15
+  });
+  const watch = (sel, cls) => document.querySelectorAll(sel).forEach(el => {
+    if (cls) el.classList.add(cls);
+    if (reduce) el.classList.add("shown");else io.observe(el);
+  });
+
+  /* ══ 4. Colour rising through greyscale — the app's own flash motif ═════════════ */
+  function riseImages() {
+    document.querySelectorAll(".shot, figure.gitem, .frow .visual, .device").forEach(el => el.classList.add("rise"));
+    watch(".rise");
+  }
+
+  /* ══ 5. Scroll progress rail in the header ══════════════════════════════════════ */
+  function progressRail() {
+    const hdr = document.querySelector("header.site");
+    if (!hdr) return;
+    const rail = document.createElement("i");
+    rail.className = "scrollrail";
+    hdr.appendChild(rail);
+    const on = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      rail.style.transform = "scaleX(" + (max > 0 ? window.scrollY / max : 0) + ")";
+    };
+    window.addEventListener("scroll", on, {
+      passive: true
+    });
+    window.addEventListener("resize", on);
+    on();
+  }
+
+  /* ══ 6. Nav scroll-spy with a sliding underline ═════════════════════════════════ */
+  function scrollSpy() {
+    const nav = document.querySelector("nav.top");
+    if (!nav) return;
+    const links = [...nav.querySelectorAll('a[href*="#"]')];
+    const targets = links.map(a => {
+      const id = a.getAttribute("href").split("#")[1];
+      const el = id && document.getElementById(id);
+      return el ? {
+        a,
+        el
+      } : null;
+    }).filter(Boolean);
+    if (!targets.length) return;
+    const slider = document.createElement("i");
+    slider.className = "navslider";
+    nav.appendChild(slider);
+    let current = null;
+    const move = a => {
+      if (!a) {
+        slider.style.opacity = 0;
+        return;
+      }
+      const r = a.getBoundingClientRect(),
+        n = nav.getBoundingClientRect();
+      slider.style.opacity = 1;
+      slider.style.width = r.width + "px";
+      slider.style.transform = "translateX(" + (r.left - n.left) + "px)";
+    };
+    const on = () => {
+      let found = null;
+      for (const t of targets) {
+        const r = t.el.getBoundingClientRect();
+        if (r.top <= 140 && r.bottom > 140) found = t.a;
+      }
+      if (found !== current) {
+        current = found;
+        move(found);
+      }
+    };
+    window.addEventListener("scroll", on, {
+      passive: true
+    });
+    window.addEventListener("resize", () => move(current));
+    on();
+  }
+
+  /* ══ 7. Magnetic buttons + press ripple ═════════════════════════════════════════ */
+  function magnetic() {
+    if (reduce) return;
+    document.querySelectorAll(".btn").forEach(b => {
+      b.addEventListener("pointermove", e => {
+        const r = b.getBoundingClientRect();
+        const dx = (e.clientX - (r.left + r.width / 2)) / r.width;
+        const dy = (e.clientY - (r.top + r.height / 2)) / r.height;
+        b.style.transform = "translate(" + dx * 5 + "px," + dy * 4 + "px)";
+        b.style.setProperty("--mx", (e.clientX - r.left) / r.width * 100 + "%");
+      });
+      b.addEventListener("pointerleave", () => b.style.transform = "");
+    });
+  }
+
+  /* ══ 8. Hero cursor spotlight ═══════════════════════════════════════════════════ */
+  function spotlight() {
+    const hero = document.querySelector(".hero");
+    if (!hero || reduce) return;
+    hero.classList.add("haslight");
+    hero.addEventListener("pointermove", e => {
+      const r = hero.getBoundingClientRect();
+      hero.style.setProperty("--lx", e.clientX - r.left + "px");
+      hero.style.setProperty("--ly", e.clientY - r.top + "px");
+    });
+  }
+
+  /* ══ 9. Hero parallax on scroll ═════════════════════════════════════════════════ */
+  function heroParallax() {
+    const wrap = document.querySelector(".hero .shotwrap");
+    if (!wrap || reduce) return;
+    let ticking = false;
+    const on = () => {
+      if (ticking) return;
+      ticking = true;
+      raf(() => {
+        const y = Math.min(window.scrollY, 700);
+        wrap.style.setProperty("--py", y * 0.06 + "px");
+        wrap.style.setProperty("--ps", 1 - Math.min(y / 4200, 0.035));
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", on, {
+      passive: true
+    });
+    on();
+  }
+
+  /* ══ 10. CRT treatment on the XeLL preview ══════════════════════════════════════ */
+  function crt() {
+    const s = document.querySelector(".xscreen");
+    if (s) s.classList.add("crt");
+  }
+
+  /* ══ 11. Docs: step numbers light up as you pass them ═══════════════════════════ */
+  function steps() {
+    const items = document.querySelectorAll(".steps li");
+    if (!items.length) return;
+    const so = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle("active", e.isIntersecting)), {
+      rootMargin: "-40% 0px -40% 0px"
+    });
+    items.forEach(li => reduce ? li.classList.add("active") : so.observe(li));
+  }
+
+  /* ══ 12. Docs TOC scroll-spy ════════════════════════════════════════════════════ */
+  function tocSpy() {
+    const toc = document.querySelector(".toc");
+    if (!toc) return;
+    const links = [...toc.querySelectorAll("a")];
+    const map = links.map(a => ({
+      a,
+      el: document.getElementById(a.getAttribute("href").slice(1))
+    })).filter(x => x.el);
+    const on = () => {
+      let cur = map[0];
+      for (const m of map) if (m.el.getBoundingClientRect().top <= 160) cur = m;
+      links.forEach(a => a.classList.toggle("on", cur && a === cur.a));
+    };
+    window.addEventListener("scroll", on, {
+      passive: true
+    });
+    on();
+  }
+
+  /* ══ 13. Internal page transition ═══════════════════════════════════════════════ */
+  function pageOut() {
+    if (reduce) return;
+    document.querySelectorAll('a[href$=".html"]').forEach(a => {
+      a.addEventListener("click", e => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || a.target) return;
+        e.preventDefault();
+        document.body.classList.add("leaving");
+        setTimeout(() => location.href = a.href, 240);
+      });
+    });
+  }
+
+  /* ══ boot it all ════════════════════════════════════════════════════════════════ */
+  function init() {
+    splitHeadlines();
+    watch("h1.split, h2, .eyebrow");
+    riseImages();
+    watch(".release, .callout, table.spec, .steps");
+    progressRail();
+    scrollSpy();
+    magnetic();
+    spotlight();
+    heroParallax();
+    crt();
+    steps();
+    tocSpy();
+    pageOut();
+    boot();
+    raf(() => document.body.classList.add("ready"));
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);else init();
+})();
+})(); } catch (e) { __ds_ns.__errors.push({ path: "site/motion.js", error: String((e && e.message) || e) }); }
+
 // site/site.js
 try { (() => {
 /* Scroll reveals, the live log ticker, the XeLL preview and the lightbox. */
@@ -1208,17 +1489,20 @@ try { (() => {
       const r = shot.getBoundingClientRect();
       const px = (e.clientX - r.left) / r.width - 0.5,
         py = (e.clientY - r.top) / r.height - 0.5;
-      shot.style.transform = `perspective(1400px) rotateY(${px * 5}deg) rotateX(${-py * 4}deg) translateY(-4px)`;
+      const t = `perspective(1400px) rotateY(${px * 5}deg) rotateX(${-py * 4}deg) translateY(-4px)`;
+      shot.style.transform = t;
+      shot.parentElement.style.setProperty("--tilt", t);
     });
     shot.addEventListener("pointerleave", () => {
       shot.style.transform = "";
+      shot.parentElement.style.removeProperty("--tilt");
     });
   }
 
   /* ---- live session log ---- */
   const log = document.querySelector("[data-log]");
   if (log) {
-    const SCRIPTED = [["J-Runner Premium", ""], ["Session: 07/30/2026 3:27:15", ""], ["Version: 4.0.0devpre4", ""], ["Status: Up to date", "ok"], ["", ""], ["PicoFlasher detected on COM4", "ok"], ["Reading Nand... pass 1 of 2", "info"], ["Nand read OK — 0 bad blocks", "ok"], ["CB Type: Corona 4GB · LDV 12", "info"], ["Building XeBuild image (17559, glitch2)...", "info"], ["Image written to output\\updflash.bin", "ok"], ["Ready to write. Disconnect nothing.", "warn"]];
+    const SCRIPTED = [["J-Runner Premium", ""], ["Session: 07/30/2026 3:27:15", ""], ["Version: 4.0.0", ""], ["Status: Up to date", "ok"], ["", ""], ["PicoFlasher detected on COM4", "ok"], ["Reading Nand... pass 1 of 2", "info"], ["Nand read OK — 0 bad blocks", "ok"], ["CB Type: Corona 4GB · LDV 12", "info"], ["Building XeBuild image (17559, glitch2)...", "info"], ["Image written to output\\updflash.bin", "ok"], ["Ready to write. Disconnect nothing.", "warn"]];
     let i = 0;
     const push = () => {
       const [text, sev] = SCRIPTED[i % SCRIPTED.length];
@@ -1308,6 +1592,116 @@ try { (() => {
 })();
 })(); } catch (e) { __ds_ns.__errors.push({ path: "site/site.js", error: String((e && e.message) || e) }); }
 
+// site/tweaks.js
+try { (() => {
+/* Tweaks — three controls that reshape the page's feel, not its pixels.
+   Hidden unless opened; state persists under one namespaced localStorage key. */
+(function () {
+  const KEY = "jr.site.tweaks";
+  const DEFAULTS = {
+    storm: "drift",
+    accent: "green",
+    rhythm: "showcase"
+  };
+  const ACCENTS = {
+    green: {
+      name: "J-Runner",
+      a: "#74c757",
+      light: "#a1e082",
+      dim: "#468037",
+      on: "#141414"
+    },
+    blue: {
+      name: "XeLL",
+      a: "#4E44D8",
+      light: "#7a72e6",
+      dim: "#332c9e",
+      on: "#ffffff"
+    },
+    orange: {
+      name: "Swizzy",
+      a: "#FF6600",
+      light: "#ff8c3d",
+      dim: "#a34200",
+      on: "#141414"
+    },
+    pink: {
+      name: "XTUDO",
+      a: "#FF66FF",
+      light: "#ff99ff",
+      dim: "#a340a3",
+      on: "#141414"
+    }
+  };
+  const STORM = {
+    off: {
+      name: "Still",
+      count: 0,
+      speed: 0,
+      scale: 1,
+      fade: 0
+    },
+    drift: {
+      name: "Drift",
+      count: 1,
+      speed: 1,
+      scale: 1,
+      fade: 1
+    },
+    blizzard: {
+      name: "Blizzard",
+      count: 2.6,
+      speed: 2.4,
+      scale: 1.5,
+      fade: 1
+    }
+  };
+  const RHYTHM = {
+    showcase: "Showcase",
+    workbench: "Workbench",
+    terminal: "Terminal"
+  };
+  let state = {
+    ...DEFAULTS
+  };
+  try {
+    Object.assign(state, JSON.parse(localStorage.getItem(KEY) || "{}"));
+  } catch (e) {}
+  function apply() {
+    const a = ACCENTS[state.accent] || ACCENTS.green;
+    const r = document.documentElement.style;
+    r.setProperty("--jr-accent", a.a);
+    r.setProperty("--jr-accent-light", a.light);
+    r.setProperty("--jr-accent-dim", a.dim);
+    r.setProperty("--jr-text-on-accent", a.on);
+    r.setProperty("--jr-log-ok", a.light);
+    r.setProperty("--site-glow", a.a + "1f");
+    document.body.dataset.rhythm = state.rhythm;
+    window.__xfall && window.__xfall.set(STORM[state.storm] || STORM.drift);
+    document.querySelectorAll("[data-tw]").forEach(el => {
+      el.classList.toggle("on", state[el.dataset.tw] === el.dataset.val);
+    });
+    try {
+      localStorage.setItem(KEY, JSON.stringify(state));
+    } catch (e) {}
+  }
+  function group(label, hint, key, opts) {
+    return '<div class="twgroup"><div class="twlabel">' + label + '</div><div class="twhint">' + hint + '</div><div class="twrow">' + opts.map(([val, name]) => '<button class="twopt" data-tw="' + key + '" data-val="' + val + '">' + name + "</button>").join("") + "</div></div>";
+  }
+  const panel = document.createElement("div");
+  panel.className = "tweaks";
+  panel.innerHTML = '<button class="twtoggle" aria-label="Tweaks">Tweaks</button>' + '<div class="twbody">' + '<div class="twhead">Tweaks<button class="twclose" aria-label="Close">✕</button></div>' + group("Background", "How hard the X's fall behind everything.", "storm", Object.entries(STORM).map(([k, v]) => [k, v.name])) + group("Accent", "The one brand colour, borrowed from the XeLL presets.", "accent", Object.entries(ACCENTS).map(([k, v]) => [k, v.name])) + group("Rhythm", "Type scale, spacing and corners as one decision.", "rhythm", Object.entries(RHYTHM)) + "</div>";
+  document.body.appendChild(panel);
+  panel.querySelector(".twtoggle").addEventListener("click", () => panel.classList.toggle("open"));
+  panel.querySelector(".twclose").addEventListener("click", () => panel.classList.remove("open"));
+  panel.querySelectorAll("[data-tw]").forEach(b => b.addEventListener("click", () => {
+    state[b.dataset.tw] = b.dataset.val;
+    apply();
+  }));
+  apply();
+})();
+})(); } catch (e) { __ds_ns.__errors.push({ path: "site/tweaks.js", error: String((e && e.message) || e) }); }
+
 // site/xfall.js
 try { (() => {
 /* Falling X glyphs — a scaled-up, full-page version of UI/SnowfallBackground.cs.
@@ -1335,6 +1729,12 @@ try { (() => {
     H = 0,
     dpr = 1,
     flakes = [];
+  let mult = {
+    count: 1,
+    speed: 1,
+    scale: 1,
+    fade: 1
+  };
   function make(seeded) {
     const t = TIERS[Math.random() * 3 | 0];
     const tier = TIERS.indexOf(t);
@@ -1358,7 +1758,8 @@ try { (() => {
     c.style.width = W + "px";
     c.style.height = H + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const count = Math.max(40, Math.min(140, W * H / 12000 | 0));
+    const base = Math.max(40, Math.min(140, W * H / 12000 | 0));
+    const count = Math.round(base * mult.count);
     while (flakes.length < count) flakes.push(make(true));
     flakes.length = count;
   }
@@ -1367,15 +1768,16 @@ try { (() => {
     ctx.lineCap = "round";
     for (const f of flakes) {
       if (!reduce) {
-        f.y += f.speed;
-        f.phase += 0.02;
+        f.y += f.speed * mult.speed;
+        f.phase += 0.02 * mult.speed;
         if (f.y - f.size > H) Object.assign(f, make(false));
       }
       const x = f.x + Math.sin(f.phase) * f.drift,
         y = f.y,
-        s = f.size;
+        s = f.size * mult.scale;
+      ctx.globalAlpha = mult.fade;
       ctx.strokeStyle = f.colour;
-      ctx.lineWidth = f.lw;
+      ctx.lineWidth = f.lw * mult.scale;
       ctx.beginPath();
       ctx.moveTo(x - s, y - s);
       ctx.lineTo(x + s, y + s);
@@ -1385,6 +1787,17 @@ try { (() => {
     }
     requestAnimationFrame(draw);
   }
+  window.__xfall = {
+    set(m) {
+      mult = Object.assign({
+        count: 1,
+        speed: 1,
+        scale: 1,
+        fade: 1
+      }, m);
+      resize();
+    }
+  };
   window.addEventListener("resize", resize);
   resize();
   draw();
