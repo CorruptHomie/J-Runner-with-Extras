@@ -17,6 +17,6 @@ Credit where credit is due:
 
 DirtyPico: ThisIsCheez on <a href="https://github.com/ThisIsCheez">GitHub</a>  
 
-BootAnimRemap17559: LordVirusXeX on <a href="https://www.se7ensins.com/members/lordvirusxex.1551087/">Se7enSins</a>
+BootAnimRemap17559: LordVirusXeX on <a href="https://github.com/TheOnlyLordVirus">GitHub</a>
 
 J-Runner Pro and J-Runner with Extras: [X360Tools](https://github.com/X360Tools) and [Octal450](https://github.com/Octal450)/[J-Runner with extras](https://github.com/J-Runner-With-Extras)
