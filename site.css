@@ -51,7 +51,7 @@ nav.top a[aria-current]{box-shadow:inset 0 -2px 0 0 var(--jr-accent)}
 .shotwrap{margin-top:64px;position:relative}
 .shot{border:1px solid var(--jr-border);border-radius:10px;overflow:hidden;background:var(--jr-window-bg);box-shadow:var(--jr-shadow-window);transition:transform .35s cubic-bezier(.22,.61,.36,1)}
 .shot img{width:100%;height:auto}
-.hero .shotwrap::after{content:"";position:absolute;left:12%;right:12%;top:100%;height:110px;background:radial-gradient(closest-side at 50% 0%,rgba(116,199,87,.11),transparent 100%);filter:blur(26px);pointer-events:none;transform:var(--tilt,none);transform-origin:center top;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+.hero .shotwrap::after{content:"";position:absolute;left:12%;right:12%;top:100%;height:110px;background:radial-gradient(closest-side at 50% 0%,color-mix(in oklab,var(--jr-accent) 11%,transparent),transparent 100%);filter:blur(26px);pointer-events:none;transform:var(--tilt,none);transform-origin:center top;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
 
 /* ---- warning band ---- */
 .warn{background:var(--jr-panel-bg);border-top:1px solid var(--jr-border-subtle);border-bottom:1px solid var(--jr-border-subtle);padding:26px 0}
@@ -86,7 +86,7 @@ nav.top a[aria-current]{box-shadow:inset 0 -2px 0 0 var(--jr-accent)}
 .devices{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-top:44px}
 .device{background:var(--jr-panel-bg);border:1px solid var(--jr-border-subtle);border-radius:6px;padding:20px 16px;text-align:center;transition:border-color .15s,transform .15s,background .15s}
 .device:hover{border-color:var(--jr-border);background:var(--jr-raised-bg);transform:translateY(-3px)}
-.device img{height:78px;margin:0 auto 14px;object-fit:contain}
+.device img{height:78px;margin:0 auto 14px;object-fit:contain;background:#f4f4f5;border-radius:4px;padding:8px;box-sizing:border-box}
 .device .n{font-size:14px}
 .device .d{font-size:12px;color:var(--jr-text-secondary);margin-top:4px}
 
@@ -117,8 +117,8 @@ figure.gitem figcaption{padding:11px 14px;font-size:13px;color:var(--jr-text-sec
 .linklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:36px}
 .linkrow{display:flex;gap:14px;align-items:flex-start;padding:18px;border:1px solid var(--jr-border-subtle);border-radius:6px;background:var(--jr-panel-bg);transition:.15s}
 .linkrow:hover{border-color:var(--jr-border);background:var(--jr-raised-bg);text-decoration:none}
-.linkrow .t{color:var(--jr-text-primary);font-size:15px}
-.linkrow .s{color:var(--jr-text-secondary);font-size:13px;margin-top:3px}
+.linkrow .t{display:block;color:var(--jr-text-primary);font-size:15px}
+.linkrow .s{display:block;color:var(--jr-text-secondary);font-size:13px;margin-top:3px}
 .linkrow .arrow{margin-left:auto;color:var(--jr-text-secondary);font-size:15px;transition:transform .15s}
 .linkrow:hover .arrow{transform:translateX(3px);color:var(--jr-accent)}
 
@@ -357,4 +357,44 @@ figure.gitem:hover img{transform:scale(1.035)}
   .rise img{filter:none}
   .rise::before,.release::after,.warn::after,.logwell::after,.crt::after{animation:none;display:none}
   h1.split .w i,h2,.eyebrow,.steps,.callout,table.spec,.release,.frow li{opacity:1!important;transform:none!important}
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOTION LAYER 2 — physicality pass
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ---- 3D tilt on hardware cards ---- */
+.devices{perspective:1100px}
+.m2-tilt{transform-style:preserve-3d;transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .5s var(--ease),border-color .15s,background .15s}
+.m2-tilt:hover{transition:transform .08s linear,border-color .15s,background .15s;transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateZ(6px)}
+.m2-tilt img{transform:translateZ(26px)}
+.m2-tilt .n{transform:translateZ(14px)}
+.m2-tilt .d{transform:translateZ(8px)}
+.m2-tilt::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(220px circle at var(--gx,50%) var(--gy,50%),color-mix(in oklab,var(--jr-accent) 14%,transparent),transparent 62%);opacity:0;transition:opacity .3s}
+.m2-tilt:hover::before{opacity:1}
+
+/* ---- gallery marquee ---- */
+.m2-marquee{margin-top:44px;overflow:hidden;position:relative;-webkit-mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent)}
+.m2-track{display:flex;gap:16px;width:max-content;animation:m2scroll var(--dur,42s) linear infinite}
+.m2-marquee:hover .m2-track{animation-play-state:paused}
+.m2-track figure.gitem{width:330px;flex:none;margin:0}
+@keyframes m2scroll{from{transform:translateX(0)}to{transform:translateX(calc(var(--shift,1730px) * -1))}}
+
+/* ---- section number gutters ---- */
+.m2-hasgutter{position:relative}
+.m2-gutter{position:absolute;left:max(12px,calc((100% - min(1160px,100% - 48px))/2 - 42px));top:112px;width:1px;height:calc(100% - 224px);background:var(--jr-border-subtle);pointer-events:none;z-index:2}
+.m2-gutter::before{content:attr(data-n);position:absolute;top:-26px;left:50%;transform:translateX(-50%);font:400 11px/1 var(--jr-font-mono);color:var(--jr-text-secondary);letter-spacing:.06em;transition:color .35s}
+.m2-gutter::after{content:"";position:absolute;left:0;top:0;width:1px;height:100%;background:var(--jr-accent);transform:scaleY(var(--sp,0));transform-origin:top;transition:transform .12s linear}
+.m2-active .m2-gutter::before{color:var(--jr-accent)}
+@media (max-width:1400px){.m2-gutter{display:none}}
+
+/* ---- accent trail cursor ---- */
+.m2-cursor{position:fixed;left:0;top:0;z-index:150;pointer-events:none;background:color-mix(in oklab,var(--jr-accent) 30%,transparent);mix-blend-mode:screen;transition:background .25s,border-color .25s}
+.m2-cursor.snap{background:color-mix(in oklab,var(--jr-accent) 10%,transparent);border:1px solid color-mix(in oklab,var(--jr-accent) 55%,transparent)}
+
+@media (prefers-reduced-motion:reduce){
+  .m2-track{animation:none}
+  .m2-cursor{display:none}
+  .m2-gutter::after{transform:scaleY(0)}
 }

@@ -31,7 +31,7 @@
   const log = document.querySelector("[data-log]");
   if (log) {
     const SCRIPTED = [
-      ["J-Runner Premium", ""], ["Session: 07/30/2026 3:27:15", ""], ["Version: 4.0.0", ""],
+      ["J-Runner Premium", ""], ["Session: 07/30/2026 3:27:15", ""], ["Version: 4.0.0pre1", ""],
       ["Status: Up to date", "ok"], ["", ""],
       ["PicoFlasher detected on COM4", "ok"],
       ["Reading Nand... pass 1 of 2", "info"],

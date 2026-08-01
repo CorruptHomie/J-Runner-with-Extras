@@ -32,7 +32,6 @@
     r.setProperty("--jr-accent-dim", a.dim);
     r.setProperty("--jr-text-on-accent", a.on);
     r.setProperty("--jr-log-ok", a.light);
-    r.setProperty("--site-glow", a.a + "1f");
 
     document.body.dataset.rhythm = state.rhythm;
     window.__xfall && window.__xfall.set(STORM[state.storm] || STORM.drift);

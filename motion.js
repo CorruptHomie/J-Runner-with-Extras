@@ -16,7 +16,7 @@
     el.className = "bootveil";
     el.innerHTML =
       '<div class="bootinner">' +
-        '<div class="bootmark"><img src="../assets/logo-jr2.png" alt=""></div>' +
+        '<div class="bootmark"><img src="assets/logo-jr2.png" alt=""></div>' +
         '<div class="bootlog"></div>' +
         '<div class="bootbar"><i></i></div>' +
       "</div>";

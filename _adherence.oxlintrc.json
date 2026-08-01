@@ -20,9 +20,13 @@
               "components/data/**",
               "components/feedback/**",
               "components/layout/**",
-              "site/**",
+              "motion.js",
+              "motion2.js",
+              "site.js",
+              "tweaks.js",
               "ui_kits/jrunner-app/**",
-              "ui_kits/xell-customizer/**"
+              "ui_kits/xell-customizer/**",
+              "xfall.js"
             ],
             "message": "Import design-system components from 'index.js', not component internals."
           }

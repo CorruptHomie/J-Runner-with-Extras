@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"JRunnerPremiumDesignSystem_5a2f40","components":[{"name":"Button","sourcePath":"components/controls/Button.jsx"},{"name":"Checkbox","sourcePath":"components/controls/Checkbox.jsx"},{"name":"NumberField","sourcePath":"components/controls/NumberField.jsx"},{"name":"Radio","sourcePath":"components/controls/Radio.jsx"},{"name":"Select","sourcePath":"components/controls/Select.jsx"},{"name":"SplitButton","sourcePath":"components/controls/SplitButton.jsx"},{"name":"TextField","sourcePath":"components/controls/TextField.jsx"},{"name":"DataTable","sourcePath":"components/data/DataTable.jsx"},{"name":"DeviceCard","sourcePath":"components/feedback/DeviceCard.jsx"},{"name":"FlashOverlay","sourcePath":"components/feedback/FlashOverlay.jsx"},{"name":"LogConsole","sourcePath":"components/feedback/LogConsole.jsx"},{"name":"MessageDialog","sourcePath":"components/feedback/MessageDialog.jsx"},{"name":"ProgressBar","sourcePath":"components/feedback/ProgressBar.jsx"},{"name":"GroupBox","sourcePath":"components/layout/GroupBox.jsx"},{"name":"MenuDropdown","sourcePath":"components/layout/MenuDropdown.jsx"},{"name":"StatusBar","sourcePath":"components/layout/StatusBar.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"TitleBar","sourcePath":"components/layout/TitleBar.jsx"}],"sourceHashes":{"components/controls/Button.jsx":"3c8af34f522a","components/controls/Checkbox.jsx":"87cb320ebb03","components/controls/NumberField.jsx":"7da26bfab0e3","components/controls/Radio.jsx":"51748b3beae9","components/controls/Select.jsx":"f441b205cdec","components/controls/SplitButton.jsx":"0ecc756bb5b4","components/controls/TextField.jsx":"cd20a791b0bd","components/data/DataTable.jsx":"c65f667d5765","components/feedback/DeviceCard.jsx":"77bf9878476b","components/feedback/FlashOverlay.jsx":"3e8a670beafe","components/feedback/LogConsole.jsx":"f21ab6dcd04f","components/feedback/MessageDialog.jsx":"77d2513b40ab","components/feedback/ProgressBar.jsx":"ed80eb8df2fe","components/layout/GroupBox.jsx":"4dc87dcc8a0a","components/layout/MenuDropdown.jsx":"a296461be78a","components/layout/StatusBar.jsx":"df920bc3ee78","components/layout/Tabs.jsx":"9527720964fd","components/layout/TitleBar.jsx":"097e4fdc6967","site/motion.js":"24cde5a819e0","site/site.js":"2039a1b3b3df","site/tweaks.js":"1f8270d9170d","site/xfall.js":"5efc6fc47874","ui_kits/jrunner-app/MainWindow.jsx":"00a26d942466","ui_kits/jrunner-app/dialogs.jsx":"ecf1444ec0b8","ui_kits/jrunner-app/panels.jsx":"e8e35345bf3f","ui_kits/xell-customizer/XellCustomizer.jsx":"7e0554658c4b"},"inlinedExternals":[],"unexposedExports":[]} */
+/* @ds-bundle: {"format":4,"namespace":"JRunnerPremiumDesignSystem_5a2f40","components":[{"name":"Button","sourcePath":"components/controls/Button.jsx"},{"name":"Checkbox","sourcePath":"components/controls/Checkbox.jsx"},{"name":"NumberField","sourcePath":"components/controls/NumberField.jsx"},{"name":"Radio","sourcePath":"components/controls/Radio.jsx"},{"name":"Select","sourcePath":"components/controls/Select.jsx"},{"name":"SplitButton","sourcePath":"components/controls/SplitButton.jsx"},{"name":"TextField","sourcePath":"components/controls/TextField.jsx"},{"name":"DataTable","sourcePath":"components/data/DataTable.jsx"},{"name":"DeviceCard","sourcePath":"components/feedback/DeviceCard.jsx"},{"name":"FlashOverlay","sourcePath":"components/feedback/FlashOverlay.jsx"},{"name":"LogConsole","sourcePath":"components/feedback/LogConsole.jsx"},{"name":"MessageDialog","sourcePath":"components/feedback/MessageDialog.jsx"},{"name":"ProgressBar","sourcePath":"components/feedback/ProgressBar.jsx"},{"name":"GroupBox","sourcePath":"components/layout/GroupBox.jsx"},{"name":"MenuDropdown","sourcePath":"components/layout/MenuDropdown.jsx"},{"name":"StatusBar","sourcePath":"components/layout/StatusBar.jsx"},{"name":"Tabs","sourcePath":"components/layout/Tabs.jsx"},{"name":"TitleBar","sourcePath":"components/layout/TitleBar.jsx"}],"sourceHashes":{"components/controls/Button.jsx":"3c8af34f522a","components/controls/Checkbox.jsx":"87cb320ebb03","components/controls/NumberField.jsx":"7da26bfab0e3","components/controls/Radio.jsx":"51748b3beae9","components/controls/Select.jsx":"f441b205cdec","components/controls/SplitButton.jsx":"0ecc756bb5b4","components/controls/TextField.jsx":"cd20a791b0bd","components/data/DataTable.jsx":"c65f667d5765","components/feedback/DeviceCard.jsx":"77bf9878476b","components/feedback/FlashOverlay.jsx":"3e8a670beafe","components/feedback/LogConsole.jsx":"f21ab6dcd04f","components/feedback/MessageDialog.jsx":"77d2513b40ab","components/feedback/ProgressBar.jsx":"ed80eb8df2fe","components/layout/GroupBox.jsx":"4dc87dcc8a0a","components/layout/MenuDropdown.jsx":"a296461be78a","components/layout/StatusBar.jsx":"df920bc3ee78","components/layout/Tabs.jsx":"9527720964fd","components/layout/TitleBar.jsx":"097e4fdc6967","motion.js":"8f24cb975e6e","motion2.js":"0e43424acd9f","site.js":"e0101536d13e","tweaks.js":"09f5af360c01","ui_kits/jrunner-app/MainWindow.jsx":"00a26d942466","ui_kits/jrunner-app/dialogs.jsx":"ecf1444ec0b8","ui_kits/jrunner-app/panels.jsx":"e8e35345bf3f","ui_kits/xell-customizer/XellCustomizer.jsx":"7e0554658c4b","xfall.js":"5efc6fc47874"},"inlinedExternals":[],"unexposedExports":[]} */
 
 (() => {
 
@@ -1178,7 +1178,7 @@ function ChromeButton({
 Object.assign(__ds_scope, { TitleBar });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "components/layout/TitleBar.jsx", error: String((e && e.message) || e) }); }
 
-// site/motion.js
+// motion.js
 try { (() => {
 /* Motion layer — the site's animation system.
    Grounded in two things the app actually does: the flash overlay's "colour rising through
@@ -1195,7 +1195,7 @@ try { (() => {
     sessionStorage.setItem("jr.booted", "1");
     const el = document.createElement("div");
     el.className = "bootveil";
-    el.innerHTML = '<div class="bootinner">' + '<div class="bootmark"><img src="../assets/logo-jr2.png" alt=""></div>' + '<div class="bootlog"></div>' + '<div class="bootbar"><i></i></div>' + "</div>";
+    el.innerHTML = '<div class="bootinner">' + '<div class="bootmark"><img src="assets/logo-jr2.png" alt=""></div>' + '<div class="bootlog"></div>' + '<div class="bootbar"><i></i></div>' + "</div>";
     document.body.appendChild(el);
     document.body.classList.add("booting");
     const LINES = ["init nand", "init network", "detect flasher", "ready"];
@@ -1457,9 +1457,207 @@ try { (() => {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);else init();
 })();
-})(); } catch (e) { __ds_ns.__errors.push({ path: "site/motion.js", error: String((e && e.message) || e) }); }
+})(); } catch (e) { __ds_ns.__errors.push({ path: "motion.js", error: String((e && e.message) || e) }); }
 
-// site/site.js
+// motion2.js
+try { (() => {
+/* Motion layer 2 — physicality pass. Inert until site.css gains the .m2-* rules and the
+   pages load this file. Everything is gated on prefers-reduced-motion. */
+(function () {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const raf = window.requestAnimationFrame;
+
+  /* ══ 1. 3D tilt on the hardware cards ═══════════════════════════════════════════ */
+  function deviceTilt() {
+    if (reduce) return;
+    document.querySelectorAll(".device").forEach(d => {
+      d.classList.add("m2-tilt");
+      d.addEventListener("pointermove", e => {
+        const r = d.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        d.style.setProperty("--rx", -py * 12 + "deg");
+        d.style.setProperty("--ry", px * 14 + "deg");
+        d.style.setProperty("--gx", (px + 0.5) * 100 + "%");
+        d.style.setProperty("--gy", (py + 0.5) * 100 + "%");
+      });
+      d.addEventListener("pointerleave", () => {
+        d.style.setProperty("--rx", "0deg");
+        d.style.setProperty("--ry", "0deg");
+      });
+    });
+  }
+
+  /* ══ 2. Gallery marquee — duplicated track, pauses on hover ═════════════════════ */
+  function galleryMarquee() {
+    const g = document.querySelector(".gallery");
+    if (!g || reduce) return;
+    const items = [...g.children];
+    if (items.length < 3) return;
+    const viewport = document.createElement("div");
+    viewport.className = "m2-marquee";
+    const track = document.createElement("div");
+    track.className = "m2-track";
+    items.forEach(it => track.appendChild(it));
+    viewport.appendChild(track);
+    g.replaceWith(viewport);
+
+    // One "set" is the original items. Clone whole sets until the track is at least
+    // twice the viewport wide, then translate by exactly one set for a seamless loop.
+    const TILE = 330,
+      GAP = 16;
+    const setW = items.length * (TILE + GAP);
+    const copies = Math.max(2, Math.ceil(window.innerWidth * 2 / setW) + 1);
+    for (let c = 1; c < copies; c++) items.forEach(it => track.appendChild(it.cloneNode(true)));
+    track.style.setProperty("--shift", setW + "px");
+    track.style.setProperty("--dur", items.length * 7 + "s");
+
+    // Re-bind the lightbox on the cloned tiles.
+    const box = document.querySelector("[data-lightbox]");
+    if (box) {
+      const img = box.querySelector("img"),
+        cap = box.querySelector("figcaption");
+      track.querySelectorAll("[data-shot]").forEach(el => {
+        el.addEventListener("click", () => {
+          img.src = el.querySelector("img").src;
+          cap.textContent = el.dataset.shot;
+          box.classList.add("open");
+        });
+      });
+    }
+    // Colour arrives per tile as it enters the viewport. Clones start already lit so the
+    // loop never shows a greyscale tile on later passes.
+    const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add("shown")), {
+      threshold: 0.3
+    });
+    track.querySelectorAll("figure").forEach(f => {
+      f.removeAttribute("data-reveal");
+      f.classList.add("in", "rise");
+      io.observe(f);
+    });
+  }
+
+  /* ══ 3. Section number gutters — 01 / 02 / 03, scrubbing with scroll ════════════ */
+  function sectionGutters() {
+    const sections = [...document.querySelectorAll("section[id]")];
+    if (!sections.length) return;
+    sections.forEach((s, i) => {
+      const g = document.createElement("i");
+      g.className = "m2-gutter";
+      g.dataset.n = String(i + 1).padStart(2, "0");
+      s.appendChild(g);
+      s.classList.add("m2-hasgutter");
+    });
+    if (reduce) return;
+    let ticking = false;
+    const on = () => {
+      if (ticking) return;
+      ticking = true;
+      raf(() => {
+        const mid = window.innerHeight / 2;
+        sections.forEach(s => {
+          const r = s.getBoundingClientRect();
+          const active = r.top < mid && r.bottom > mid;
+          s.classList.toggle("m2-active", active);
+          const p = Math.max(0, Math.min(1, (mid - r.top) / Math.max(1, r.height)));
+          s.style.setProperty("--sp", p);
+        });
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", on, {
+      passive: true
+    });
+    on();
+  }
+
+  /* ══ 4. Accent trail cursor — snaps to interactive elements ═════════════════════ */
+  function trailCursor() {
+    if (reduce || window.matchMedia("(pointer: coarse)").matches) return;
+    const dot = document.createElement("i");
+    dot.className = "m2-cursor";
+    document.body.appendChild(dot);
+    let tx = innerWidth / 2,
+      ty = innerHeight / 2,
+      cx = tx,
+      cy = ty;
+    let tw = 10,
+      th = 10,
+      cw = 10,
+      ch = 10,
+      tr = 999,
+      cr = 999,
+      snapped = false;
+    addEventListener("pointermove", e => {
+      const hit = e.target.closest("a, button, .device, figure.gitem, .preset, .twopt");
+      if (hit) {
+        const r = hit.getBoundingClientRect();
+        tx = r.left + r.width / 2;
+        ty = r.top + r.height / 2;
+        tw = r.width + 6;
+        th = r.height + 6;
+        tr = parseFloat(getComputedStyle(hit).borderTopLeftRadius) || 0;
+        tr = Math.min(tr + 3, Math.min(tw, th) / 2);
+        snapped = true;
+      } else {
+        tx = e.clientX;
+        ty = e.clientY;
+        tw = th = 10;
+        tr = 999;
+        snapped = false;
+      }
+      dot.classList.toggle("snap", snapped);
+    }, {
+      passive: true
+    });
+    (function loop() {
+      const k = snapped ? 0.24 : 0.34;
+      cx += (tx - cx) * k;
+      cy += (ty - cy) * k;
+      cw += (tw - cw) * 0.22;
+      ch += (th - ch) * 0.22;
+      cr += (Math.min(tr, 999) - cr) * 0.22;
+      dot.style.transform = `translate(${cx}px,${cy}px) translate(-50%,-50%)`;
+      dot.style.width = cw + "px";
+      dot.style.height = ch + "px";
+      dot.style.borderRadius = Math.min(cr, Math.min(cw, ch) / 2) + "px";
+      raf(loop);
+    })();
+  }
+
+  /* ══ 5. Count-up ticking in the log console ═════════════════════════════════════ */
+  function logCounters() {
+    const log = document.querySelector("[data-log]");
+    if (!log || reduce) return;
+    // Any number inside a freshly-added line ticks up to its value.
+    const animate = node => {
+      const m = node.textContent.match(/(\d+)%/);
+      if (!m) return;
+      const target = +m[1],
+        tpl = node.textContent;
+      let v = 0;
+      const id = setInterval(() => {
+        v = Math.min(target, v + Math.max(1, Math.round(target / 18)));
+        node.textContent = tpl.replace(/\d+%/, v + "%");
+        if (v >= target) clearInterval(id);
+      }, 45);
+    };
+    new MutationObserver(muts => muts.forEach(mu => mu.addedNodes.forEach(n => n.nodeType === 1 && animate(n)))).observe(log, {
+      childList: true
+    });
+  }
+  function init() {
+    deviceTilt();
+    galleryMarquee();
+    sectionGutters();
+    trailCursor();
+    logCounters();
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);else init();
+})();
+})(); } catch (e) { __ds_ns.__errors.push({ path: "motion2.js", error: String((e && e.message) || e) }); }
+
+// site.js
 try { (() => {
 /* Scroll reveals, the live log ticker, the XeLL preview and the lightbox. */
 (function () {
@@ -1502,7 +1700,7 @@ try { (() => {
   /* ---- live session log ---- */
   const log = document.querySelector("[data-log]");
   if (log) {
-    const SCRIPTED = [["J-Runner Premium", ""], ["Session: 07/30/2026 3:27:15", ""], ["Version: 4.0.0", ""], ["Status: Up to date", "ok"], ["", ""], ["PicoFlasher detected on COM4", "ok"], ["Reading Nand... pass 1 of 2", "info"], ["Nand read OK — 0 bad blocks", "ok"], ["CB Type: Corona 4GB · LDV 12", "info"], ["Building XeBuild image (17559, glitch2)...", "info"], ["Image written to output\\updflash.bin", "ok"], ["Ready to write. Disconnect nothing.", "warn"]];
+    const SCRIPTED = [["J-Runner Premium", ""], ["Session: 07/30/2026 3:27:15", ""], ["Version: 4.0.0pre1", ""], ["Status: Up to date", "ok"], ["", ""], ["PicoFlasher detected on COM4", "ok"], ["Reading Nand... pass 1 of 2", "info"], ["Nand read OK — 0 bad blocks", "ok"], ["CB Type: Corona 4GB · LDV 12", "info"], ["Building XeBuild image (17559, glitch2)...", "info"], ["Image written to output\\updflash.bin", "ok"], ["Ready to write. Disconnect nothing.", "warn"]];
     let i = 0;
     const push = () => {
       const [text, sev] = SCRIPTED[i % SCRIPTED.length];
@@ -1590,9 +1788,9 @@ try { (() => {
     on();
   }
 })();
-})(); } catch (e) { __ds_ns.__errors.push({ path: "site/site.js", error: String((e && e.message) || e) }); }
+})(); } catch (e) { __ds_ns.__errors.push({ path: "site.js", error: String((e && e.message) || e) }); }
 
-// site/tweaks.js
+// tweaks.js
 try { (() => {
 /* Tweaks — three controls that reshape the page's feel, not its pixels.
    Hidden unless opened; state persists under one namespaced localStorage key. */
@@ -1675,7 +1873,6 @@ try { (() => {
     r.setProperty("--jr-accent-dim", a.dim);
     r.setProperty("--jr-text-on-accent", a.on);
     r.setProperty("--jr-log-ok", a.light);
-    r.setProperty("--site-glow", a.a + "1f");
     document.body.dataset.rhythm = state.rhythm;
     window.__xfall && window.__xfall.set(STORM[state.storm] || STORM.drift);
     document.querySelectorAll("[data-tw]").forEach(el => {
@@ -1700,109 +1897,7 @@ try { (() => {
   }));
   apply();
 })();
-})(); } catch (e) { __ds_ns.__errors.push({ path: "site/tweaks.js", error: String((e && e.message) || e) }); }
-
-// site/xfall.js
-try { (() => {
-/* Falling X glyphs — a scaled-up, full-page version of UI/SnowfallBackground.cs.
-   Same three depth tiers, same sway, same round-capped crossed strokes. */
-(function () {
-  const c = document.createElement("canvas");
-  c.id = "xfall";
-  document.body.appendChild(c);
-  const ctx = c.getContext("2d");
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const TIERS = [{
-    size: 5,
-    colour: "#202025",
-    w: 1
-  }, {
-    size: 8,
-    colour: "#26262c",
-    w: 1.4
-  }, {
-    size: 12,
-    colour: "#2d2d34",
-    w: 1.8
-  }];
-  let W = 0,
-    H = 0,
-    dpr = 1,
-    flakes = [];
-  let mult = {
-    count: 1,
-    speed: 1,
-    scale: 1,
-    fade: 1
-  };
-  function make(seeded) {
-    const t = TIERS[Math.random() * 3 | 0];
-    const tier = TIERS.indexOf(t);
-    return {
-      x: Math.random() * W,
-      y: seeded ? Math.random() * H : -t.size * 2,
-      speed: 0.6 + tier * 0.35 + Math.random() * 0.4,
-      size: t.size,
-      colour: t.colour,
-      lw: t.w,
-      drift: 6 + Math.random() * 16,
-      phase: Math.random() * Math.PI * 2
-    };
-  }
-  function resize() {
-    dpr = Math.min(2, window.devicePixelRatio || 1);
-    W = window.innerWidth;
-    H = window.innerHeight;
-    c.width = W * dpr;
-    c.height = H * dpr;
-    c.style.width = W + "px";
-    c.style.height = H + "px";
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const base = Math.max(40, Math.min(140, W * H / 12000 | 0));
-    const count = Math.round(base * mult.count);
-    while (flakes.length < count) flakes.push(make(true));
-    flakes.length = count;
-  }
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    ctx.lineCap = "round";
-    for (const f of flakes) {
-      if (!reduce) {
-        f.y += f.speed * mult.speed;
-        f.phase += 0.02 * mult.speed;
-        if (f.y - f.size > H) Object.assign(f, make(false));
-      }
-      const x = f.x + Math.sin(f.phase) * f.drift,
-        y = f.y,
-        s = f.size * mult.scale;
-      ctx.globalAlpha = mult.fade;
-      ctx.strokeStyle = f.colour;
-      ctx.lineWidth = f.lw * mult.scale;
-      ctx.beginPath();
-      ctx.moveTo(x - s, y - s);
-      ctx.lineTo(x + s, y + s);
-      ctx.moveTo(x + s, y - s);
-      ctx.lineTo(x - s, y + s);
-      ctx.stroke();
-    }
-    requestAnimationFrame(draw);
-  }
-  window.__xfall = {
-    set(m) {
-      mult = Object.assign({
-        count: 1,
-        speed: 1,
-        scale: 1,
-        fade: 1
-      }, m);
-      resize();
-    }
-  };
-  window.addEventListener("resize", resize);
-  resize();
-  draw();
-})();
-})(); } catch (e) { __ds_ns.__errors.push({ path: "site/xfall.js", error: String((e && e.message) || e) }); }
+})(); } catch (e) { __ds_ns.__errors.push({ path: "tweaks.js", error: String((e && e.message) || e) }); }
 
 // ui_kits/jrunner-app/MainWindow.jsx
 try { (() => {
@@ -2999,6 +3094,108 @@ Object.assign(window, {
   XellCustomizer
 });
 })(); } catch (e) { __ds_ns.__errors.push({ path: "ui_kits/xell-customizer/XellCustomizer.jsx", error: String((e && e.message) || e) }); }
+
+// xfall.js
+try { (() => {
+/* Falling X glyphs — a scaled-up, full-page version of UI/SnowfallBackground.cs.
+   Same three depth tiers, same sway, same round-capped crossed strokes. */
+(function () {
+  const c = document.createElement("canvas");
+  c.id = "xfall";
+  document.body.appendChild(c);
+  const ctx = c.getContext("2d");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const TIERS = [{
+    size: 5,
+    colour: "#202025",
+    w: 1
+  }, {
+    size: 8,
+    colour: "#26262c",
+    w: 1.4
+  }, {
+    size: 12,
+    colour: "#2d2d34",
+    w: 1.8
+  }];
+  let W = 0,
+    H = 0,
+    dpr = 1,
+    flakes = [];
+  let mult = {
+    count: 1,
+    speed: 1,
+    scale: 1,
+    fade: 1
+  };
+  function make(seeded) {
+    const t = TIERS[Math.random() * 3 | 0];
+    const tier = TIERS.indexOf(t);
+    return {
+      x: Math.random() * W,
+      y: seeded ? Math.random() * H : -t.size * 2,
+      speed: 0.6 + tier * 0.35 + Math.random() * 0.4,
+      size: t.size,
+      colour: t.colour,
+      lw: t.w,
+      drift: 6 + Math.random() * 16,
+      phase: Math.random() * Math.PI * 2
+    };
+  }
+  function resize() {
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    c.width = W * dpr;
+    c.height = H * dpr;
+    c.style.width = W + "px";
+    c.style.height = H + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const base = Math.max(40, Math.min(140, W * H / 12000 | 0));
+    const count = Math.round(base * mult.count);
+    while (flakes.length < count) flakes.push(make(true));
+    flakes.length = count;
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineCap = "round";
+    for (const f of flakes) {
+      if (!reduce) {
+        f.y += f.speed * mult.speed;
+        f.phase += 0.02 * mult.speed;
+        if (f.y - f.size > H) Object.assign(f, make(false));
+      }
+      const x = f.x + Math.sin(f.phase) * f.drift,
+        y = f.y,
+        s = f.size * mult.scale;
+      ctx.globalAlpha = mult.fade;
+      ctx.strokeStyle = f.colour;
+      ctx.lineWidth = f.lw * mult.scale;
+      ctx.beginPath();
+      ctx.moveTo(x - s, y - s);
+      ctx.lineTo(x + s, y + s);
+      ctx.moveTo(x + s, y - s);
+      ctx.lineTo(x - s, y + s);
+      ctx.stroke();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.__xfall = {
+    set(m) {
+      mult = Object.assign({
+        count: 1,
+        speed: 1,
+        scale: 1,
+        fade: 1
+      }, m);
+      resize();
+    }
+  };
+  window.addEventListener("resize", resize);
+  resize();
+  draw();
+})();
+})(); } catch (e) { __ds_ns.__errors.push({ path: "xfall.js", error: String((e && e.message) || e) }); }
 
 __ds_ns.Button = __ds_scope.Button;
 
