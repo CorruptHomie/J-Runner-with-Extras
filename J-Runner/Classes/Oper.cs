@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -17,6 +17,29 @@ namespace JRunner
         /// <returns>byte[]</returns>
         #region file manipulation
 
+        /// <summary>
+        /// Fills <paramref name="buffer"/> with exactly <paramref name="count"/> bytes.
+        /// Stream.Read may legally return fewer bytes than asked for, so it has to be looped
+        /// rather than called once.
+        ///
+        /// Throws EndOfStreamException on a short read, deliberately: the per-byte
+        /// BinaryReader.ReadByte() loop this replaced threw the same exception when a file
+        /// was shorter than requested, and both callers sit inside a try/catch that turns
+        /// that into a null return. Swallowing it here would hand callers a half-filled
+        /// buffer they'd treat as a complete image - a behaviour change, and a dangerous one
+        /// in a tool that writes NAND.
+        /// </summary>
+        private static void ReadExactly(Stream stream, byte[] buffer, int count)
+        {
+            int done = 0;
+            while (done < count)
+            {
+                int n = stream.Read(buffer, done, count - done);
+                if (n <= 0) throw new EndOfStreamException();
+                done += n;
+            }
+        }
+
         public static byte[] openfile(string filename, ref long size, int wantedsize)
         {
             try
@@ -28,13 +51,14 @@ namespace JRunner
                 }
                 else
                     size = wantedsize;
-                FileStream infile = new FileStream(filename, FileMode.Open, FileAccess.Read);
-                BinaryReader file = new BinaryReader(infile);
+                // Was a per-byte BinaryReader.ReadByte() loop - 69,206,016 virtual calls to
+                // load a 64MB image, each with its own bounds check and refill test. Reads
+                // in bulk instead; the stream fills the array directly.
                 byte[] data = new byte[size];
-                int i = 0;
-                for (i = 0; i < size; i++) data[i] = file.ReadByte();
-                file.Close();
-                infile.Close();
+                using (FileStream infile = new FileStream(filename, FileMode.Open, FileAccess.Read))
+                {
+                    ReadExactly(infile, data, (int)size);
+                }
                 return data;
             }
             catch (FileNotFoundException ex) { Console.WriteLine("File {0} not found!", filename); if (variables.debugme) Console.WriteLine(ex.ToString()); }
@@ -56,14 +80,12 @@ namespace JRunner
                 else
                     size = wantedsize;
                 if (variables.debugme) Console.WriteLine("size: {0:X}", size);
-                FileStream infile = new FileStream(filename, FileMode.Open, FileAccess.Read);
-                BinaryReader file = new BinaryReader(infile);
-                file.BaseStream.Seek(offset, SeekOrigin.Begin);
                 byte[] data = new byte[size];
-                int i = 0;
-                for (i = 0; i < size; i++) data[i] = file.ReadByte();
-                file.Close();
-                infile.Close();
+                using (FileStream infile = new FileStream(filename, FileMode.Open, FileAccess.Read))
+                {
+                    infile.Seek(offset, SeekOrigin.Begin);
+                    ReadExactly(infile, data, (int)size);
+                }
                 return data;
             }
             catch (FileNotFoundException ex) { Console.WriteLine("File {0} not found!", filename); if (variables.debugme) Console.WriteLine(ex.ToString()); }
@@ -340,11 +362,28 @@ namespace JRunner
         public static string ByteArrayToString(byte[] ba, int startindex = 0, int length = 0)
         {
             if (ba == null) return "";
-            string hex = BitConverter.ToString(ba);
-            if (startindex == 0 && length == 0) hex = BitConverter.ToString(ba);
-            else if (length == 0 && startindex != 0) hex = BitConverter.ToString(ba, startindex);
-            else hex = BitConverter.ToString(ba, startindex, length);
-            return hex.Replace("-", "");
+
+            // The first line used to be an unconditional BitConverter.ToString(ba) whose
+            // result was then overwritten by the branch below - so every call converted the
+            // whole array once for nothing. On a 64MB image that alone built a ~200MB string
+            // and threw it away.
+            //
+            // BitConverter.ToString also produces "AA-BB-CC" and then Replace("-","")
+            // allocated a second string to strip the separators. Writing the hex directly
+            // does it in one pass with one allocation.
+            int start = startindex;
+            int count = length == 0 ? ba.Length - startindex : length;
+            if (count <= 0) return "";
+
+            char[] chars = new char[count * 2];
+            for (int i = 0; i < count; i++)
+            {
+                byte b = ba[start + i];
+                int hi = b >> 4, lo = b & 0xF;
+                chars[i * 2] = (char)(hi < 10 ? '0' + hi : 'A' + (hi - 10));
+                chars[i * 2 + 1] = (char)(lo < 10 ? '0' + lo : 'A' + (lo - 10));
+            }
+            return new string(chars);
         }
         public static string ByteArrayToString_v2(byte[] ba, int startindex = 0, int length = 0)
         {

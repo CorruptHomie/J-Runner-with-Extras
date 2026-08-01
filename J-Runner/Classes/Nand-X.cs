@@ -1531,12 +1531,19 @@ namespace JRunner
             int rounded = ((((int)filesize / 64) + 1) * 64);
             byte[] firstbuffer = new byte[rounded];
             if (variables.debugme) Console.WriteLine("Rounded {0}", rounded);
-            BinaryReader rw = new BinaryReader(File.Open(filename, FileMode.Open, FileAccess.Read));
-            for (int k = 0; k < filesize; k++)
+            // Bulk read rather than a per-byte ReadByte() loop. firstbuffer is deliberately
+            // rounded up past filesize, so only the first filesize bytes are filled and the
+            // padding stays zero - exactly as before.
+            using (FileStream fs = File.Open(filename, FileMode.Open, FileAccess.Read))
             {
-                firstbuffer[k] = rw.ReadByte();
+                int done = 0;
+                while (done < filesize)
+                {
+                    int n = fs.Read(firstbuffer, done, (int)filesize - done);
+                    if (n <= 0) break;
+                    done += n;
+                }
             }
-            rw.Close();
             if (MyUsbDevice.ControlTransfer(ref packet, CMD, 1, out LengthTransferred))
             {			// class  xsvf_cmd
                 Thread.Sleep(200);

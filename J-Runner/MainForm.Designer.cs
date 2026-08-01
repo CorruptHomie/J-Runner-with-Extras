@@ -1116,7 +1116,7 @@ namespace JRunner
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("fileToolStripMenuItem.Image")));
             this.fileToolStripMenuItem.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.fileToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Transparent;
+            this.fileToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Empty;
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(28, 20);
             // 

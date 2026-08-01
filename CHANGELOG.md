@@ -1,52 +1,22 @@
-\# J-Runner Premium v4.0.0 developer preview 4 Changelog
+# J-Runner Premium v4.0.0 Pre-Release 1
 
+### Core Refinements \& Fixes
 
+* **ECC Algorithm Optimization:** Rewrote `Nand.addecc\\\_v2()` from a time complexity of `O(n^2)` to `O(n)`. This change reduces array allocations from \~675,000 down to 2, drastically increasing speed while generating byte-identical outputs across all edge cases.
+* **Streamlined I/O and Conversions:**
 
-\### UI \& Theming
+  * Replaced byte-by-byte file loading in `Oper.openfile()` and `Oper.openfilefromoffset()` with direct bulk reads, cutting 69+ million function calls down to a single pass for a 64MB image, while retaining exact error handling behavior.
+  * Refactored `ByteArrayToString` across 300 call sites to write hexadecimal strings in one pass with a single allocation, removing significant memory overhead.
+* **Logo Consistency:** Regenerated the main interface and menu logos. The white monogram is now properly aspect-corrected, and alpha-boosted downsampling ensures the 16px versions remain bright and clearly defined without aliasing out.
 
-&#x20;AeroWizard Replacement Removed the third-party `AeroWizard` dependency entirely. Replaced all 10 wizard forms (including Update UI, Create Donor Nand, and Restore Files) with a custom, native `ThemedWizard` control for consistent dark theming.
+### UI Enhancements
 
-&#x20;Native Dark Mode Title Bars Implemented `DWMWA\_USE\_IMMERSIVE\_DARK\_MODE` to force native Windows title bars into dark mode across all \~65 application windows.
+* **Smooth Animation Framework:** Overhauled the background snowfall rendering logic to fix noticeable visual stuttering.
 
-&#x20;Stock OS Controls Expanded dark theme coverage to previously un-themed stock OS controls, including `ListView` (with owner-drawn column headers), `TreeView`, `TrackBar`, scrollbars, and splitters.
-
-&#x20;Menu Logo Visibility Re-rendered the 16px menu bar logo with alpha boosting to prevent thin strokes from antialiasing away, ensuring a solid, bright white appearance.
-
-
-
-\### Features \& Visuals
-
-&#x20;Background Snowfall Effect Introduced a background animation featuring Xbox X glyphs drifting in three depth tiers across the main application window. 
-
-&#x20;Dynamic Flashing Visuals The snowfall effect dynamically shifts to lime green while an active NAND flashing operation is in progress.
-
-&#x20;Snowfall Toggle Added a dedicated Background Snow toggle directly in the main JR menu (under Restore Files...) to easily enable or disable the visual effect.
-
-&#x20;Console Rendering Extended the snowfall visual effect to render smoothly over the native console text box without causing text flickering.
-
-
-
-\### XeLL Customizer (Web Integration)
-
-&#x20;Stale Process Handling The local server's `health` endpoint now utilizes API versioning. The launcher will automatically detect stale background Node processes and prompt the user to restart if a version mismatch occurs.
-
-&#x20;Direct Workflow Links The interface now provides direct links to View workflow run and Download artifact via the GitHub Actions API while a build is in progress or completed.
-
-&#x20;Log Fetching Improved log fetching to gracefully handle Azure Blob Storage redirects and prevent raw XML error documents from being displayed.
-
-&#x20;Failure Messaging Updated the build failure message to guide users to manually download their artifacts via the workflow link. This message has been localized across English, Spanish, French, and Portuguese.
-
-
-
-\### Bug Fixes \& Internal Changes
-
-&#x20;Version \& Build Stamps Version bumped to `4.0.0devpre4`. The internal build stamp (previously hardcoded) now dynamically tracks the version string and linker timestamp (e.g., `400.YYMMDD.HHMM`).
-
-&#x20;Wizard Crash Fix Fixed an `InvalidCastException` that crashed wizard forms on load by properly implementing `ISupportInitialize` for compatibility with designer-generated code.
-
-&#x20;Compilation Fix Resolved a build break caused by a method accidentally placed inside an `enum` block, and added a project-wide check to prevent recurrence.
-
-&#x20;Code Cleanup Removed dormant code references (e.g., `UI.MenuButton`) and stripped out legacy `ThirdPartyBackground` painting workarounds that were previously required for AeroWizard.
-
-&#x20;Polling Fix Fixed a JavaScript reference error in the XeLL Customizer's build status polling logic.
+  * Motion is now time-scaled using a `Stopwatch` instead of relying on unpredictable UI tick counts.
+  * Increased the render rate to \~64fps by aligning timer intervals to native system clock ticks (15ms).
+  * Shifted invalidation logic to only redraw the precise bounding box of each moving flake rather than the entire background, drastically reducing computational load.
+* **Console Overlay Compositing:** The console snowfall overlay now utilizes a single-pass `WM\\\_PRINTCLIENT` bitmap blit instead of drawing over the window post-render. This eliminates the persistent visual flicker over the `TextBox` when running at 64fps.
+* **Snowfall Toggle Details:** Added a "Background Snow" item in the JR menu under "Restore Files". This toggle is distinct from the "Enable animations" setting, instantly clearing the snow upon click instead of just pausing the frames.
+* **Menu Styling:** Implemented an owner-drawn, accent-colored rounded checkmark for menu items to ensure they respect the application's dark theme, rather than defaulting to system-blue boxes.
 

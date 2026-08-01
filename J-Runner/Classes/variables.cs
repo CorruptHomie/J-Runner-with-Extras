@@ -66,7 +66,7 @@ namespace JRunner
     class variables
     {
         /// <summary>
-        /// The numeric core of the version with the separators removed - "4.0.0devpre4" gives
+        /// The numeric core of the version with the separators removed - "4.0.0pre1" gives
         /// "400". staticversion is a const, so this is safe to call from a field initialiser.
         /// </summary>
         private static string VersionStamp()
@@ -114,13 +114,13 @@ namespace JRunner
             Win81,
             W10_11
         }
-        public static string version = "4.0.0devpre4";
+        public static string version = "4.0.0pre1";
         // Referenced by Classes/StaticVersion.cs. StaticVersion parses this with a regex
         // (major.minor.build + free-form pre-release tag) rather than Split('.'), so a
         // qualifier like "pre1" no longer needs to be a 4th numeric component.
-        public const string staticversion = "4.0.0devpre4";
+        public const string staticversion = "4.0.0pre1";
         // Build stamp shown in About and logged for beta builds: <version digits>.<yyMMdd>.<HHmm>,
-        // so 4.0.0devpre4 built on 29 July 2026 at 21:17 reads 400.260729.2117.
+        // so 4.0.0pre1 built on 29 July 2026 at 21:17 reads 400.260729.2117.
         //
         // The prefix was the hardcoded literal "3103" - left over from an older release - so
         // it never moved when the version did. Derived from staticversion now, which means it
@@ -182,10 +182,10 @@ namespace JRunner
 
         // Which GitHub release stream the updater follows. Empty means "not chosen yet" -
         // Upd.ResolveDefaultChannel() then derives it from the running build's own version
-        // string, so a dev build defaults to Dev rather than silently watching the stable
-        // channel. This build's "4.0.0devpre4" contains "dev", so it defaults to Dev -
-        // which matches any build cut from the dev branch, prerelease or not (see
-        // Upd.MatchesChannel). Persisted as the setting "UpdateChannel".
+        // string rather than silently watching the stable channel. This build's "4.0.0pre1"
+        // contains "pre" but not "dev", so it defaults to Pre-release: the newest prerelease
+        // cut from the release branch (see Upd.MatchesChannel). Persisted as the setting
+        // "UpdateChannel".
         public static string updateChannel = "";
 
         // Background snowfall, toggled straight from the JR menu. Separate from

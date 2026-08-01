@@ -63,6 +63,39 @@ namespace UI
             }
         }
 
+        protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
+        {
+            // The stock check is a system-blue box that ignores the theme entirely. Drawn
+            // here instead: a rounded accent tile with a stroked tick, matching the check
+            // boxes elsewhere in the app.
+            Rectangle r = e.ImageRectangle;
+            int side = Math.Min(r.Width, r.Height) - 2;
+            if (side < 6) return;
+            Rectangle box = new Rectangle(r.X + (r.Width - side) / 2, r.Y + (r.Height - side) / 2, side, side);
+
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            using (GraphicsPath path = RoundedRect(box, 3))
+            using (SolidBrush fill = new SolidBrush(Theme.Accent))
+            using (Pen edge = new Pen(Theme.Accent))
+            {
+                e.Graphics.FillPath(fill, path);
+                e.Graphics.DrawPath(edge, path);
+            }
+
+            using (Pen tick = new Pen(Color.FromArgb(20, 24, 18), 1.9f))
+            {
+                tick.StartCap = LineCap.Round;
+                tick.EndCap = LineCap.Round;
+                float u = side / 16f;
+                e.Graphics.DrawLines(tick, new[]
+                {
+                    new PointF(box.Left + 4*u,  box.Top + 8*u),
+                    new PointF(box.Left + 7*u,  box.Top + 11.5f*u),
+                    new PointF(box.Left + 12*u, box.Top + 4.5f*u),
+                });
+            }
+        }
+
         protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
         {
             e.TextColor = e.Item.Enabled ? Theme.TextPrimary : Theme.TextSecondary;
