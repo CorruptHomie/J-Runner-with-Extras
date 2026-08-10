@@ -13,6 +13,10 @@ namespace JRunner.Panels
         public NandTools()
         {
             InitializeComponent();
+            // Themed here rather than relying on the host form's pass: these panels are
+            // created as field initialisers and swapped into MainForm at runtime, so they
+            // are not in Controls when ApplyTheme walks the form and were never reached.
+            UI.Theme.ApplyTheme(this);
             SetupDeviceCard();
         }
 
@@ -118,7 +122,8 @@ namespace JRunner.Panels
             using (Pen edge = new Pen(UI.Theme.Border))
             {
                 g.FillPath(fill, path);
-                g.DrawPath(edge, path);
+                using (GraphicsPath strokePath = UI.MessageDialog.RoundedPathStroke(card, 8))
+                    g.DrawPath(edge, strokePath);
             }
 
             if (_deviceImage == null)

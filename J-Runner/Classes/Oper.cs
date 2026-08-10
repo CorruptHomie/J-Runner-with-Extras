@@ -97,11 +97,19 @@ namespace JRunner
         {
             try
             {
-                FileStream kvdf = new FileStream(name, FileMode.Create, FileAccess.Write);
-                BinaryWriter kvdfi = new BinaryWriter(kvdf);
-                for (int c = 0; c < image.Length; c++) kvdfi.Write(image[c]);
-                kvdfi.Close();
-                kvdf.Close();
+                // The mirror of the read-side fix: this was a per-byte
+                // BinaryWriter.Write(byte) loop, so saving a 64MB image meant 69,206,016
+                // calls, each with a virtual dispatch and a buffer check. One bulk Write
+                // moves the whole array. 60 call sites use this, including every full-image
+                // save.
+                //
+                // using-blocks rather than explicit Close(): the old code leaked both
+                // handles if the write threw, and the catch below swallowed the exception -
+                // so a failed save could leave the file locked until the process exited.
+                using (FileStream kvdf = new FileStream(name, FileMode.Create, FileAccess.Write))
+                {
+                    if (image != null && image.Length > 0) kvdf.Write(image, 0, image.Length);
+                }
                 return true;
             }
             catch (Exception ex) { if (variables.debugme) Console.WriteLine(ex.ToString()); return false; }
@@ -160,18 +168,48 @@ namespace JRunner
             return tempimage;
         }
 
+        /// <summary>
+        /// Reassembles a crypto header: bytes 0x00-0x0F from <paramref name="head"/>,
+        /// 0x10-0x1F from <paramref name="middle"/>, and 0x20 onwards from <paramref
+        /// name="body"/> (which starts at its own offset 0).
+        ///
+        /// Replaces seven copies of the same loop in Nand.cs, each of which tested every
+        /// byte index against two thresholds to decide which of three fixed regions it came
+        /// from - over a whole image. The regions are constant, so three block copies do the
+        /// same work without touching bytes individually. The seven differed only in which
+        /// array supplied the middle 16 bytes, which is the parameter.
+        /// </summary>
+        /// <param name="midStart">Where the middle region begins - 0x10 for most headers,
+        /// 0x20 for the CB variant that carries a larger nonce.</param>
+        /// <param name="bodyStart">Where the body begins - correspondingly 0x20 or 0x30.</param>
+        public static byte[] assembleCrypto(byte[] head, byte[] middle, byte[] body, int totalLength,
+                                            int midStart = 0x10, int bodyStart = 0x20)
+        {
+            byte[] result = new byte[totalLength];
+
+            int headLen = Math.Min(midStart, totalLength);
+            if (headLen > 0 && head != null)
+                Buffer.BlockCopy(head, 0, result, 0, Math.Min(headLen, head.Length));
+
+            int midLen = Math.Min(bodyStart - midStart, Math.Max(0, totalLength - midStart));
+            if (midLen > 0 && middle != null)
+                Buffer.BlockCopy(middle, 0, result, midStart, Math.Min(midLen, middle.Length));
+
+            int bodyLen = Math.Max(0, totalLength - bodyStart);
+            if (bodyLen > 0 && body != null)
+                Buffer.BlockCopy(body, 0, result, bodyStart, Math.Min(bodyLen, body.Length));
+
+            return result;
+        }
+
         public static byte[] addtoflash_v1(byte[] image, byte[] secondimage)
         {
+            // Two element-by-element copy loops replaced with block copies. Buffer.BlockCopy
+            // moves whole runs at a time instead of one bounds-checked array index per byte,
+            // which matters here because this concatenates full NAND images.
             byte[] tempimage = new byte[image.Length + secondimage.Length];
-            int i;
-            for (i = 0; i < image.Length; i++)
-            {
-                tempimage[i] = image[i];
-            }
-            for (; i < image.Length + secondimage.Length; i++)
-            {
-                tempimage[i] = secondimage[i - (image.Length)];
-            }
+            if (image.Length > 0) Buffer.BlockCopy(image, 0, tempimage, 0, image.Length);
+            if (secondimage.Length > 0) Buffer.BlockCopy(secondimage, 0, tempimage, image.Length, secondimage.Length);
             return tempimage;
         }
 
@@ -256,6 +294,57 @@ namespace JRunner
             }
 
             return -1;
+        }
+
+        /// <summary>
+        /// Copies the 0x200-byte data half out of every 0x210-byte page in <paramref
+        /// name="image"/>, dropping the 0x10-byte spare/ECC area - i.e. the inverse of
+        /// addecc. Optionally starting at an offset and limited to a byte count.
+        ///
+        /// Replaces the
+        ///     res = concatByteArrays(res, returnportion(image, counter, 0x200), res.Length, 0x200)
+        /// idiom that appeared at six call sites. That form reallocated and re-copied the
+        /// whole accumulated result on every page, so stripping a 64MB image (131,072 pages)
+        /// copied ~4.4 TB and allocated ~131,000 arrays to produce 67MB. This sizes the
+        /// output once and writes each page straight into place.
+        /// </summary>
+        /// <param name="requireFullPage">
+        /// Two loop shapes existed in the original code and they are NOT equivalent:
+        ///   for (c = 0; c &lt; len;        c += 0x210)   // emits a final partial page
+        ///   for (c = 0; c + 496 &lt; len;  c += 0x210)   // skips it
+        /// On an image whose length isn't a whole number of pages these produce different
+        /// page counts, so the caller has to say which it wants. Passing true reproduces the
+        /// "+ 496" form.
+        /// </param>
+        public static byte[] stripEcc(byte[] image, int start = 0, int length = -1, bool requireFullPage = false)
+        {
+            if (image == null) return new byte[0];
+
+            int end = length < 0 ? image.Length : Math.Min(image.Length, start + length);
+            // The "+ 496" guard stops 496 bytes short of the end, not 0x200.
+            if (requireFullPage) end -= 496;
+            if (start < 0) start = 0;
+            if (end <= start) return new byte[0];
+
+            // A page is emitted for every loop position, including a final one with fewer
+            // than 0x200 bytes left. That matters: returnportion() zero-pads a short read up
+            // to the requested length, so the original loops emitted a full 0x200-byte page
+            // there, padded with zeros - and the callers' offsets depend on that page being
+            // present. Dropping it would shift everything after it.
+            int pages = 0;
+            for (int c = start; c < end; c += 0x210) pages++;
+
+            byte[] result = new byte[pages * 0x200];
+            int w = 0;
+            for (int c = start; c < end; c += 0x210)
+            {
+                int avail = image.Length - c;
+                if (avail > 0x200) avail = 0x200;
+                if (avail > 0) Buffer.BlockCopy(image, c, result, w, avail);
+                // Anything past the end stays zero, matching returnportion's padding.
+                w += 0x200;
+            }
+            return result;
         }
 
         public static byte[] concatByteArrays(byte[] byteArray1, byte[] byteArray2, int array1Length, int array2Length)
@@ -409,7 +498,22 @@ namespace JRunner
         }
         public static int ByteArrayToInt(byte[] value)
         {
-            return Convert.ToInt32(ByteArrayToString(value), 16);
+            // Was: Convert.ToInt32(ByteArrayToString(value), 16) - it built a hex string
+            // from the bytes and then parsed that string back into a number, for every one
+            // of 79 call sites. Shifting the bytes together does the same thing with no
+            // string, no allocation and no parse.
+            //
+            // Semantics kept deliberately: big-endian (the hex string read left to right),
+            // an empty/null array gives 0 (Convert.ToInt32("", 16) does too), and only the
+            // low 4 bytes survive - Convert.ToInt32 would have thrown on a longer array, so
+            // callers never pass one. All current callers pass 2 or 4 bytes.
+            if (value == null || value.Length == 0) return 0;
+
+            int result = 0;
+            int start = value.Length > 4 ? value.Length - 4 : 0;
+            for (int i = start; i < value.Length; i++)
+                result = (result << 8) | value[i];
+            return result;
         }
 
         public static void removeByteArray(ref byte[] array, int start, int length)
@@ -435,11 +539,28 @@ namespace JRunner
                 hex = "00" + hex;
                 NumberChars += 2;
             }
+            // Substring() allocated a fresh 2-char string for every byte, purely to hand it
+            // to Convert.ToByte. Reading the two nibbles directly avoids both the allocation
+            // and the parse.
             byte[] bytes = new byte[NumberChars / 2];
             for (int i = 0; i < NumberChars; i += 2)
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+                bytes[i / 2] = (byte)((HexNibble(hex[i]) << 4) | HexNibble(hex[i + 1]));
             return bytes;
         }
+
+        /// <summary>
+        /// Value of a single hex digit. Throws on anything else, matching
+        /// Convert.ToByte(s, 16), which raised FormatException on invalid input - callers
+        /// have try/catch around parsing and rely on that.
+        /// </summary>
+        private static int HexNibble(char c)
+        {
+            if (c >= '0' && c <= '9') return c - '0';
+            if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+            if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+            throw new FormatException("Invalid hex digit: '" + c + "'");
+        }
+
         public static byte[] StringToByteArray_v2(String hex)
         {
             int NumberChars = hex.Length;
@@ -539,36 +660,41 @@ namespace JRunner
 
         public static void RC4_v(ref Byte[] bytes, Byte[] key)
         {
+            // % 256 replaced with & 0xFF throughout. Every operand here is non-negative and
+            // bounded (indices 0..255, sums at most 765), and % and & only diverge for
+            // negative values in C# - so the substitution is exact, not an approximation.
+            // A masked AND is a single instruction where the JIT must emit a division check
+            // for %; this runs three times per byte over whole images.
             Byte[] s = new Byte[256];
-            Byte[] k = new Byte[256];
             Byte temp;
             int i, j;
 
-            for (i = 0; i < 256; i++)
-            {
-                s[i] = (Byte)i;
-                k[i] = key[i % key.GetLength(0)];
-            }
+            // The separate k[] array is gone - it only ever held the key repeated out to 256
+            // entries, which is the same as indexing the key modulo its own length.
+            int keyLen = key.Length;
+            for (i = 0; i < 256; i++) s[i] = (Byte)i;
 
             j = 0;
+            int ki = 0;
             for (i = 0; i < 256; i++)
             {
-                j = (j + s[i] + k[i]) % 256;
+                j = (j + s[i] + key[ki]) & 0xFF;
                 temp = s[i];
                 s[i] = s[j];
                 s[j] = temp;
+                if (++ki == keyLen) ki = 0;
             }
 
             i = j = 0;
-            for (int x = 0; x < bytes.GetLength(0); x++)
+            int len = bytes.Length;   // hoisted: GetLength(0) was re-evaluated every iteration
+            for (int x = 0; x < len; x++)
             {
-                i = (i + 1) % 256;
-                j = (j + s[i]) % 256;
+                i = (i + 1) & 0xFF;
+                j = (j + s[i]) & 0xFF;
                 temp = s[i];
                 s[i] = s[j];
                 s[j] = temp;
-                int t = (s[i] + s[j]) % 256;
-                bytes[x] ^= s[t];
+                bytes[x] ^= s[(s[i] + s[j]) & 0xFF];
             }
         }
 

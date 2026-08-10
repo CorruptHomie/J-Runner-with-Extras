@@ -22,6 +22,10 @@ namespace JRunner.Panels
         public XeBuildPanel()
         {
             InitializeComponent();
+            // Themed here rather than relying on the host form's pass: these panels are
+            // created as field initialisers and swapped into MainForm at runtime, so they
+            // are not in Controls when ApplyTheme walks the form and were never reached.
+            UI.Theme.ApplyTheme(this);
             checkDevGL("None");
         }
 

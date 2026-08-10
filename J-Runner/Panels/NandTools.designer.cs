@@ -61,7 +61,7 @@ namespace JRunner.Panels
             // 
             // btnCPUDB
             // 
-            this.btnCPUDB.Location = new System.Drawing.Point(3, 166);
+            this.btnCPUDB.Location = new System.Drawing.Point(2, 166);
             this.btnCPUDB.Name = "btnCPUDB";
             this.btnCPUDB.Size = new System.Drawing.Size(63, 51);
             this.btnCPUDB.TabIndex = 80;
@@ -77,7 +77,7 @@ namespace JRunner.Panels
             this.groupBox9.Controls.Add(this.lblLPTPort);
             this.groupBox9.Controls.Add(this.rbtnLPT);
             this.groupBox9.Controls.Add(this.rbtnUSB);
-            this.groupBox9.Location = new System.Drawing.Point(59, 99);
+            this.groupBox9.Location = new System.Drawing.Point(58, 99);
             this.groupBox9.Name = "groupBox9";
             this.groupBox9.Size = new System.Drawing.Size(160, 62);
             this.groupBox9.TabIndex = 82;
@@ -86,7 +86,7 @@ namespace JRunner.Panels
             // 
             // txtLPTPort
             // 
-            this.txtLPTPort.Location = new System.Drawing.Point(66, 36);
+            this.txtLPTPort.Location = new System.Drawing.Point(65, 36);
             this.txtLPTPort.MaxLength = 4;
             this.txtLPTPort.Name = "txtLPTPort";
             this.txtLPTPort.Size = new System.Drawing.Size(46, 20);
@@ -99,7 +99,7 @@ namespace JRunner.Panels
             // lblLPTPort
             // 
             this.lblLPTPort.AutoSize = true;
-            this.lblLPTPort.Location = new System.Drawing.Point(63, 19);
+            this.lblLPTPort.Location = new System.Drawing.Point(62, 19);
             this.lblLPTPort.Name = "lblLPTPort";
             this.lblLPTPort.Size = new System.Drawing.Size(26, 13);
             this.lblLPTPort.TabIndex = 2;
@@ -109,7 +109,7 @@ namespace JRunner.Panels
             // rbtnLPT
             // 
             this.rbtnLPT.AutoSize = true;
-            this.rbtnLPT.Location = new System.Drawing.Point(10, 37);
+            this.rbtnLPT.Location = new System.Drawing.Point(9, 37);
             this.rbtnLPT.Name = "rbtnLPT";
             this.rbtnLPT.Size = new System.Drawing.Size(45, 17);
             this.rbtnLPT.TabIndex = 1;
@@ -122,7 +122,7 @@ namespace JRunner.Panels
             // 
             this.rbtnUSB.AutoSize = true;
             this.rbtnUSB.Checked = true;
-            this.rbtnUSB.Location = new System.Drawing.Point(10, 18);
+            this.rbtnUSB.Location = new System.Drawing.Point(9, 18);
             this.rbtnUSB.Name = "rbtnUSB";
             this.rbtnUSB.Size = new System.Drawing.Size(47, 17);
             this.rbtnUSB.TabIndex = 10;
@@ -133,7 +133,7 @@ namespace JRunner.Panels
             // 
             // btnProgramCR
             // 
-            this.btnProgramCR.Location = new System.Drawing.Point(7, 22);
+            this.btnProgramCR.Location = new System.Drawing.Point(6, 22);
             this.btnProgramCR.Name = "btnProgramCR";
             this.btnProgramCR.Size = new System.Drawing.Size(66, 51);
             this.btnProgramCR.TabIndex = 6;
@@ -151,7 +151,7 @@ namespace JRunner.Panels
             this.groupBox3.Controls.Add(this.btnWrite);
             this.groupBox3.Controls.Add(this.btnRead);
             this.groupBox3.Controls.Add(this.btnWriteECC);
-            this.groupBox3.Location = new System.Drawing.Point(3, 1);
+            this.groupBox3.Location = new System.Drawing.Point(2, 1);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(373, 87);
             this.groupBox3.TabIndex = 81;
@@ -160,7 +160,7 @@ namespace JRunner.Panels
             // 
             // btnCreateECC
             // 
-            this.btnCreateECC.Location = new System.Drawing.Point(82, 22);
+            this.btnCreateECC.Location = new System.Drawing.Point(81, 22);
             this.btnCreateECC.Name = "btnCreateECC";
             this.btnCreateECC.Size = new System.Drawing.Size(65, 51);
             this.btnCreateECC.TabIndex = 64;
@@ -173,7 +173,7 @@ namespace JRunner.Panels
             // 
             // btnXeBuild
             // 
-            this.btnXeBuild.Location = new System.Drawing.Point(226, 22);
+            this.btnXeBuild.Location = new System.Drawing.Point(225, 22);
             this.btnXeBuild.Name = "btnXeBuild";
             this.btnXeBuild.Size = new System.Drawing.Size(65, 51);
             this.btnXeBuild.TabIndex = 5;
@@ -186,7 +186,7 @@ namespace JRunner.Panels
             // 
             // btnWrite
             // 
-            this.btnWrite.Location = new System.Drawing.Point(298, 22);
+            this.btnWrite.Location = new System.Drawing.Point(297, 22);
             this.btnWrite.Name = "btnWrite";
             this.btnWrite.Size = new System.Drawing.Size(65, 51);
             this.btnWrite.TabIndex = 56;
@@ -198,7 +198,7 @@ namespace JRunner.Panels
             // 
             // btnRead
             // 
-            this.btnRead.Location = new System.Drawing.Point(10, 22);
+            this.btnRead.Location = new System.Drawing.Point(9, 22);
             this.btnRead.Name = "btnRead";
             this.btnRead.Size = new System.Drawing.Size(65, 51);
             this.btnRead.TabIndex = 8;
@@ -210,7 +210,7 @@ namespace JRunner.Panels
             // 
             // btnWriteECC
             // 
-            this.btnWriteECC.Location = new System.Drawing.Point(154, 22);
+            this.btnWriteECC.Location = new System.Drawing.Point(153, 22);
             this.btnWriteECC.Name = "btnWriteECC";
             this.btnWriteECC.Size = new System.Drawing.Size(65, 51);
             this.btnWriteECC.TabIndex = 9;
@@ -223,7 +223,7 @@ namespace JRunner.Panels
             // lblNReads
             // 
             this.lblNReads.AutoSize = true;
-            this.lblNReads.Location = new System.Drawing.Point(6, 15);
+            this.lblNReads.Location = new System.Drawing.Point(5, 15);
             this.lblNReads.Name = "lblNReads";
             this.lblNReads.Size = new System.Drawing.Size(38, 13);
             this.lblNReads.TabIndex = 63;
@@ -235,7 +235,7 @@ namespace JRunner.Panels
             this.numericIterations.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.numericIterations.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(161)));
             this.numericIterations.ForeColor = System.Drawing.Color.Black;
-            this.numericIterations.Location = new System.Drawing.Point(9, 33);
+            this.numericIterations.Location = new System.Drawing.Point(8, 33);
             this.numericIterations.Maximum = new decimal(new int[] {
             4,
             0,
@@ -263,7 +263,7 @@ namespace JRunner.Panels
             // 
             this.pBoxDevice.ErrorImage = null;
             this.pBoxDevice.InitialImage = null;
-            this.pBoxDevice.Location = new System.Drawing.Point(258, 99);
+            this.pBoxDevice.Location = new System.Drawing.Point(257, 99);
             this.pBoxDevice.Name = "pBoxDevice";
             this.pBoxDevice.Size = new System.Drawing.Size(198, 118);
             this.pBoxDevice.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -273,7 +273,7 @@ namespace JRunner.Panels
             // 
             // btnCreateDonor
             // 
-            this.btnCreateDonor.Location = new System.Drawing.Point(70, 166);
+            this.btnCreateDonor.Location = new System.Drawing.Point(69, 166);
             this.btnCreateDonor.Name = "btnCreateDonor";
             this.btnCreateDonor.Size = new System.Drawing.Size(58, 51);
             this.btnCreateDonor.TabIndex = 87;
@@ -285,7 +285,7 @@ namespace JRunner.Panels
             // 
             // btnExtractFiles
             // 
-            this.btnExtractFiles.Location = new System.Drawing.Point(132, 166);
+            this.btnExtractFiles.Location = new System.Drawing.Point(131, 166);
             this.btnExtractFiles.Name = "btnExtractFiles";
             this.btnExtractFiles.Size = new System.Drawing.Size(58, 51);
             this.btnExtractFiles.TabIndex = 88;
@@ -297,7 +297,7 @@ namespace JRunner.Panels
             // 
             // btnPatchKv
             // 
-            this.btnPatchKv.Location = new System.Drawing.Point(194, 166);
+            this.btnPatchKv.Location = new System.Drawing.Point(193, 166);
             this.btnPatchKv.Name = "btnPatchKv";
             this.btnPatchKv.Size = new System.Drawing.Size(58, 51);
             this.btnPatchKv.TabIndex = 89;
@@ -311,7 +311,7 @@ namespace JRunner.Panels
             // 
             this.groupBox1.Controls.Add(this.lblNReads);
             this.groupBox1.Controls.Add(this.numericIterations);
-            this.groupBox1.Location = new System.Drawing.Point(3, 99);
+            this.groupBox1.Location = new System.Drawing.Point(2, 99);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(53, 62);
             this.groupBox1.TabIndex = 85;
@@ -321,7 +321,7 @@ namespace JRunner.Panels
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.btnProgramCR);
-            this.groupBox2.Location = new System.Drawing.Point(383, 1);
+            this.groupBox2.Location = new System.Drawing.Point(382, 1);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(80, 87);
             this.groupBox2.TabIndex = 86;

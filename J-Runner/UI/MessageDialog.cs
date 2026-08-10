@@ -150,6 +150,40 @@ namespace UI
             return path;
         }
 
+        /// <summary>
+        /// Rounded path for a 1px <b>stroke</b>, shifted half a pixel.
+        ///
+        /// A 1px pen centred on integer coordinate x covers x-0.5 to x+0.5 - half of each
+        /// adjacent pixel - so an antialiased straight edge renders at ~50% strength while
+        /// the curves, which cover their pixels more fully, come out solid. That is exactly
+        /// the "corners visible, straight edges missing" look, and it is measurable: a border
+        /// drawn this way on the panel background lands on (46,46,52), which is precisely the
+        /// 50% blend of Border (62,62,69) and PanelBg (30,30,34).
+        ///
+        /// PixelOffsetMode.Half does not fix it - that shifts sampling for fills, not the
+        /// centre line of a stroke. Offsetting the geometry does: the stroke then spans x to
+        /// x+1 and fills one whole pixel.
+        /// </summary>
+        internal static GraphicsPath RoundedPathStroke(Rectangle bounds, int radius)
+        {
+            float d = radius * 2f;
+            float x = bounds.X + 0.5f, y = bounds.Y + 0.5f;
+            float r = bounds.Right - 0.5f, b = bounds.Bottom - 0.5f;
+
+            GraphicsPath path = new GraphicsPath();
+            if (d <= 0 || bounds.Width <= d || bounds.Height <= d)
+            {
+                path.AddRectangle(new RectangleF(x, y, r - x, b - y));
+                return path;
+            }
+            path.AddArc(x, y, d, d, 180, 90);
+            path.AddArc(r - d, y, d, d, 270, 90);
+            path.AddArc(r - d, b - d, d, d, 0, 90);
+            path.AddArc(x, b - d, d, d, 90, 90);
+            path.CloseFigure();
+            return path;
+        }
+
         internal static Region RoundedRegion(Rectangle bounds, int radius)
         {
             using (GraphicsPath p = RoundedPath(bounds, radius)) return new Region(p);

@@ -211,7 +211,8 @@ namespace JRunner
             base.OnPaint(e);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             using (Pen p = new Pen(UI.Theme.Border))
-                e.Graphics.DrawPath(p, UI.MessageDialog.RoundedPath(new Rectangle(0, 0, Width - 1, Height - 1), 10));
+            using (GraphicsPath edge = UI.MessageDialog.RoundedPathStroke(new Rectangle(0, 0, Width - 1, Height - 1), 10))
+                e.Graphics.DrawPath(p, edge);
         }
 
         private void ViewButton_Click(object sender, EventArgs e)

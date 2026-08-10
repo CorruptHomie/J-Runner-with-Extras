@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace JRunner.Panels
@@ -20,6 +21,7 @@ namespace JRunner.Panels
         public XSVFChoice()
         {
             InitializeComponent();
+            ApplyOwnTheme();
             btnProgram.DialogResult = DialogResult.OK;
             btnCancel.DialogResult = DialogResult.Cancel;
             var d = GetAll(this, typeof(RadioButton));
@@ -588,5 +590,115 @@ namespace JRunner.Panels
         {
             MainForm.mainForm.timingAssistant();
         }
-    }
+    
+        /// <summary>
+        /// Colours this panel without going through UI.Theme's control walk.
+        ///
+        /// This panel is built from a designer, hosted inside a tab control, and swapped into
+        /// MainForm at runtime - three separate ways for a shared theme pass to miss it or be
+        /// overridden. Doing it here means the panel is correct on its own terms regardless of
+        /// what the shared walk does or when it runs.
+        ///
+        /// The one that actually kept this window light: TabPage.UseVisualStyleBackColor is
+        /// true by default and set explicitly by the designer, and while it is true a TabPage
+        /// paints the visual-style background and ignores BackColor completely. Buttons have
+        /// the same property with the same behaviour. Clearing it is not optional.
+        /// </summary>
+        private void ApplyOwnTheme()
+        {
+            BackColor = UI.Theme.PanelBg;
+            ForeColor = UI.Theme.TextPrimary;
+            ThemeChildren(this);
+
+            // Re-applied when a tab is shown: a TabPage that has never been displayed may not
+            // have created its handle yet, and re-asserting costs nothing.
+            if (TimingTabs != null)
+                TimingTabs.SelectedIndexChanged += (s, e) => ThemeChildren(this);
+        }
+
+        private static void ThemeChildren(Control parent)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                switch (c)
+                {
+                    case TabPage page:
+                        page.UseVisualStyleBackColor = false;
+                        page.BackColor = UI.Theme.PanelBg;
+                        page.ForeColor = UI.Theme.TextPrimary;
+                        break;
+
+                    case Button btn:
+                        btn.UseVisualStyleBackColor = false;
+                        btn.FlatStyle = FlatStyle.Flat;
+                        btn.FlatAppearance.BorderColor = UI.Theme.Border;
+                        btn.BackColor = UI.Theme.RaisedBg;
+                        btn.ForeColor = btn.Enabled ? UI.Theme.TextPrimary : UI.Theme.TextDisabled;
+                        break;
+
+                    case GroupBox gb:
+                        gb.BackColor = UI.Theme.PanelBg;
+                        gb.ForeColor = UI.Theme.TextSecondary;
+                        break;
+
+                    case RadioButton rb:
+                        rb.BackColor = UI.Theme.PanelBg;
+                        rb.ForeColor = UI.Theme.TextPrimary;
+                        HookDisabledCaption(rb);
+                        break;
+
+                    case Label lbl:
+                        lbl.BackColor = UI.Theme.PanelBg;
+                        lbl.ForeColor = UI.Theme.TextPrimary;
+                        HookDisabledCaption(lbl);
+                        break;
+
+                    default:
+                        c.BackColor = UI.Theme.PanelBg;
+                        c.ForeColor = UI.Theme.TextPrimary;
+                        break;
+                }
+
+                if (c.HasChildren) ThemeChildren(c);
+            }
+        }
+
+        /// <summary>
+        /// Windows paints a disabled control's text in a fixed system grey meant for light
+        /// backgrounds, and no managed property overrides it - on this theme that text is
+        /// invisible rather than dimmed. Most of these controls sit in a group that starts
+        /// disabled, so the caption is drawn here instead whenever the control is disabled.
+        /// Enabled captions are left to Windows, because drawing those ourselves is what
+        /// truncated them previously.
+        /// </summary>
+        private static void HookDisabledCaption(Control c)
+        {
+            c.Paint -= DisabledCaption_Paint;
+            c.Paint += DisabledCaption_Paint;
+            c.EnabledChanged -= DisabledCaption_EnabledChanged;
+            c.EnabledChanged += DisabledCaption_EnabledChanged;
+        }
+
+        private static void DisabledCaption_EnabledChanged(object sender, EventArgs e)
+        {
+            Control c = sender as Control;
+            if (c != null) c.Invalidate();
+        }
+
+        private static void DisabledCaption_Paint(object sender, PaintEventArgs e)
+        {
+            Control c = (Control)sender;
+            if (c.Enabled || string.IsNullOrEmpty(c.Text)) return;
+
+            // Text starts after the glyph on a radio button, at the left edge on a label.
+            int left = c is RadioButton ? 16 : 0;
+            Rectangle r = new Rectangle(left, 0, Math.Max(0, c.Width - left), c.Height);
+
+            using (SolidBrush bg = new SolidBrush(UI.Theme.PanelBg))
+                e.Graphics.FillRectangle(bg, r);
+
+            TextRenderer.DrawText(e.Graphics, c.Text, c.Font, r, UI.Theme.TextDisabled,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
+        }
+}
 }

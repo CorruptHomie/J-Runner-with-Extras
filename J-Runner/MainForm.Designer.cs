@@ -662,7 +662,7 @@ namespace JRunner
             // ProgressLabel
             // 
             this.ProgressLabel.AutoSize = true;
-            this.ProgressLabel.Location = new System.Drawing.Point(10, 358);
+            this.ProgressLabel.Location = new System.Drawing.Point(12, 358);
             this.ProgressLabel.Name = "ProgressLabel";
             this.ProgressLabel.Size = new System.Drawing.Size(48, 13);
             this.ProgressLabel.TabIndex = 83;
@@ -670,9 +670,9 @@ namespace JRunner
             // 
             // pnlTools
             // 
-            this.pnlTools.Location = new System.Drawing.Point(9, 24);
+            this.pnlTools.Location = new System.Drawing.Point(10, 24);
             this.pnlTools.Name = "pnlTools";
-            this.pnlTools.Size = new System.Drawing.Size(463, 232);
+            this.pnlTools.Size = new System.Drawing.Size(462, 232);
             this.pnlTools.TabIndex = 84;
             // 
             // pnlExtra

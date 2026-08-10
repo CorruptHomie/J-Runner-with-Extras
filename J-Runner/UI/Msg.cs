@@ -240,7 +240,8 @@ namespace UI
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             using (Pen p = new Pen(Theme.Border))
-                g.DrawPath(p, MessageDialog.RoundedPath(new Rectangle(0, 0, Width - 1, Height - 1), 10));
+            using (GraphicsPath edge = MessageDialog.RoundedPathStroke(new Rectangle(0, 0, Width - 1, Height - 1), 10))
+                g.DrawPath(p, edge);
 
             if (_icon == MessageBoxIcon.None) return;
             DrawIcon(g, new Rectangle(24, 22, 34, 34));

@@ -167,7 +167,12 @@ namespace UI
             Rectangle track = new Rectangle(bounds.Left, bounds.Top, bounds.Width - 1, bounds.Height - 1);
             int radius = Math.Max(2, Math.Min(8, track.Height / 2));
 
+            // Same half-pixel offset as the buttons - without it the straight top and bottom
+            // runs of the track render at half strength while the rounded ends stay solid.
+            // Two paths: fills cover whole pixels correctly from the integer path, but a
+            // 1px stroke on it straddles two pixel rows and renders at ~50%.
             using (GraphicsPath path = MessageDialog.RoundedPath(track, radius))
+            using (GraphicsPath strokePath = MessageDialog.RoundedPathStroke(track, radius))
             using (SolidBrush trackBrush = new SolidBrush(Color.FromArgb(18, 18, 20)))
             using (Pen border = new Pen(Theme.Border))
             {
@@ -188,7 +193,7 @@ namespace UI
                     g.Clip = old;
                 }
 
-                g.DrawPath(border, path);
+                g.DrawPath(border, strokePath);
             }
 
             if (ShowPercentText)

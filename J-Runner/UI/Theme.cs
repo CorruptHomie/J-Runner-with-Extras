@@ -20,6 +20,10 @@ namespace UI
         public static readonly Color PressedBg = Color.FromArgb(36, 36, 41);
         public static readonly Color Border = Color.FromArgb(62, 62, 69);
         public static readonly Color BorderSubtle = Color.FromArgb(46, 46, 52);
+        public static readonly Color BorderHover = Color.FromArgb(96, 96, 106);
+        // For disabled controls: dimmer than Border, but still clearly separated from both
+        // RaisedBg (45,45,51) and PanelBg (30,30,34) - unlike BorderSubtle, which is not.
+        public static readonly Color BorderDim = Color.FromArgb(58, 58, 65);
         public static readonly Color FieldBg = Color.FromArgb(17, 17, 19);
         public static readonly Color TextPrimary = Color.FromArgb(232, 232, 235);
         public static readonly Color TextSecondary = Color.FromArgb(150, 150, 158);
@@ -68,6 +72,14 @@ namespace UI
         {
             if (root == null) return;
 
+            // Anything added after this pass would otherwise keep its default light colours -
+            // which is exactly how the timing-selector panel stayed white: it's created as a
+            // field initialiser and swapped into MainForm at runtime, so it wasn't in Controls
+            // when the form was themed. Themeing new children on arrival closes that gap for
+            // every container, not just the five panels that hit it.
+            root.ControlAdded -= Root_ControlAdded;
+            root.ControlAdded += Root_ControlAdded;
+
             if (root is Form form)
             {
                 form.BackColor = WindowBg;
@@ -84,12 +96,23 @@ namespace UI
                 // is drawn by the window manager, so nothing in managed code reaches it.
                 NativeDark.EnableDarkTitleBar(form);
             }
+            else
+            {
+                // The root itself was never styled - only its children. A Form got away with
+                // it because the branch above sets its BackColor explicitly, but any other
+                // root kept its default. That is why the timing panel stayed light: a
+                // UserControl's default BackColor is SystemColors.Control, which is
+                // (240,240,240) - exactly the colour measured in the screenshots.
+                StyleControl(root);
+            }
 
             foreach (Control c in root.Controls)
             {
                 if (c.Tag as string == SkipTag) continue;
-                StyleControl(c);
-                if (c.HasChildren) ApplyTheme(c);
+                // Recursing unconditionally styles each control exactly once - the previous
+                // form styled the child here and then styled it again inside the recursive
+                // call, and skipped recursion entirely for childless controls.
+                ApplyTheme(c);
             }
         }
 
@@ -120,7 +143,15 @@ namespace UI
                     // RichTextBox draws FixedSingle in a system colour that shows up as a
                     // bright white frame against a dark form, so it goes borderless and the
                     // surrounding surface provides the edge instead.
-                    tb.BorderStyle = tb is RichTextBox ? BorderStyle.None : BorderStyle.FixedSingle;
+                    // BorderStyle.FixedSingle is painted by the OS in a system colour that
+                    // no managed property overrides, so on a dark form it reads as a bright
+                    // white frame - that's the ring around the console. I previously exempted
+                    // only RichTextBox, wrongly assuming a plain TextBox drew its own border.
+                    // All text boxes are borderless now and get a themed border painted by
+                    // the parent instead (see PaintFieldBorder), so the edge is still there
+                    // but in the right colour.
+                    tb.BorderStyle = BorderStyle.None;
+                    AddFieldBorder(tb);
                     break;
 
                 case ComboBox cbx:
@@ -194,6 +225,8 @@ namespace UI
                     chk.FlatAppearance.BorderSize = 0;
                     chk.Paint -= CheckBox_Paint;
                     chk.Paint += CheckBox_Paint;
+                    chk.EnabledChanged -= Control_EnabledChanged;
+                    chk.EnabledChanged += Control_EnabledChanged;
                     break;
 
                 case RadioButton rb:
@@ -202,6 +235,8 @@ namespace UI
                     rb.FlatAppearance.BorderSize = 0;
                     rb.Paint -= RadioButton_Paint;
                     rb.Paint += RadioButton_Paint;
+                    rb.EnabledChanged -= Control_EnabledChanged;
+                    rb.EnabledChanged += Control_EnabledChanged;
                     break;
 
                 case ListView lvw:
@@ -251,7 +286,8 @@ namespace UI
                 case NumericUpDown nud:
                     nud.BackColor = FieldBg;
                     nud.ForeColor = TextPrimary;
-                    nud.BorderStyle = BorderStyle.FixedSingle;
+                    nud.BorderStyle = BorderStyle.None;
+                    AddFieldBorder(nud);
                     break;
 
                 case StatusStrip ss:
@@ -267,6 +303,12 @@ namespace UI
                     NativeDark.Apply(dtc);
                     foreach (TabPage dp in dtc.TabPages)
                     {
+                        // UseVisualStyleBackColor must be cleared FIRST. While it is true - and
+                        // it defaults to true, plus the designers set it explicitly in 470
+                        // places - a TabPage paints the visual-style background and ignores
+                        // BackColor completely. Setting BackColor alone did nothing, which is
+                        // why every tabbed panel stayed light no matter what the theme did.
+                        dp.UseVisualStyleBackColor = false;
                         dp.BackColor = PanelBg;
                         dp.ForeColor = TextPrimary;
                     }
@@ -300,6 +342,24 @@ namespace UI
                     // Left to whatever owns it - device images are drawn on their own card.
                     break;
 
+                case TabPage tp:
+                    // TabPage derives from Panel, so this has to come before the Panel cases
+                    // or it would be handled as a plain panel and keep the visual-style
+                    // background. Same flag as above.
+                    tp.UseVisualStyleBackColor = false;
+                    tp.BackColor = PanelBg;
+                    tp.ForeColor = TextPrimary;
+                    break;
+
+                case Panel bp when bp.BorderStyle != BorderStyle.None:
+                    // A Panel's FixedSingle/Fixed3D border is OS-drawn from system colours,
+                    // same as a TextBox's - it shows as a light frame on a dark form. Dropped
+                    // and replaced with a themed one painted by its own parent.
+                    bp.BorderStyle = BorderStyle.None;
+                    bp.BackColor = PanelBg;
+                    AddFieldBorder(bp);
+                    break;
+
                 case Panel sp when sp.AutoScroll:
                     NativeDark.Apply(sp);
                     sp.BackColor = PanelBg;
@@ -314,6 +374,13 @@ namespace UI
                     break;
 
                 case Label lbl:
+                    // Disabled labels are drawn by WinForms in SystemColors.GrayText, which
+                    // is invisible on this theme - handled in Label_Paint. Repainting on
+                    // EnabledChanged matters because these are toggled at runtime.
+                    lbl.Paint -= Label_Paint;
+                    lbl.Paint += Label_Paint;
+                    lbl.EnabledChanged -= Control_EnabledChanged;
+                    lbl.EnabledChanged += Control_EnabledChanged;
                     lbl.ForeColor = TextPrimary;
                     break;
 
@@ -399,6 +466,67 @@ namespace UI
             style.SelectionForeColor = TextPrimary;
         }
 
+        // A control's own border is drawn by the OS; the parent's surface is ours. Drawing
+        // the outline just outside the control's bounds gives every field a border in the
+        // theme colour, with rounded corners to match the buttons and group boxes.
+        private static readonly HashSet<Control> _borderedFields = new HashSet<Control>();
+
+        private static void AddFieldBorder(Control c)
+        {
+            if (c.Parent == null)
+            {
+                // Not parented yet during a theme pass in a constructor - try again once it is.
+                c.ParentChanged -= Field_ParentChanged;
+                c.ParentChanged += Field_ParentChanged;
+                return;
+            }
+            if (!_borderedFields.Add(c)) return;
+
+            Control parent = c.Parent;
+            parent.Paint -= Parent_PaintFieldBorders;
+            parent.Paint += Parent_PaintFieldBorders;
+
+            // The outline lives outside the control, so the parent has to repaint when the
+            // control moves, resizes or is hidden.
+            c.LocationChanged += (s, e) => parent.Invalidate();
+            c.SizeChanged += (s, e) => parent.Invalidate();
+            c.VisibleChanged += (s, e) => parent.Invalidate();
+            c.Disposed += (s, e) => _borderedFields.Remove(c);
+            parent.Invalidate();
+        }
+
+        private static void Field_ParentChanged(object sender, EventArgs e)
+        {
+            Control c = sender as Control;
+            if (c != null && c.Parent != null) AddFieldBorder(c);
+        }
+
+        private static void Parent_PaintFieldBorders(object sender, PaintEventArgs e)
+        {
+            Control parent = (Control)sender;
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+            foreach (Control child in parent.Controls)
+            {
+                if (!child.Visible || !_borderedFields.Contains(child)) continue;
+
+                // The outline sits one pixel outside the control, so a control flush against
+                // its parent's edge would have its border drawn at -1 and clipped away -
+                // which is what happened when a layout shift pushed three controls to x=0.
+                // Nudged inward in that case: a slightly tight border beats a missing one.
+                int bx = Math.Max(0, child.Left - 1);
+                int by = Math.Max(0, child.Top - 1);
+                Rectangle r = new Rectangle(bx, by,
+                                            child.Right - bx, child.Bottom - by);
+                if (r.Width < 4 || r.Height < 4) continue;
+
+                int radius = Math.Max(2, Math.Min(6, r.Height / 4));
+                using (GraphicsPath path = MessageDialog.RoundedPathStroke(r, radius))
+                using (Pen pen = new Pen(child.Enabled ? Border : BorderDim))
+                    e.Graphics.DrawPath(pen, path);
+            }
+        }
+
         // ---- Buttons -------------------------------------------------------------
         // Previously these were clipped to a rounded Region. Regions aren't antialiased,
         // so the corners came out visibly jagged. Owner-drawing gives smooth corners and
@@ -409,6 +537,10 @@ namespace UI
 
         private static void StyleButton(Button btn)
         {
+            // Buttons have the same trap: with UseVisualStyleBackColor set, BackColor is
+            // ignored and the button paints the system style.
+            btn.UseVisualStyleBackColor = false;
+
             // A button with neither text nor image is a colour swatch, not a button -
             // Settings' log-colour picker is a row of these. Repainting them in the theme
             // colour would erase the only thing they convey, so they keep their fill and
@@ -470,16 +602,26 @@ namespace UI
                 g.FillRectangle(parent, b.ClientRectangle);
 
             Color fill = !b.Enabled ? PanelBg : st.Down ? PressedBg : st.Hover ? HoverBg : RaisedBg;
-            Color line = !b.Enabled ? BorderSubtle : st.Hover ? Border : BorderSubtle;
+            // BorderSubtle (46,46,52) against RaisedBg (45,45,51) is a one-value
+            // difference - the border was being drawn correctly and was simply invisible,
+            // which is why only the rounded corners appeared to have an edge. Idle buttons
+            // use Border now; hover brightens further so the state is still distinguishable.
+            // A disabled button still needs a visible edge - BorderSubtle against RaisedBg
+            // is a luminance delta of 1, i.e. invisible.
+            Color line = !b.Enabled ? BorderDim : st.Hover ? BorderHover : Border;
             int radius = Math.Max(3, Math.Min(8, b.Height / 5));
 
-            using (GraphicsPath path = MessageDialog.RoundedPath(new Rectangle(0, 0, b.Width - 1, b.Height - 1), radius))
+            Rectangle bounds = new Rectangle(0, 0, b.Width - 1, b.Height - 1);
+            using (GraphicsPath fillPath = MessageDialog.RoundedPath(bounds, radius))
             using (SolidBrush fb = new SolidBrush(fill))
+                g.FillPath(fb, fillPath);
+
+            // Stroked with the half-pixel-offset path so the straight runs render at full
+            // strength. PixelOffsetMode.Half did not do this - it shifts sampling for fills,
+            // not the centre line of a stroke.
+            using (GraphicsPath strokePath = MessageDialog.RoundedPathStroke(bounds, radius))
             using (Pen pen = new Pen(line))
-            {
-                g.FillPath(fb, path);
-                g.DrawPath(pen, path);
-            }
+                g.DrawPath(pen, strokePath);
 
             TextRenderer.DrawText(g, b.Text, b.Font, b.ClientRectangle,
                 b.Enabled ? TextPrimary : TextDisabled,
@@ -515,6 +657,63 @@ namespace UI
                 g.FillRectangle(parent, new Rectangle(0, 0, GlyphStrip, c.Height));
         }
 
+        /// <summary>
+        /// Redraws a control's caption in the theme's disabled colour.
+        ///
+        /// WinForms paints disabled text with SystemColors.GrayText, which no managed
+        /// property overrides - it's a dark grey chosen for light backgrounds, so on this
+        /// theme a disabled label is effectively invisible rather than dimmed. That's why
+        /// the timing radio buttons vanished entirely whenever their group was disabled.
+        ///
+        /// Only done when disabled: enabled captions are still left to WinForms, because
+        /// drawing them ourselves is what truncated them previously (these are AutoSize
+        /// controls whose width was set by the native layout). x=16 and NoPadding match
+        /// where WinForms puts the text next to the glyph.
+        /// </summary>
+        private static void DrawDisabledCaption(Graphics g, Control c, int textLeft)
+        {
+            if (c.Enabled || string.IsNullOrEmpty(c.Text)) return;
+
+            Rectangle r = new Rectangle(textLeft, 0, Math.Max(0, c.Width - textLeft), c.Height);
+            using (SolidBrush bg = new SolidBrush(c.Parent != null ? c.Parent.BackColor : PanelBg))
+                g.FillRectangle(bg, r);
+
+            TextRenderer.DrawText(g, c.Text, c.Font, r, TextDisabled,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
+        }
+
+        // A control's caption changes colour when it is enabled or disabled, but WinForms
+        // doesn't always repaint it - and a stale caption is what leaves an enabled control
+        // still looking greyed out.
+        private static void Root_ControlAdded(object sender, ControlEventArgs e)
+        {
+            if (e.Control != null) ApplyTheme(e.Control);
+        }
+
+        private static void Control_EnabledChanged(object sender, EventArgs e)
+        {
+            Control c = sender as Control;
+            if (c != null) c.Invalidate();
+        }
+
+        private static void Label_Paint(object sender, PaintEventArgs e)
+        {
+            Label lbl = (Label)sender;
+            if (lbl.Enabled) return;   // enabled labels paint normally
+
+            e.Graphics.SmoothingMode = SmoothingMode.None;
+            using (SolidBrush bg = new SolidBrush(lbl.Parent != null ? lbl.Parent.BackColor : PanelBg))
+                e.Graphics.FillRectangle(bg, lbl.ClientRectangle);
+
+            TextFormatFlags flags = TextFormatFlags.WordBreak | TextFormatFlags.NoPadding;
+            if (lbl.TextAlign == ContentAlignment.MiddleCenter || lbl.TextAlign == ContentAlignment.TopCenter)
+                flags |= TextFormatFlags.HorizontalCenter;
+            if (lbl.TextAlign == ContentAlignment.MiddleLeft || lbl.TextAlign == ContentAlignment.MiddleCenter)
+                flags |= TextFormatFlags.VerticalCenter;
+
+            TextRenderer.DrawText(e.Graphics, lbl.Text, lbl.Font, lbl.ClientRectangle, TextDisabled, flags);
+        }
+
         private static void RadioButton_Paint(object sender, PaintEventArgs e)
         {
             RadioButton rb = (RadioButton)sender;
@@ -534,6 +733,8 @@ namespace UI
                 using (SolidBrush a = new SolidBrush(rb.Enabled ? Accent : TextDisabled))
                     g.FillEllipse(a, Rectangle.Inflate(box, -4, -4));
             }
+
+            DrawDisabledCaption(g, rb, GlyphSize + 3);
         }
 
         private static void CheckBox_Paint(object sender, PaintEventArgs e)
@@ -544,11 +745,12 @@ namespace UI
 
             Rectangle box = GlyphRect(chk);
             using (GraphicsPath path = MessageDialog.RoundedPath(box, 3))
+            using (GraphicsPath strokePath = MessageDialog.RoundedPathStroke(box, 3))
             using (SolidBrush bg = new SolidBrush(chk.Checked && chk.Enabled ? Accent : FieldBg))
             using (Pen pen = new Pen(chk.Checked && chk.Enabled ? Accent : Border))
             {
                 g.FillPath(bg, path);
-                g.DrawPath(pen, path);
+                g.DrawPath(pen, strokePath);
             }
 
             if (chk.Checked)
@@ -567,6 +769,8 @@ namespace UI
                     });
                 }
             }
+
+            DrawDisabledCaption(g, chk, GlyphSize + 3);
         }
 
         // ---- Tabs / group boxes ---------------------------------------------------
@@ -612,8 +816,8 @@ namespace UI
             Rectangle border = new Rectangle(0, top, gb.Width - 1, gb.Height - top - 1);
             if (border.Width > 4 && border.Height > 4)
             {
-                using (GraphicsPath p = MessageDialog.RoundedPath(border, 6))
-                using (Pen pen = new Pen(BorderSubtle))
+                using (GraphicsPath p = MessageDialog.RoundedPathStroke(border, 6))
+                using (Pen pen = new Pen(gb.Enabled ? Border : BorderDim))
                     g.DrawPath(pen, p);
             }
 

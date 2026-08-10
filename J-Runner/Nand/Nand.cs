@@ -755,14 +755,8 @@ namespace JRunner.Nand
             else
             {
                 #region unecc
-                int counter;
-                byte[] res = { };
-                for (counter = offset; counter < offset + length + 0x200; counter += 0x210)
-                {
-                    res = Oper.concatByteArrays(res, Oper.returnportion(searched, counter, 0x200), res.Length, 0x200);
-                }
-                //res = concatByteArrays(res, returnportion(searched, counter, 496), res.Length, 496);
-                searched = res;
+                // Was an O(n^2) concat loop - see Oper.stripEcc.
+                searched = Oper.stripEcc(searched, offset, length + 0x200);
                 #endregion
             }
             return searched;
@@ -1035,15 +1029,9 @@ namespace JRunner.Nand
 
             if (data[0] == 0xFF && data[1] == 0x4F)
             {
-                int counter;
                 if (data[0x205] == 0xFF || data[0x415] == 0xFF || data[0x200] == 0xFF)
                 {
-                    byte[] res = { };
-                    for (counter = 0; counter + 496 < data.Length; counter += 0x210)
-                    {
-                        res = Oper.concatByteArrays(res, Oper.returnportion(data, counter, 0x200), res.Length, 0x200);
-                    }
-                    data = res;
+                    data = Oper.stripEcc(data, 0, -1, requireFullPage: true);
                 }
                 Keyvault = new byte[0x4000];
                 Keyvault = Oper.returnportion(data, 0x4000, 0x4000);
@@ -1279,15 +1267,9 @@ namespace JRunner.Nand
         {
             if (variables.extractfiles) Oper.savefile(image, "conf.bin");
             if (variables.debugme) Console.WriteLine("Getting CB");
-            int counter;
             if (image[0x205] == 0xFF || image[0x415] == 0xFF || image[0x200] == 0xFF)
             {
-                byte[] res = { };
-                for (counter = 0; counter < image.Length; counter += 0x210)
-                {
-                    res = Oper.concatByteArrays(res, Oper.returnportion(image, counter, 0x200), res.Length, 0x200);
-                }
-                image = res;
+                image = Oper.stripEcc(image);
             }
             if (variables.debugme) Console.WriteLine("Unecc'd Conf");
             byte block_id;
@@ -1466,13 +1448,7 @@ namespace JRunner.Nand
             byte[] RC4_key = Oper.HMAC_SHA1(secret_1bl, message);
             byte[] imfordec = Oper.returnportion(image, 0x20, image.Length - 0x20);
             Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
-            byte[] finalimage = new byte[image.Length];
-            for (int i = 0; i < image.Length; i++)
-            {
-                if (i < 0x10) finalimage[i] = image[i];
-                else if (i < 0x20) finalimage[i] = RC4_key[i - 0x10];
-                else finalimage[i] = imfordec[i - 0x20];
-            }
+            byte[] finalimage = Oper.assembleCrypto(image, RC4_key, imfordec, image.Length);
 
             return finalimage;
         }
@@ -1497,13 +1473,7 @@ namespace JRunner.Nand
             Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
 
 
-            byte[] finalimage = new byte[CB_B.Length];
-            for (int i = 0; i < CB_B.Length; i++)
-            {
-                if (i < 0x10) finalimage[i] = CB_B[i];
-                else if (i < 0x20) finalimage[i] = RC4_key[i - 0x10];
-                else finalimage[i] = imfordec[i - 0x20];
-            }
+            byte[] finalimage = Oper.assembleCrypto(CB_B, RC4_key, imfordec, CB_B.Length);
             return finalimage;
         }
 
@@ -1518,13 +1488,7 @@ namespace JRunner.Nand
             Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
 
 
-            byte[] finalimage = new byte[CD.Length];
-            for (int i = 0; i < CD.Length; i++)
-            {
-                if (i < 0x10) finalimage[i] = CD[i];
-                else if (i < 0x20) finalimage[i] = RC4_key[i - 0x10];
-                else finalimage[i] = imfordec[i - 0x20];
-            }
+            byte[] finalimage = Oper.assembleCrypto(CD, RC4_key, imfordec, CD.Length);
             return finalimage;
         }
 
@@ -1539,13 +1503,7 @@ namespace JRunner.Nand
             if (variables.debugMode) Console.WriteLine(Oper.ByteArrayToString(RC4_key));
             Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
 
-            byte[] finalimage2 = new byte[image.Length];
-            for (int i = 0; i < image.Length; i++)
-            {
-                if (i < 0x10) finalimage2[i] = image[i];
-                else if (i < 0x20) finalimage2[i] = cbb_nonce[i - 0x10];
-                else finalimage2[i] = imfordec[i - 0x20];
-            }
+            byte[] finalimage2 = Oper.assembleCrypto(image, cbb_nonce, imfordec, image.Length);
             return finalimage2;
         }
 
@@ -1571,13 +1529,7 @@ namespace JRunner.Nand
             Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
 
 
-            byte[] finalimage = new byte[image.Length];
-            for (int i = 0; i < image.Length; i++)
-            {
-                if (i < 0x10) finalimage[i] = image[i];
-                else if (i < 0x20) finalimage[i] = crypto[i - 0x10];
-                else finalimage[i] = imfordec[i - 0x20];
-            }
+            byte[] finalimage = Oper.assembleCrypto(image, crypto, imfordec, image.Length);
             return finalimage;
         }
 
@@ -1595,12 +1547,7 @@ namespace JRunner.Nand
                 Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
                 if (variables.debugme) Console.WriteLine(" CB Stage 2");
 
-                for (int i = 0; i < image.Length; i++)
-                {
-                    if (i < 0x10) finalimage[i] = image[i];
-                    else if (i < 0x20) finalimage[i] = random[i - 0x10];
-                    else finalimage[i] = imfordec[i - 0x20];
-                }
+                finalimage = Oper.assembleCrypto(image, random, imfordec, image.Length);
                 if (variables.debugme) Console.WriteLine(" * encrypted CB...");
 
             }
@@ -1614,13 +1561,7 @@ namespace JRunner.Nand
             byte[] RC4_key = Oper.HMAC_SHA1(CB_B_key, random);
             byte[] imfordec = Oper.returnportion(image, 0x20, image.Length - 0x20);
             Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
-            byte[] finalimage = new byte[image.Length];
-            for (int i = 0; i < image.Length; i++)
-            {
-                if (i < 0x10) finalimage[i] = image[i];
-                else if (i < 0x20) finalimage[i] = random[i - 0x10];
-                else finalimage[i] = imfordec[i - 0x20];
-            }
+            byte[] finalimage = Oper.assembleCrypto(image, random, imfordec, image.Length);
             if (variables.debugme) Console.WriteLine(" * encrypted CD...");
             return finalimage;
         }
@@ -1632,13 +1573,7 @@ namespace JRunner.Nand
             byte[] RC4_key = Oper.HMAC_SHA1(secret_1bl, message);
             byte[] imfordec = Oper.returnportion(image, 0x30, image.Length - 0x30);
             Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
-            byte[] finalimage = new byte[image.Length];
-            for (int i = 0; i < image.Length; i++)
-            {
-                if (i < 0x20) finalimage[i] = image[i];
-                else if (i < 0x30) finalimage[i] = RC4_key[i - 0x20];
-                else finalimage[i] = imfordec[i - 0x30];
-            }
+            byte[] finalimage = Oper.assembleCrypto(image, RC4_key, imfordec, image.Length, 0x20, 0x30);
 
             return finalimage;
         }
@@ -1651,13 +1586,7 @@ namespace JRunner.Nand
             byte[] RC4_key = Oper.HMAC_SHA1(secret, message);
             byte[] imfordec = Oper.returnportion(image, 0x20, image.Length - 0x20);
             Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
-            byte[] finalimage = new byte[image.Length];
-            for (int i = 0; i < image.Length; i++)
-            {
-                if (i < 0x10) finalimage[i] = image[i];
-                else if (i < 0x20) finalimage[i] = RC4_key[i - 0x10];
-                else finalimage[i] = imfordec[i - 0x20];
-            }
+            byte[] finalimage = Oper.assembleCrypto(image, RC4_key, imfordec, image.Length);
 
             return finalimage;
         }
@@ -1673,13 +1602,21 @@ namespace JRunner.Nand
             byte[] hash = calcCFhash(CF_dec, cpukey);
             RC4_key = Oper.HMAC_SHA1(secret_1bl, Oper.returnportion(CF_dec, 0x20, 0x10));
             if (variables.debugme) Console.WriteLine(Oper.ByteArrayToString(RC4_key));
+            // NOT assembleCrypto: the middle region here is indexed as encryptedCF[i], the
+            // absolute position, rather than encryptedCF[i - 0x20] like every other site. So
+            // it copies encryptedCF[0x20..0x30) into the same offsets, not from that array's
+            // start. Folding this into the shared helper would have silently shifted those
+            // 16 bytes by 0x20 - written out longhand as block copies instead, which keeps
+            // the offsets explicit.
             byte[] finalimage = new byte[CF_dec.Length];
-            for (int i = 0; i < CF_dec.Length; i++)
-            {
-                if (i < 0x20) finalimage[i] = CF_dec[i];
-                else if (i < 0x30) finalimage[i] = encryptedCF[i];
-                else finalimage[i] = imfordec[i - 0x30];
-            }
+            int headLen = Math.Min(0x20, CF_dec.Length);
+            if (headLen > 0) Buffer.BlockCopy(CF_dec, 0, finalimage, 0, headLen);
+
+            int midLen = Math.Min(0x10, Math.Max(0, CF_dec.Length - 0x20));
+            if (midLen > 0) Buffer.BlockCopy(encryptedCF, 0x20, finalimage, 0x20, midLen);
+
+            int bodyLen = Math.Max(0, CF_dec.Length - 0x30);
+            if (bodyLen > 0) Buffer.BlockCopy(imfordec, 0, finalimage, 0x30, bodyLen);
             Buffer.BlockCopy(hash, 0x0, finalimage, 0x220, 0x10);
             return finalimage;
         }
@@ -2961,16 +2898,9 @@ namespace JRunner.Nand
             byte[] SMC;
             long size = 0;
             byte[] image = Oper.openfile(filename, ref size, 40 * 1024);
-            int counter;
             if (image[0x205] == 0xFF || image[0x415] == 0xFF || image[0x200] == 0xFF)
             {
-                byte[] res = { };
-                for (counter = 0; counter + 496 < image.Length; counter += 0x210)
-                {
-                    res = Oper.concatByteArrays(res, Oper.returnportion(image, counter, 0x200), res.Length, 0x200);
-                }
-                image = res;
-                res = null;
+                image = Oper.stripEcc(image, 0, -1, requireFullPage: true);
             }
             SMC = Oper.returnportion(image, Oper.ByteArrayToInt(Oper.returnportion(image, 0x7C, 4)), 0x4000 - Oper.ByteArrayToInt(Oper.returnportion(image, 0x7C, 4)));
             SMC = decrypt_SMC(SMC);
@@ -3049,14 +2979,7 @@ namespace JRunner.Nand
             else
             {
                 #region unecc
-                int counter;
-                byte[] res = { };
-                for (counter = fcrt_offset; counter < fcrt_offset + fcrt_length + 0x200; counter += 0x210)
-                {
-                    res = Oper.concatByteArrays(res, Oper.returnportion(searched, counter, 0x200), res.Length, 0x200);
-                }
-                //res = concatByteArrays(res, returnportion(searched, counter, 496), res.Length, 496);
-                searched = res;
+                searched = Oper.stripEcc(searched, fcrt_offset, fcrt_length + 0x200);
                 #endregion
             }
             Oper.savefile(searched, Path.Combine(outputfolder, "fcrt_enc.bin"));
@@ -3109,14 +3032,7 @@ namespace JRunner.Nand
             int secdata_length = Convert.ToInt32(Oper.ByteArrayToString(Oper.returnportion(searched, found + 0x18, 4)), 16);
             if (variables.debugme) Console.WriteLine("Offset: {0:X} - Length {1:X}", secdata_offset, secdata_length);
             #region unecc
-            int counter1;
-            byte[] res = { };
-            for (counter1 = secdata_offset; counter1 < secdata_offset + secdata_length; counter1 += 0x210)
-            {
-                res = Oper.concatByteArrays(res, Oper.returnportion(searched, counter1, 0x200), res.Length, 0x200);
-            }
-            //res = concatByteArrays(res, returnportion(searched, counter, 496), res.Length, 496);
-            searched = res;
+            searched = Oper.stripEcc(searched, secdata_offset, secdata_length);
             #endregion
             Oper.savefile(searched, "sec.bin");
             return searched;
@@ -4011,13 +3927,7 @@ namespace JRunner.Nand
             byte[] RC4_key = Oper.HMAC_SHA1(cpu1blKey, message);
             byte[] imfordec = Oper.returnportion(image, 0x20, image.Length - 0x20);
             Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
-            byte[] finalimage = new byte[image.Length];
-            for (int i = 0; i < image.Length; i++)
-            {
-                if (i < 0x10) finalimage[i] = image[i];
-                else if (i < 0x20) finalimage[i] = RC4_key[i - 0x10];
-                else finalimage[i] = imfordec[i - 0x20];
-            }
+            byte[] finalimage = Oper.assembleCrypto(image, RC4_key, imfordec, image.Length);
 
             return finalimage;
         }
@@ -4056,14 +3966,7 @@ namespace JRunner.Nand
                 }
             }
 
-            byte[] finalimage = new byte[CD.Length];
-
-            for (int i = 0; i < CD.Length; i++)
-            {
-                if (i < 0x10) finalimage[i] = CD[i];
-                else if (i < 0x20) finalimage[i] = RC4_key[i - 0x10];
-                else finalimage[i] = imfordec[i - 0x20];
-            }
+            byte[] finalimage = Oper.assembleCrypto(CD, RC4_key, imfordec, CD.Length);
             return finalimage;
         }
 
@@ -4128,12 +4031,7 @@ namespace JRunner.Nand
                 Oper.RC4_v(ref imfordec, Oper.returnportion(RC4_key, 0, 0x10));
                 if (variables.debugMode) Console.WriteLine(" CB Stage 2");
 
-                for (int i = 0; i < image.Length; i++)
-                {
-                    if (i < 0x10) finalimage[i] = image[i];
-                    else if (i < 0x20) finalimage[i] = random[i - 0x10];
-                    else finalimage[i] = imfordec[i - 0x20];
-                }
+                finalimage = Oper.assembleCrypto(image, random, imfordec, image.Length);
                 if (variables.debugMode) Console.WriteLine("Encrypted CB...");
 
             }

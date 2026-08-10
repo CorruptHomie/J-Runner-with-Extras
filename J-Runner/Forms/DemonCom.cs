@@ -71,14 +71,40 @@ namespace JRunner.Forms
             this.textbox1 = textbox;
         }
 
+        // Text += rebuilds the entire accumulated string on every call, so appending to a
+        // growing log is quadratic - after N writes it has copied N^2/2 characters. It also
+        // resets the caret and scroll position each time. AppendText adds to the existing
+        // buffer instead, and works on any TextBoxBase, which is what this is used with.
+        //
+        // This writer is fed from a serial port on a background thread, so the append is
+        // marshalled rather than touching the control directly - the previous version would
+        // throw an InvalidOperationException the moment data arrived off-thread.
         public override void Write(char value)
         {
-            textbox1.Text += value;
+            Append(value.ToString());
         }
 
         public override void Write(string value)
         {
-            textbox1.Text += value;
+            if (!string.IsNullOrEmpty(value)) Append(value);
+        }
+
+        private void Append(string text)
+        {
+            try
+            {
+                TextBoxBase box = textbox1 as TextBoxBase;
+                if (textbox1.InvokeRequired)
+                {
+                    textbox1.BeginInvoke(new Action<string>(Append), text);
+                    return;
+                }
+                if (box != null) box.AppendText(text);
+                else textbox1.Text += text;
+            }
+            // ObjectDisposedException derives from InvalidOperationException, so catching
+            // the base covers both; listing them separately doesn't compile (CS0160).
+            catch (InvalidOperationException) { }
         }
 
         public override Encoding Encoding
